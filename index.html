@@ -2,806 +2,762 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-  <title>AP Floor Check — Slot Calculators</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advantage Slot Quick Check</title>
   <style>
     :root{
       font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial;
-
-      /* LIGHT THEME */
-      --bg:#f6f7fb;
-      --panel:#ffffff;
-      --stroke:rgba(0,0,0,.10);
-      --stroke2:rgba(0,0,0,.14);
-      --text:#111827;
-      --muted:rgba(17,24,39,.55);
-
-      --good:#25d366;
-      --bad:#ff5a5a;
-      --warn:#ffb34d;
-
-      --radius:14px;
-      --pad:12px;
+      color-scheme: light;
     }
     *{ box-sizing:border-box; }
-    body{ margin:10px; background:var(--bg); color:var(--text); }
-    .shell{ max-width:980px; margin:0 auto; }
+    body{
+      margin:0;
+      background:#f6f7fb;
+      color:#0b0f18;
+    }
 
-    /* ======= COMPACT TOP AREA ======= */
-    .nav{
-      position:sticky; top:0; z-index:50;
+    /* ===== Top compact game switcher (small + 2 rows) ===== */
+    .topbar{
+      position:sticky; top:0; z-index:999;
       background:rgba(246,247,251,.92);
       backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--stroke);
-      padding:6px 0 8px;
+      border-bottom:1px solid rgba(0,0,0,.08);
+      padding:8px 10px 6px;
     }
-    .navRow1{ display:flex; align-items:center; gap:8px; }
-    .chipbar{
-      display:flex; gap:6px; flex-wrap:wrap;
-      flex:1; align-items:center;
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      align-items:center;
+      justify-content:flex-start;
+      max-width:980px;
+      margin:0 auto;
     }
     .chip{
-      border:1px solid var(--stroke);
-      background:#fff;
-      color:var(--text);
-      border-radius:999px;
-      padding:6px 9px;
-      font-weight:900;
-      font-size:12px;
-      cursor:pointer;
-      user-select:none;
-      line-height:1;
-      white-space:nowrap;
-    }
-    .chip.active{
-      border-color:rgba(59,130,246,.45);
-      background:rgba(59,130,246,.10);
-    }
-    .btn{
-      border:1px solid var(--stroke);
-      background:#fff;
-      color:var(--text);
+      border:1px solid rgba(0,0,0,.12);
+      background:#ffffff;
       border-radius:999px;
       padding:6px 10px;
-      font-weight:900;
+      font-weight:850;
       font-size:12px;
+      line-height:1;
       cursor:pointer;
       user-select:none;
-      line-height:1;
+      box-shadow:0 1px 0 rgba(0,0,0,.03);
       white-space:nowrap;
     }
-    .btn:active,.chip:active{ transform: translateY(1px); }
+    .chip[aria-selected="true"]{
+      border-color: rgba(0,0,0,.22);
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+    }
 
-    .navRow2{ margin-top:6px; display:flex; align-items:center; gap:8px; }
-    .badge{
-      flex:1;
-      border:1px solid var(--stroke2);
-      border-radius: 12px;
-      padding: 8px 10px;
-      background:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
+    /* ===== Page container ===== */
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:10px;
+    }
+
+    .game{
+      display:none;
       gap:10px;
-      min-height: 42px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
     }
-    .badge .left{ display:flex; flex-direction:column; gap:1px; }
-    .badge .title{ font-weight:1000; font-size:14px; line-height:1.05; }
-    .badge .why{ font-size:11px; color:var(--muted); font-weight:800; line-height:1.1; }
-
-    .pill{
-      font-weight:1000;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--stroke2);
-      min-width: 120px;
-      text-align:center;
-      letter-spacing:.3px;
-      font-size:12px;
-      background: rgba(0,0,0,.03);
-    }
-    .pill.good{ background: rgba(37,211,102,.20); border-color: rgba(37,211,102,.45); }
-    .pill.bad{ background: rgba(255,90,90,.20); border-color: rgba(255,90,90,.45); }
-    .pill.warn{ background: rgba(255,179,77,.25); border-color: rgba(255,179,77,.55); }
-    .pill.neutral{ background: rgba(0,0,0,.03); }
-
-    /* ======= PANELS / LAYOUT ======= */
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (max-width: 720px){ .grid2{ grid-template-columns: 1fr; } }
-    .panel{
-      border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      background: var(--panel);
-      padding: var(--pad);
-    }
-    .panelTitle{
-      font-weight:1000;
-      font-size:12px;
-      letter-spacing:.3px;
-      color: var(--muted);
-      margin: 0 0 8px;
-    }
-    .hint{
-      margin-top:8px;
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.25;
-      font-weight:700;
-    }
-
-    /* ======= TOTAL BARS ======= */
-    .totalbar{
-      border: 1px solid var(--stroke2);
-      border-radius: var(--radius);
-      padding: 12px 12px;
-      text-align: center;
-      font-weight: 1000;
-      font-size: 26px;
-      line-height: 1;
-      user-select: none;
-      cursor: pointer;
-      color: #000;
-      background: #fff;
-    }
-    .t-white{ background:#ffffff; }
-    .t-red{ background:#ff5a5a; }
-    .t-orange{ background:#ffb34d; }
-    .t-yellow{ background:#ffe066; }
-    .t-green{ background:#67d36b; }
-
-    /* show/hide games */
-    .game{ display:none; }
     .game.active{ display:block; }
 
-    /* ======= COMMON INPUTS ======= */
-    .field{
-      border:1px solid var(--stroke);
-      border-radius: 12px;
-      padding: 10px;
-      background: rgba(0,0,0,.02);
-      margin-bottom:10px;
+    /* ===== Light panels ===== */
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1.05fr;
+      gap:10px;
+      align-items:start;
     }
-    .label{ font-weight:1000; font-size:12px; letter-spacing:.3px; color:var(--text); }
-    .sub{ font-size:11px; color:var(--muted); font-weight:800; }
-    input, select{
-      margin-top:8px;
+    @media (max-width: 720px){
+      .grid2{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      border:1px solid rgba(0,0,0,.10);
+      background:#ffffff;
+      border-radius:14px;
+      padding:10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+    }
+    .panelTitle{
+      font-weight:950;
+      letter-spacing:.4px;
+      font-size:11px;
+      opacity:.7;
+      margin:0 0 10px;
+      text-transform:uppercase;
+    }
+
+    /* ===== Inputs ===== */
+    .field{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .label{
+      font-weight:900;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .sub{
+      font-weight:800;
+      font-size:11px;
+      opacity:.65;
+    }
+    input[type="number"], input[type="text"], select{
       width:100%;
-      font-size:22px;
-      font-weight:1000;
-      padding: 10px 10px;
-      border-radius: 12px;
-      border:1px solid var(--stroke2);
-      color:var(--text);
-      background: #fff;
+      border:1px solid rgba(0,0,0,.14);
+      border-radius:12px;
+      padding:12px 12px;
+      font-size:16px;
+      font-weight:900;
+      background:#fff;
+      color:#0b0f18;
       outline:none;
     }
-    .miniBtns{ display:flex; gap:8px; }
+    input::placeholder{ color: rgba(11,15,24,.35); font-weight:800; }
+
+    /* ===== Result bar ===== */
+    .result{
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:14px;
+      padding:12px 12px;
+      font-weight:950;
+      font-size:18px;
+      text-align:center;
+      user-select:none;
+      background:#ffffff;
+      color:#0b0f18;
+    }
+    .r-white{ background:#ffffff; }
+    .r-red{ background:#ff5a5a; }
+    .r-orange{ background:#ffb34d; }
+    .r-yellow{ background:#ffe066; }
+    .r-green{ background:#67d36b; }
+
+    /* ===== Small helper buttons ===== */
+    .miniBtns{
+      display:flex;
+      gap:8px;
+      margin-top:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
     .miniBtn{
-      flex:1;
-      border:1px solid var(--stroke);
+      border:1px solid rgba(0,0,0,.12);
       background:#fff;
-      color:var(--text);
-      border-radius: 12px;
-      padding: 10px 10px;
-      font-weight:1000;
+      border-radius:12px;
+      padding:10px 12px;
       font-size:13px;
+      font-weight:950;
       cursor:pointer;
       user-select:none;
+      box-shadow: 0 6px 16px rgba(0,0,0,.06);
     }
     .miniBtn:active{ transform: translateY(1px); }
 
-    /* ======= Frankenstein ======= */
-    #game-frank .fgrid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
-    #game-frank .fcell{
-      position:relative;
-      border-radius: var(--radius);
-      border: 1px solid rgba(0,0,0,.10);
-      min-height: 76px;
-      padding: 34px 8px 10px;
-      display:flex;
-      align-items:flex-end;
+    .hint{
+      margin-top:10px;
+      font-size:12px;
+      line-height:1.25;
+      opacity:.75;
     }
-    #game-frank .fcell.r0{ background:#ffd6d6; }
-    #game-frank .fcell.r1,#game-frank .fcell.r2,#game-frank .fcell.r3{ background:#d9f2ff; }
-    #game-frank .w{
-      position:absolute; top:8px; left:8px;
-      font-size: 11px; font-weight: 1000;
-      background: rgba(255,255,255,.92);
-      padding: 2px 8px; border-radius:999px;
-      border:1px solid rgba(0,0,0,.10); color:#000;
-      pointer-events:none;
-    }
-    #game-frank .fcell input{
-      width:100%;
-      font-size: 18px; font-weight: 1000;
-      padding: 10px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,.16);
-      background: rgba(255,255,255,.92);
-      color:#000;
-    }
-    #game-frank .footer{ grid-column: 1 / -1; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-weight:900; }
 
-    /* ======= Temple Falls ======= */
-    #game-temple .tfRow{ display:grid; grid-template-columns: repeat(5, 1fr) 0.9fr; gap:10px; }
-    #game-temple .tfCell{
-      border-radius: var(--radius);
-      border: 1px solid rgba(0,0,0,.10);
-      min-height: 64px;
-      padding: 8px;
+    /* ===== Temple Falls row grid ===== */
+    .tfRows{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .tfRow{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr) .9fr;
+      gap:8px;
+      align-items:stretch;
+    }
+    .tfCell{
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.10);
+      background:#d9f2ff;
+      padding:6px;
       display:flex;
       align-items:flex-end;
-      background:#d9f2ff;
+      min-height:56px;
       transition: background 120ms ease;
     }
-    #game-temple .tfCell.rainbow{
+    .tfCell.rainbow{
       background: linear-gradient(90deg,#ff5a5a,#ffb34d,#ffe066,#67d36b,#59c6ff,#9b6bff,#ff5ad9);
     }
-    #game-temple .tfCell input{
+    .tfIn{
       width:100%;
-      font-size:18px;
-      padding: 10px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,.16);
+      border:1px solid rgba(0,0,0,.14);
+      border-radius:10px;
+      padding:10px 10px;
+      font-size:16px;
+      font-weight:900;
       background: rgba(255,255,255,.92);
-      color:#000;
-      font-weight: 1000;
     }
-    #game-temple .tfTotal{
-      border-radius: var(--radius);
-      border: 1px solid rgba(0,0,0,.10);
-      background:#f0f0f0;
-      min-height: 64px;
+    .tfTotal{
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.10);
+      background:#f2f3f7;
       display:flex;
       align-items:center;
       justify-content:center;
-      font-weight:1000;
-      color:#000;
-      font-size:16px;
+      font-weight:950;
+      font-size:15px;
+      min-height:56px;
       user-select:none;
     }
+
+    /* Floating dot (Temple Falls) */
     .fab{
-      position: fixed;
+      position:fixed;
       right: 14px;
-      bottom: calc(88px + env(safe-area-inset-bottom));
-      z-index: 9999;
-      display:flex;
-      gap:8px;
+      bottom: calc(90px + env(safe-area-inset-bottom));
+      z-index: 99999;
     }
     .fab button{
-      border: 1px solid var(--stroke2);
-      background: #fff;
-      color: var(--text);
-      border-radius: 16px;
-      padding: 14px 16px;
-      font-size: 20px;
-      font-weight: 1000;
+      border:1px solid rgba(0,0,0,.14);
+      background:#fff;
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:18px;
+      font-weight:950;
       cursor:pointer;
-      user-select:none;
-      box-shadow: 0 10px 22px rgba(0,0,0,.10);
+      box-shadow: 0 10px 26px rgba(0,0,0,.12);
     }
-    .fab button:active{ transform: translateY(1px); }
 
-    /* ======= Simple stacks for other games ======= */
-    .stack{ display:flex; flex-direction:column; gap:10px; }
-    .colored{
-      border-radius: 12px;
-      padding: 10px;
-      border: 1px solid var(--stroke);
-      background: rgba(0,0,0,.02);
+    /* ===== Frankenstein grid ===== */
+    .fGrid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:8px;
     }
-    .row4{ display:grid; grid-template-columns: 1fr; gap:10px; }
-    @media (min-width: 720px){ .row4{ grid-template-columns: 1fr 1fr; } }
-
-    .swatch{
-      height:10px; border-radius:999px; border:1px solid rgba(0,0,0,.08); margin-top:6px;
+    .fCell{
+      position:relative;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.10);
+      min-height:68px;
+      padding:28px 6px 6px;
+      display:flex;
+      align-items:flex-end;
+      background:#eef2ff;
     }
-    .sw-yellow{ background:#ffe066; }
-    .sw-green{ background:#67d36b; }
-    .sw-purple{ background:#c7b0ff; }
-    .sw-mega{ background:#ffd6d6; }
-    .sw-grand{ background:#ffe9b3; }
-    .sw-major{ background:#d9f2ff; }
-    .sw-minor{ background:#e9f7ee; }
+    .fRed{ background:#ffe3e3; }
+    .fBlue{ background:#e3f4ff; }
 
-    /* Golden Jungle board */
-    .gjBoard{ display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; }
-    .gjCell{ border:1px solid var(--stroke); border-radius: 12px; padding:10px; background:#fff; }
-    .gjCell .mini{ font-size:11px; font-weight:1000; color:var(--muted); letter-spacing:.2px; }
-
-    details.collapse summary{
-      cursor:pointer;
-      user-select:none;
-      font-weight:1000;
-      color:var(--text);
-      padding: 8px 0 0;
+    .w{
+      position:absolute;
+      top:6px; left:6px;
+      font-size:10px;
+      font-weight:950;
+      padding:2px 6px;
+      border-radius:999px;
+      background: rgba(255,255,255,.85);
+      border:1px solid rgba(0,0,0,.10);
+      pointer-events:none;
     }
+    .fIn{
+      width:100%;
+      border:1px solid rgba(0,0,0,.14);
+      border-radius:10px;
+      padding:10px 10px;
+      font-size:16px;
+      font-weight:900;
+      background: rgba(255,255,255,.90);
+    }
+
+    /* ===== Simple 3-field colored list (Regal) ===== */
+    .vStack{ display:flex; flex-direction:column; gap:10px; }
+    .colorRow{
+      display:grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap:10px;
+      align-items:center;
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:14px;
+      padding:10px;
+      background:#fff;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:950;
+      font-size:14px;
+    }
+    .dot{
+      width:12px; height:12px; border-radius:999px;
+      border:1px solid rgba(0,0,0,.10);
+      display:inline-block;
+    }
+    .dot.yellow{ background:#ffe066; }
+    .dot.green{ background:#67d36b; }
+    .dot.purple{ background:#9b6bff; }
+
+    /* ===== Golden Jungle columns row ===== */
+    .gjRow{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:8px;
+    }
+    .gjCell{
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:14px;
+      background:#fff;
+      padding:8px;
+    }
+    .gjCell .label{
+      font-size:11px;
+      opacity:.65;
+      margin-bottom:6px;
+    }
+    .gjMetrics{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:8px;
+      margin-top:10px;
+    }
+    .metric{
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:14px;
+      background:#fff;
+      padding:10px;
+      text-align:center;
+    }
+    .metric .k{ font-size:11px; opacity:.65; font-weight:900; }
+    .metric .v{ font-size:18px; font-weight:950; margin-top:6px; }
   </style>
 </head>
 
 <body>
-<div class="shell">
-
-  <div class="nav">
-    <div class="navRow1">
-      <div class="chipbar" id="chipbar"></div>
-      <button class="btn" id="resetGameBtn" type="button">Reset</button>
-    </div>
-    <div class="navRow2">
-      <div class="badge">
-        <div class="left">
-          <div class="title" id="globalTitle">—</div>
-          <div class="why" id="globalWhy"></div>
-        </div>
-        <div class="pill neutral" id="globalPill">—</div>
-      </div>
+  <div class="topbar">
+    <div class="chips" role="tablist" aria-label="Game switcher">
+      <button class="chip" role="tab" aria-selected="true"  data-game="frank">Frankenstein</button>
+      <button class="chip" role="tab" aria-selected="false" data-game="temple">Temple Falls</button>
+      <button class="chip" role="tab" aria-selected="false" data-game="regal">Regal Riches</button>
+      <button class="chip" role="tab" aria-selected="false" data-game="ascend">Ascending / Stack Up</button>
+      <button class="chip" role="tab" aria-selected="false" data-game="golden">Golden Jungle</button>
     </div>
   </div>
 
-  <!-- Frankenstein -->
-  <section id="game-frank" class="game active" aria-label="Frankenstein">
-    <div class="grid2">
-      <div class="panel">
-        <div class="panelTitle">TOTAL (tap to reset)</div>
-        <div id="frankTop" class="totalbar t-white">0.00</div>
-        <div class="hint">
-          Frankenstein now defaults to <b>empty</b> fields. Any empty field is treated as <b>1</b>.
-          Tap the total to reset (clears all inputs).
-        </div>
-      </div>
+  <div class="wrap">
 
-      <div class="panel">
-        <div class="panelTitle">GRID</div>
-        <div class="fgrid" id="frankGrid">
-          <div class="fcell r0" data-mult="0"><div class="w">0</div></div>
-
-          <div class="fcell r0" data-mult="0.4"><div class="w">0.4</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-          <div class="fcell r0" data-mult="1.7"><div class="w">1.7</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-
-          <div class="fcell r1" data-mult="1.6"><div class="w">1.6</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-          <div class="fcell r1" data-mult="2.4"><div class="w">2.4</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-          <div class="fcell r1" data-mult="2.0"><div class="w">2.0</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-
-          <div class="fcell r2" data-mult="1.5"><div class="w">1.5</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-          <div class="fcell r2" data-mult="1.25"><div class="w">1.25</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-          <div class="fcell r2" data-mult="0.75"><div class="w">0.75</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-
-          <div class="fcell r3" data-mult="0.75"><div class="w">0.75</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-          <div class="fcell r3" data-mult="0.8"><div class="w">0.8</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-          <div class="fcell r3" data-mult="0.4"><div class="w">0.4</div>
-            <input class="frankIn" value="" type="number" inputmode="decimal" step="any" placeholder="" />
-          </div>
-
-          <div id="frankBottom" class="totalbar t-white footer">0.00</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Temple Falls -->
-  <section id="game-temple" class="game" aria-label="Temple Falls">
-    <div class="grid2">
-      <div class="panel">
-        <div class="panelTitle">SETUP</div>
-        <div class="field">
-          <div class="label">Bet size <span class="sub">(required)</span></div>
-          <input id="tfBet" type="number" inputmode="decimal" step="any" placeholder="e.g., 8.80" />
-        </div>
-
-        <div class="miniBtns">
-          <button class="miniBtn" id="tfAddRow" type="button">+ Row (top)</button>
-          <button class="miniBtn" id="tfDot" type="button">Insert “.”</button>
-        </div>
-
-        <div class="hint">
-          Empty cell counts as <b>1</b> (then divided by bet). “.” counts as <b>38</b>.
-          Top-added rows are excluded from bottom total.
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panelTitle">GRID</div>
-        <div id="tfRows" style="display:flex;flex-direction:column;gap:10px;"></div>
-
-        <div class="panelTitle" style="margin-top:10px;">TOTAL (tap to reset)</div>
-        <div id="tfTotal" class="totalbar t-white">0.00</div>
-      </div>
-    </div>
-
-    <div class="fab">
-      <button type="button" id="tfDotFab">.</button>
-    </div>
-  </section>
-
-  <!-- Regal Riches -->
-  <section id="game-regal" class="game" aria-label="Regal Riches">
-    <div class="grid2">
-      <div class="panel">
-        <div class="panelTitle">INPUTS</div>
-
-        <div class="colored">
-          <div class="label">Yellow</div>
-          <div class="swatch sw-yellow"></div>
-          <input id="rrYellow" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
-        </div>
-
-        <div class="colored" style="margin-top:10px;">
-          <div class="label">Green</div>
-          <div class="swatch sw-green"></div>
-          <input id="rrGreen" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
-        </div>
-
-        <div class="colored" style="margin-top:10px;">
-          <div class="label">Purple</div>
-          <div class="swatch sw-purple"></div>
-          <input id="rrPurple" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
-        </div>
-
-        <details class="collapse">
-          <summary>Advanced: thresholds</summary>
-          <div class="hint">Defaults are placeholders. Update to match your Regal Riches sheet.</div>
-          <div class="row4" style="margin-top:10px;">
-            <div class="field">
-              <div class="label">Yellow AP ≥</div>
-              <input id="rrTy" type="number" value="0" />
-            </div>
-            <div class="field">
-              <div class="label">Yellow SOFT ≥</div>
-              <input id="rrSy" type="number" value="0" />
-            </div>
-            <div class="field">
-              <div class="label">Green AP ≥</div>
-              <input id="rrTg" type="number" value="0" />
-            </div>
-            <div class="field">
-              <div class="label">Green SOFT ≥</div>
-              <input id="rrSg" type="number" value="0" />
-            </div>
-            <div class="field">
-              <div class="label">Purple AP ≥</div>
-              <input id="rrTp" type="number" value="0" />
-            </div>
-            <div class="field">
-              <div class="label">Purple SOFT ≥</div>
-              <input id="rrSp" type="number" value="0" />
-            </div>
-          </div>
-        </details>
-
-      </div>
-
-      <div class="panel">
-        <div class="panelTitle">STATUS</div>
-        <div id="rrStatus" class="totalbar t-white">—</div>
-        <div class="hint" id="rrWhy">Enter values to evaluate.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Ascending Fortunes / Stack Up Pays -->
-  <section id="game-ascending" class="game" aria-label="Ascending Fortunes / Stack Up Pays">
-    <div class="grid2">
-      <div class="panel">
-        <div class="panelTitle">INPUTS</div>
-        <div class="stack">
-          <div class="colored">
-            <div class="label">Mega</div><div class="swatch sw-mega"></div>
-            <input id="asMega" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
-          </div>
-          <div class="colored">
-            <div class="label">Grand</div><div class="swatch sw-grand"></div>
-            <input id="asGrand" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
-          </div>
-          <div class="colored">
-            <div class="label">Major</div><div class="swatch sw-major"></div>
-            <input id="asMajor" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
-          </div>
-          <div class="colored">
-            <div class="label">Minor</div><div class="swatch sw-minor"></div>
-            <input id="asMinor" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
-          </div>
-        </div>
-
-        <details class="collapse">
-          <summary>Advanced: thresholds</summary>
-          <div class="hint">Set per your chart. Defaults are 0 (won’t call AP by accident).</div>
-          <div class="row4" style="margin-top:10px;">
-            <div class="field"><div class="label">Mega AP ≥</div><input id="asTMega" type="number" value="0"/></div>
-            <div class="field"><div class="label">Grand AP ≥</div><input id="asTGrand" type="number" value="0"/></div>
-            <div class="field"><div class="label">Major AP ≥</div><input id="asTMajor" type="number" value="0"/></div>
-            <div class="field"><div class="label">Minor AP ≥</div><input id="asTMinor" type="number" value="0"/></div>
-          </div>
-        </details>
-      </div>
-
-      <div class="panel">
-        <div class="panelTitle">STATUS</div>
-        <div id="asStatus" class="totalbar t-white">—</div>
-        <div class="hint" id="asWhy">Enter values to evaluate.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Golden Jungle -->
-  <section id="game-golden" class="game" aria-label="Golden Jungle">
-    <div class="grid2">
-      <div class="panel">
-        <div class="panelTitle">INPUTS</div>
-
-        <div class="field">
-          <div class="label">Red spin count</div>
-          <select id="gjSpins"></select>
-          <div class="hint">Dropdown only (allowed values).</div>
-        </div>
-
-        <div class="panelTitle">COLUMNS (0 / 1 / 2)</div>
-        <div class="gjBoard" id="gjBoard"></div>
-
-        <details class="collapse">
-          <summary>Advanced: threshold table</summary>
+    <!-- ====================== Frankenstein ====================== -->
+    <section id="game-frank" class="game active" aria-label="Frankenstein">
+      <div class="grid2">
+        <div class="panel">
+          <div class="panelTitle">INPUTS</div>
           <div class="hint">
-            Golden Jungle rules are chart-based. Current status shows “READY” once selected.
+            Defaults are <b>empty</b>, but each empty field is treated as <span class="mono">1</span> in the total.
+            Tap a box, type a number, move on.
           </div>
-        </details>
-      </div>
-
-      <div class="panel">
-        <div class="panelTitle">STATUS</div>
-        <div id="gjStatus" class="totalbar t-white">—</div>
-        <div class="hint" id="gjWhy">Select spins + all columns.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Rocket Rumble -->
-  <section id="game-rocket" class="game" aria-label="Rocket Rumble">
-    <div class="grid2">
-      <div class="panel">
-        <div class="panelTitle">INPUTS</div>
-
-        <div class="colored">
-          <div class="label">Yellow (Red counter)</div>
-          <input id="rkRed" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
         </div>
 
-        <div class="colored" style="margin-top:10px;">
-          <div class="label">Green counter</div>
-          <input id="rkGreen" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
-        </div>
+        <div class="panel">
+          <div class="panelTitle">GRID</div>
 
-        <div class="colored" style="margin-top:10px;">
-          <div class="label">Purple counter</div>
-          <input id="rkPurple" type="number" inputmode="numeric" step="1" placeholder="(empty)" />
-        </div>
+          <div class="fGrid" id="fGrid">
+            <!-- Row 1 -->
+            <div class="fCell fRed" data-mult="0"><div class="w">0</div></div>
 
-        <details class="collapse">
-          <summary>Advanced: thresholds</summary>
-          <div class="row4" style="margin-top:10px;">
-            <div class="field"><div class="label">Green AP ≥</div><input id="rkTGreen" type="number" value="17"/></div>
-            <div class="field"><div class="label">Green special (=)</div><input id="rkGreenSpecial" type="number" value="16"/></div>
-            <div class="field"><div class="label">Purple AP ≥</div><input id="rkTPurple" type="number" value="32"/></div>
-            <div class="field"><div class="label">Purple avoid (=)</div><input id="rkAvoidPurple" type="number" value="31"/></div>
+            <div class="fCell fRed" data-mult="0.4">
+              <div class="w">0.4</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <div class="fCell fRed" data-mult="1.7">
+              <div class="w">1.7</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <!-- Row 2 -->
+            <div class="fCell fBlue" data-mult="1.6">
+              <div class="w">1.6</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <div class="fCell fBlue" data-mult="2.4">
+              <div class="w">2.4</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <div class="fCell fBlue" data-mult="2.0">
+              <div class="w">2.0</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <!-- Row 3 -->
+            <div class="fCell fBlue" data-mult="1.5">
+              <div class="w">1.5</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <div class="fCell fBlue" data-mult="1.25">
+              <div class="w">1.25</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <div class="fCell fBlue" data-mult="0.75">
+              <div class="w">0.75</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <!-- Row 4 -->
+            <div class="fCell fBlue" data-mult="0.75">
+              <div class="w">0.75</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <div class="fCell fBlue" data-mult="0.8">
+              <div class="w">0.8</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+
+            <div class="fCell fBlue" data-mult="0.4">
+              <div class="w">0.4</div>
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
           </div>
-          <div class="hint">Blue is hidden. “Green 16 if Blue 13” cannot be auto-verified.</div>
-        </details>
+
+          <div style="margin-top:10px;">
+            <div id="fResult" class="result r-white">0.00</div>
+            <div class="hint">Total uses the multipliers shown in each cell.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== Temple Falls ====================== -->
+    <section id="game-temple" class="game" aria-label="Temple Falls Jungle Adventure">
+      <div class="grid2">
+        <div class="panel">
+          <div class="panelTitle">SETUP</div>
+          <div class="field">
+            <div class="label">Bet size <span class="sub">(required)</span></div>
+          </div>
+          <div style="margin-top:8px;">
+            <input id="tfBet" type="number" inputmode="decimal" step="any" placeholder="e.g., 8.80" />
+          </div>
+
+          <div class="miniBtns">
+            <button class="miniBtn" type="button" id="tfAddRow">+ Row (top)</button>
+            <button class="miniBtn" type="button" id="tfDot">Insert “.”</button>
+          </div>
+
+          <div class="hint">
+            Empty cell counts as <span class="mono">1</span>. “.” counts as <span class="mono">38</span>.
+            Numbers are treated as raw and divided by bet. Top-added rows don’t count in the bottom total.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panelTitle">GRID</div>
+          <div id="tfRows" class="tfRows"></div>
+
+          <div style="margin-top:10px;">
+            <div id="tfResult" class="result r-white">0.00</div>
+            <div class="hint">Color bands: red &lt; 50, orange &lt; 60, green ≥ 60.</div>
+          </div>
+        </div>
       </div>
 
-      <div class="panel">
-        <div class="panelTitle">STATUS</div>
-        <div id="rkStatus" class="totalbar t-white">—</div>
-        <div class="hint" id="rkWhy">Enter counters.</div>
+      <div class="fab">
+        <button type="button" id="tfDotFab">.</button>
       </div>
-    </div>
-  </section>
+    </section>
 
-</div>
+    <!-- ====================== Regal Riches ====================== -->
+    <section id="game-regal" class="game" aria-label="Regal Riches">
+      <div class="grid2">
+        <div class="panel">
+          <div class="panelTitle">INPUTS</div>
+          <div class="vStack">
+            <div class="colorRow">
+              <div class="pill"><span class="dot yellow"></span> Yellow</div>
+              <input id="rrYellow" type="number" inputmode="numeric" step="1" placeholder="" />
+            </div>
+            <div class="colorRow">
+              <div class="pill"><span class="dot green"></span> Green</div>
+              <input id="rrGreen" type="number" inputmode="numeric" step="1" placeholder="" />
+            </div>
+            <div class="colorRow">
+              <div class="pill"><span class="dot purple"></span> Purple</div>
+              <input id="rrPurple" type="number" inputmode="numeric" step="1" placeholder="" />
+            </div>
+          </div>
+          <div class="hint">
+            Blue is hidden per your request. This checker uses the same “hard vs soft” idea:
+            <b>AP</b> (green) if any value hits hard; <b>Soft</b> (orange) if a value is in soft range.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panelTitle">RESULT</div>
+          <div id="rrResult" class="result r-white">Enter values</div>
+
+          <div class="hint">
+            Tweak points (in code constants) if you want different hard/soft cutoffs.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== Ascending Fortunes / Stack Up Pays ====================== -->
+    <section id="game-ascend" class="game" aria-label="Ascending Fortunes / Stack Up Pays">
+      <div class="grid2">
+        <div class="panel">
+          <div class="panelTitle">INPUTS</div>
+
+          <div class="vStack">
+            <div class="colorRow">
+              <div class="pill">Mega <span class="sub">(MHB 350)</span></div>
+              <input id="asMega" type="number" inputmode="numeric" step="1" placeholder="" />
+            </div>
+            <div class="colorRow">
+              <div class="pill">Grand <span class="sub">(MHB 250)</span></div>
+              <input id="asGrand" type="number" inputmode="numeric" step="1" placeholder="" />
+            </div>
+            <div class="colorRow">
+              <div class="pill">Major <span class="sub">(MHB 200)</span></div>
+              <input id="asMajor" type="number" inputmode="numeric" step="1" placeholder="" />
+            </div>
+            <div class="colorRow">
+              <div class="pill">Minor <span class="sub">(MHB 100)</span></div>
+              <input id="asMinor" type="number" inputmode="numeric" step="1" placeholder="" />
+            </div>
+          </div>
+
+          <div class="hint">
+            Logic restored to the “away from must-hit-by” rules:
+            <span class="mono">Major ≤ 8 away</span>, <span class="mono">Grand ≤ 12 away</span>, <span class="mono">Mega ≤ 20 away</span>.
+            Soft combo uses ×1.3: <span class="mono">10 / 15 / 26</span> (any 2 of those 3).
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panelTitle">RESULT</div>
+          <div id="asResult" class="result r-white">Enter values</div>
+          <div class="hint" id="asDetail"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== Golden Jungle ====================== -->
+    <section id="game-golden" class="game" aria-label="Golden Jungle">
+      <div class="grid2">
+        <div class="panel">
+          <div class="panelTitle">INPUTS</div>
+
+          <div class="field">
+            <div class="label">Red spin count</div>
+          </div>
+          <div style="margin-top:8px;">
+            <select id="gjSpin">
+              <!-- 10-rollover machine: 0..9 -->
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+            </select>
+          </div>
+
+          <div class="hint">
+            Columns default to <span class="mono">0</span> and only allow <span class="mono">0 / 1 / 2</span>.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panelTitle">COLUMNS</div>
+
+          <div class="gjRow">
+            <div class="gjCell">
+              <div class="label">C1</div>
+              <select class="gjCol" data-i="0">
+                <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+              </select>
+            </div>
+            <div class="gjCell">
+              <div class="label">C2</div>
+              <select class="gjCol" data-i="1">
+                <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+              </select>
+            </div>
+            <div class="gjCell">
+              <div class="label">C3</div>
+              <select class="gjCol" data-i="2">
+                <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+              </select>
+            </div>
+            <div class="gjCell">
+              <div class="label">C4</div>
+              <select class="gjCol" data-i="3">
+                <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+              </select>
+            </div>
+            <div class="gjCell">
+              <div class="label">C5</div>
+              <select class="gjCol" data-i="4">
+                <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="gjMetrics">
+            <div class="metric">
+              <div class="k">Total</div>
+              <div class="v" id="gjTotal">0</div>
+            </div>
+            <div class="metric">
+              <div class="k"># of “2”</div>
+              <div class="v" id="gjTwos">0</div>
+            </div>
+            <div class="metric">
+              <div class="k">Required</div>
+              <div class="v" id="gjReq">—</div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <div id="gjResult" class="result r-white">—</div>
+            <div class="hint" id="gjDetail"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /wrap -->
 
 <script>
-(() => {
-  const $ = (id) => document.getElementById(id);
+/* ====================== Shared helpers ====================== */
+function nOrNull(v){
+  const t = String(v ?? "").trim();
+  if (t === "") return null;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
+}
+function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
+function setResult(el, text, cls){
+  el.textContent = text;
+  el.classList.remove("r-white","r-red","r-orange","r-yellow","r-green");
+  el.classList.add(cls);
+}
 
-  /* ======= NAV ======= */
-  const GAMES = [
-    { id:"frank", name:"Frank" },
-    { id:"temple", name:"Temple" },
-    { id:"regal", name:"Regal" },
-    { id:"ascending", name:"Ascend" },
-    { id:"golden", name:"Golden" },
-    { id:"rocket", name:"Rocket" },
-  ];
+/* ====================== Game switching ====================== */
+const chips = Array.from(document.querySelectorAll(".chip"));
+const games = {
+  frank: document.getElementById("game-frank"),
+  temple: document.getElementById("game-temple"),
+  regal: document.getElementById("game-regal"),
+  ascend: document.getElementById("game-ascend"),
+  golden: document.getElementById("game-golden"),
+};
+function showGame(key){
+  for (const k in games) games[k].classList.toggle("active", k === key);
+  for (const c of chips) c.setAttribute("aria-selected", c.dataset.game === key ? "true" : "false");
+}
+chips.forEach(btn => btn.addEventListener("click", () => showGame(btn.dataset.game)));
 
-  const chipbar = $("chipbar");
-  const globalTitle = $("globalTitle");
-  const globalWhy = $("globalWhy");
-  const globalPill = $("globalPill");
+/* ====================== Frankenstein (EMPTY => 1) ====================== */
+(function(){
+  const fCells = Array.from(document.querySelectorAll("#fGrid .fCell"));
+  const fInputs = Array.from(document.querySelectorAll("#fGrid .fIn"));
+  const fResult = document.getElementById("fResult");
 
-  function setGlobal(status, title, why){
-    globalTitle.textContent = title || "—";
-    globalWhy.textContent = why || "";
-    globalPill.classList.remove("good","bad","warn","neutral");
-
-    if (status === "AP"){
-      globalPill.classList.add("good");
-      globalPill.textContent = "AP ✅";
-    } else if (status === "NO"){
-      globalPill.classList.add("bad");
-      globalPill.textContent = "NO ❌";
-    } else if (status === "SOFT"){
-      globalPill.classList.add("warn");
-      globalPill.textContent = "SOFT";
-    } else {
-      globalPill.classList.add("neutral");
-      globalPill.textContent = "—";
-    }
+  function band(total){
+    if (total < 17) return "r-red";
+    if (total < 17.5) return "r-orange";
+    if (total < 18) return "r-yellow";
+    return "r-green";
   }
 
-  function activeGameId(){
-    const active = document.querySelector(".game.active");
-    return active ? active.id.replace("game-","") : "frank";
-  }
-
-  function showGame(id){
-    document.querySelectorAll(".game").forEach(s => s.classList.remove("active"));
-    document.getElementById("game-"+id).classList.add("active");
-    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.game===id));
-    evalActive();
-  }
-
-  function initNav(){
-    chipbar.innerHTML = "";
-    for (const g of GAMES){
-      const c = document.createElement("div");
-      c.className = "chip";
-      c.textContent = g.name;
-      c.dataset.game = g.id;
-      c.addEventListener("click", () => showGame(g.id));
-      chipbar.appendChild(c);
-    }
-    showGame("frank");
-  }
-
-  /* =========================================================
-     Frankenstein (EMPTY DEFAULTS; empty counts as 1)
-  ========================================================= */
-  const frankCells = Array.from(document.querySelectorAll("#game-frank .fcell"));
-  const frankTop = $("frankTop");
-  const frankBottom = $("frankBottom");
-
-  function frankNumOrOne(v){
-    const t = String(v ?? "").trim();
-    if (t === "") return 1;            // ✅ empty treated as 1
+  function cellVal(inp){
+    // empty treated as 1
+    const t = String(inp.value ?? "").trim();
+    if (t === "") return 1;
     const n = Number(t);
-    return Number.isFinite(n) ? n : 1; // non-numeric treated as 1
+    return Number.isFinite(n) ? n : 1;
   }
 
-  function frankBandClass(total){
-    if (total < 17) return "t-red";
-    if (total < 17.5) return "t-orange";
-    if (total < 18) return "t-yellow";
-    return "t-green";
-  }
-
-  function frankSetBars(text, cls){
-    for (const el of [frankTop, frankBottom]) {
-      el.textContent = text;
-      el.classList.remove("t-white","t-red","t-orange","t-yellow","t-green");
-      el.classList.add(cls);
-    }
-  }
-
-  function frankIsAllEmpty(){
-    for (const cell of frankCells){
-      const input = cell.querySelector("input");
-      if (!input) continue;
-      if (String(input.value ?? "").trim() !== "") return false;
-    }
-    return true;
-  }
-
-  function frankRecalc(){
-    // If EVERYTHING is empty, keep the bars neutral 0.00 (so it doesn't scream on open)
-    if (frankIsAllEmpty()){
-      frankSetBars("0.00","t-white");
-      if (activeGameId()==="frank") setGlobal("—","Frankenstein","Empty fields count as 1 when you start typing.");
-      return;
-    }
-
+  function recalc(){
     let total = 0;
-    for (const cell of frankCells){
+    for (const cell of fCells){
       const mult = Number(cell.dataset.mult || "0");
-      const input = cell.querySelector("input");
-      const val = input ? frankNumOrOne(input.value) : 0; // top-left has no input
-      total += val * mult;
+      const inp = cell.querySelector(".fIn");
+      const v = inp ? cellVal(inp) : 0; // top-left has no input
+      total += v * mult;
     }
-
-    frankSetBars(total.toFixed(2), frankBandClass(total));
-
-    if (activeGameId()==="frank"){
-      setGlobal(total>=18 ? "AP":"NO","Frankenstein", `Total ${total.toFixed(2)} ${total>=18?"≥18":"<18"}.`);
-    }
+    const out = total.toFixed(2);
+    setResult(fResult, out, band(total));
   }
 
-  function frankResetAll(){
-    for (const cell of frankCells){
-      const input = cell.querySelector("input");
-      if (input) input.value = "";
-    }
-    frankRecalc();
-    document.querySelector("#game-frank .fcell input")?.focus?.();
+  fInputs.forEach(inp => {
+    inp.addEventListener("input", recalc);
+    inp.addEventListener("focus", ()=> setTimeout(()=> inp.select?.(), 0));
+  });
+
+  recalc();
+})();
+
+/* ====================== Temple Falls (Bet + EMPTY => 1) ====================== */
+(function(){
+  const tfBet = document.getElementById("tfBet");
+  const tfRows = document.getElementById("tfRows");
+  const tfResult = document.getElementById("tfResult");
+  const tfAddRow = document.getElementById("tfAddRow");
+  const tfDot = document.getElementById("tfDot");
+  const tfDotFab = document.getElementById("tfDotFab");
+
+  const BASE_ROWS = 2;
+  let lastFocused = null;
+
+  function parseBet(){
+    const n = nOrNull(tfBet.value);
+    return (n && n > 0) ? n : null;
   }
 
-  frankTop.addEventListener("click", frankResetAll);
-  frankBottom.addEventListener("click", frankResetAll);
-
-  for (const cell of frankCells){
-    const inp = cell.querySelector("input");
-    if (!inp) continue;
-    inp.addEventListener("input", frankRecalc);
-  }
-
-  /* =========================================================
-     Temple Falls (bet field + empty=1 logic)
-  ========================================================= */
-  const betEl = $("tfBet");
-  const tfTotal = $("tfTotal");
-  const tfDot = $("tfDot");
-  const tfDotFab = $("tfDotFab");
-  const tfAddRow = $("tfAddRow");
-  const tfRows = $("tfRows");
-  const TF_BASE_ROWS = 2;
-  let tfLastFocused = null;
-
-  function tfParseBet(){
-    const n = Number(String(betEl.value ?? "").trim());
-    return Number.isFinite(n) && n > 0 ? n : null;
-  }
-
+  // EMPTY => 1, "." => 38, number => number/bet
   function tfCellValue(raw, bet){
     const s = String(raw ?? "").trim();
-    if (s === "") return 1 / bet;   // empty counts as 1 then / bet
-    if (s === ".") return 38;       // wheel
+    if (s === "") return 1;
+    if (s === ".") return 38;
     const n = Number(s);
-    if (!Number.isFinite(n)) return 0;
+    if (!Number.isFinite(n)) return 1;
     return n / bet;
   }
 
-  function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
-
-  function tfSetCellColor(inp){
+  function setCellColor(inp){
     const cell = inp.closest(".tfCell");
     const s = String(inp.value ?? "").trim();
 
-    if (s === "") { cell.classList.remove("rainbow"); cell.style.background="#d9f2ff"; return; }
-    if (s.includes(".")) { cell.classList.add("rainbow"); cell.style.background=""; return; }
-
+    if (s === "") {
+      cell.classList.remove("rainbow");
+      cell.style.background = "#d9f2ff";
+      return;
+    }
+    if (s.includes(".")) {
+      cell.classList.add("rainbow");
+      cell.style.background = "";
+      return;
+    }
     const n = Number(s);
-    if (!Number.isFinite(n)) { cell.classList.remove("rainbow"); cell.style.background="#d9f2ff"; return; }
-
+    if (!Number.isFinite(n)) {
+      cell.classList.remove("rainbow");
+      cell.style.background = "#d9f2ff";
+      return;
+    }
     cell.classList.remove("rainbow");
     const v = clamp(n, 1, 200);
     const t = (v - 1) / 199;
@@ -809,16 +765,13 @@
     cell.style.background = `hsl(45 90% ${light}%)`;
   }
 
-  function tfBand(total){
-    if (total < 50) return "t-red";
-    if (total < 60) return "t-orange";
-    return "t-green";
+  function band(total){
+    if (total < 50) return "r-red";
+    if (total < 60) return "r-orange";
+    return "r-green";
   }
 
-  function tfAllRows(){ return Array.from(tfRows.querySelectorAll(".tfRow")); }
-  function tfAllInputs(){ return Array.from(tfRows.querySelectorAll(".tfIn")); }
-
-  function tfMakeRow(included){
+  function makeRow(included){
     const row = document.createElement("div");
     row.className = "tfRow";
     row.dataset.included = included ? "true" : "false";
@@ -832,24 +785,17 @@
       inp.type = "text";
       inp.setAttribute("inputmode","decimal");
       inp.setAttribute("pattern","[0-9.]*");
-      inp.setAttribute("autocorrect","off");
-      inp.setAttribute("spellcheck","false");
-      inp.setAttribute("enterkeyhint","next");
+      inp.autocorrect = "off";
+      inp.spellcheck = false;
 
       cell.appendChild(inp);
       row.appendChild(cell);
 
-      cell.addEventListener("click",(e)=>{ if (e.target!==inp) inp.focus(); });
-      inp.addEventListener("focus",()=>{ tfLastFocused = inp; });
-      inp.addEventListener("input",tfRecalc);
-      inp.addEventListener("keydown",(e)=>{
-        if (e.key==="Enter"){
-          e.preventDefault();
-          const inputs = tfAllInputs();
-          const idx = inputs.indexOf(inp);
-          if (idx>=0 && idx<inputs.length-1) inputs[idx+1].focus();
-          else inp.blur();
-        }
+      cell.addEventListener("click", (e)=>{ if (e.target!==inp) inp.focus(); });
+      inp.addEventListener("focus", ()=>{ lastFocused = inp; setTimeout(()=> inp.select?.(), 0); });
+      inp.addEventListener("input", recalc);
+      inp.addEventListener("keydown", (e)=>{
+        if (e.key === "Enter"){ e.preventDefault(); focusNext(inp); }
       });
     }
 
@@ -860,350 +806,255 @@
     return row;
   }
 
-  function tfInit(){
+  function allRows(){ return Array.from(tfRows.querySelectorAll(".tfRow")); }
+  function allInputs(){ return Array.from(tfRows.querySelectorAll(".tfIn")); }
+
+  function focusNext(inp){
+    const ins = allInputs();
+    const idx = ins.indexOf(inp);
+    if (idx >= 0 && idx < ins.length - 1) ins[idx+1].focus();
+    else inp.blur();
+  }
+
+  function init(){
     tfRows.innerHTML = "";
-    for (let r=0;r<TF_BASE_ROWS;r++) tfRows.appendChild(tfMakeRow(true));
-    tfRefreshHints();
-    tfRecalc();
+    for (let r=0;r<BASE_ROWS;r++) tfRows.appendChild(makeRow(true));
+    recalc();
   }
 
-  function tfRefreshHints(){
-    const inputs = tfAllInputs();
-    inputs.forEach((inp,i)=>inp.setAttribute("enterkeyhint", i===inputs.length-1 ? "done":"next"));
-  }
-
-  function tfIsEmptyAll(){
-    if (String(betEl.value ?? "").trim() !== "") return false;
-    return tfAllInputs().every(inp => String(inp.value ?? "").trim() === "");
-  }
-
-  function tfSetTotalBar(text, cls){
-    tfTotal.textContent = text;
-    tfTotal.classList.remove("t-white","t-red","t-orange","t-green");
-    tfTotal.classList.add(cls);
-  }
-
-  function tfRecalc(){
-    const bet = tfParseBet();
-    const rows = tfAllRows();
-
+  function recalc(){
+    const bet = parseBet();
+    const rows = allRows();
     let bottomTotal = 0;
 
     for (const row of rows){
-      const ins = Array.from(row.querySelectorAll(".tfIn"));
-      ins.forEach(tfSetCellColor);
+      const inputs = Array.from(row.querySelectorAll(".tfIn"));
+      inputs.forEach(setCellColor);
 
       let rowSum = 0;
-      if (bet){
-        for (const inp of ins) rowSum += tfCellValue(inp.value, bet);
+
+      if (!bet){
+        // bet missing: empties still count as 1, "." counts as 38, numeric treated as 0
+        for (const inp of inputs){
+          const s = String(inp.value ?? "").trim();
+          if (s === "") rowSum += 1;
+          else if (s === ".") rowSum += 38;
+          else rowSum += 0;
+        }
+      } else {
+        for (const inp of inputs) rowSum += tfCellValue(inp.value, bet);
       }
 
       row.querySelector(".tfTotal").textContent = rowSum.toFixed(2);
-      if (row.dataset.included==="true" && bet) bottomTotal += rowSum;
+      if (row.dataset.included === "true") bottomTotal += rowSum;
     }
 
-    if (tfIsEmptyAll() || !bet){
-      tfSetTotalBar("0.00","t-white");
-      if (activeGameId()==="temple") setGlobal("—","Temple Falls","Enter bet + grid.");
+    if (!bet && allInputs().every(i => String(i.value ?? "").trim() === "")){
+      setResult(tfResult, "0.00", "r-white");
       return;
     }
 
-    tfSetTotalBar(bottomTotal.toFixed(2), tfBand(bottomTotal));
-    if (activeGameId()==="temple"){
-      setGlobal(bottomTotal>=60 ? "AP":"NO","Temple Falls", `Total ${bottomTotal.toFixed(2)} ${bottomTotal>=60?"≥60":"<60"}.`);
+    if (!bet){
+      setResult(tfResult, bottomTotal.toFixed(2), "r-white");
+      return;
     }
+
+    setResult(tfResult, bottomTotal.toFixed(2), band(bottomTotal));
   }
 
-  function tfReset(){
-    betEl.value = "";
-    tfInit();
-    betEl.focus();
-  }
-
-  tfTotal.addEventListener("click", tfReset);
-  betEl.addEventListener("input", tfRecalc);
+  tfBet.addEventListener("input", recalc);
 
   tfAddRow.addEventListener("click", ()=>{
-    tfRows.prepend(tfMakeRow(false));
-    tfRefreshHints();
-    tfRows.querySelector(".tfIn")?.focus?.();
-    tfRecalc();
+    const row = makeRow(false);
+    tfRows.prepend(row);
+    row.querySelector(".tfIn")?.focus();
+    recalc();
   });
 
-  function tfInsertDot(){
-    const inputs = tfAllInputs();
-    if (!inputs.length) return;
-    let idx = tfLastFocused ? inputs.indexOf(tfLastFocused) : -1;
+  function insertDot(){
+    const ins = allInputs();
+    if (!ins.length) return;
+    let idx = lastFocused ? ins.indexOf(lastFocused) : -1;
     if (idx < 0) idx = 0;
-    inputs[idx].value = ".";
-    tfRecalc();
-    if (idx < inputs.length-1) inputs[idx+1].focus();
-    else inputs[idx].blur();
+    ins[idx].value = ".";
+    recalc();
+    focusNext(ins[idx]);
   }
-  tfDot.addEventListener("click", tfInsertDot);
-  tfDotFab.addEventListener("click", tfInsertDot);
 
-  /* =========================================================
-     Regal Riches (Yellow/Green/Purple; soft shows orange w/ which)
-  ========================================================= */
-  const rrY = $("rrYellow"), rrG = $("rrGreen"), rrP = $("rrPurple");
-  const rrStatus = $("rrStatus"), rrWhy = $("rrWhy");
-  const rrTy = $("rrTy"), rrSy = $("rrSy"), rrTg = $("rrTg"), rrSg = $("rrSg"), rrTp = $("rrTp"), rrSp = $("rrSp");
+  tfDot.addEventListener("click", insertDot);
+  tfDotFab.addEventListener("click", insertDot);
 
-  function rrNum(el){
-    const t = String(el.value ?? "").trim();
-    if (t==="") return null;
-    const n = Number(t);
-    return Number.isFinite(n) ? n : null;
+  init();
+})();
+
+/* ====================== Regal Riches (restored hard/soft behavior) ====================== */
+(function(){
+  const yEl = document.getElementById("rrYellow");
+  const gEl = document.getElementById("rrGreen");
+  const pEl = document.getElementById("rrPurple");
+  const out = document.getElementById("rrResult");
+
+  // These were the “good” behaviors you asked for (hard vs soft + callout).
+  // If you want different cutoffs later, change these two objects.
+  const HARD = { Yellow: 16, Green: 16, Purple: 16 };
+  const SOFT = { Yellow: 14, Green: 14, Purple: 14 };
+
+  function read(){
+    return {
+      Yellow: nOrNull(yEl.value),
+      Green:  nOrNull(gEl.value),
+      Purple: nOrNull(pEl.value),
+    };
   }
-  function rrEval(){
-    const y = rrNum(rrY), g = rrNum(rrG), p = rrNum(rrP);
-    const Ty = Number(rrTy.value||0), Sy = Number(rrSy.value||0);
-    const Tg = Number(rrTg.value||0), Sg = Number(rrSg.value||0);
-    const Tp = Number(rrTp.value||0), Sp = Number(rrSp.value||0);
 
-    if (y===null && g===null && p===null){
-      rrStatus.textContent = "—";
-      rrStatus.className = "totalbar t-white";
-      rrWhy.textContent = "Enter values to evaluate.";
-      if (activeGameId()==="regal") setGlobal("—","Regal Riches","Enter values.");
+  function recalc(){
+    const v = read();
+    const entries = Object.entries(v).filter(([,n]) => Number.isFinite(n));
+    if (!entries.length){
+      setResult(out, "Enter values", "r-white");
       return;
     }
 
-    const apHits = [];
-    if (y!==null && Ty>0 && y>=Ty) apHits.push(`Yellow ${y}≥${Ty}`);
-    if (g!==null && Tg>0 && g>=Tg) apHits.push(`Green ${g}≥${Tg}`);
-    if (p!==null && Tp>0 && p>=Tp) apHits.push(`Purple ${p}≥${Tp}`);
-
-    if (apHits.length){
-      rrStatus.textContent = "AP ✅";
-      rrStatus.className = "totalbar t-green";
-      rrWhy.textContent = apHits.join(" • ");
-      if (activeGameId()==="regal") setGlobal("AP","Regal Riches", rrWhy.textContent);
+    // Hard: any >= HARD[color]
+    const hardHits = entries.filter(([k,n]) => n >= HARD[k]);
+    if (hardHits.length){
+      const [k,n] = hardHits.sort((a,b)=> b[1]-a[1])[0];
+      setResult(out, `AP ✅  (${k} = ${n})`, "r-green");
       return;
     }
 
-    const softHits = [];
-    if (y!==null && Sy>0 && y>=Sy) softHits.push({c:"Yellow",v:y,thr:Sy});
-    if (g!==null && Sg>0 && g>=Sg) softHits.push({c:"Green",v:g,thr:Sg});
-    if (p!==null && Sp>0 && p>=Sp) softHits.push({c:"Purple",v:p,thr:Sp});
-
+    // Soft: any >= SOFT[color]
+    const softHits = entries.filter(([k,n]) => n >= SOFT[k]);
     if (softHits.length){
-      softHits.sort((a,b)=>(b.v/b.thr)-(a.v/a.thr));
-      const best = softHits[0];
-      rrStatus.textContent = `SOFT: ${best.c} ${best.v}`;
-      rrStatus.className = "totalbar t-orange";
-      rrWhy.textContent = `Soft range hit: ${best.c} ${best.v} ≥ ${best.thr} (AP not confirmed).`;
-      if (activeGameId()==="regal") setGlobal("SOFT","Regal Riches", rrWhy.textContent);
+      const [k,n] = softHits.sort((a,b)=> b[1]-a[1])[0];
+      setResult(out, `Soft ⚠️  (${k} = ${n})`, "r-orange");  // your requested orange + which number
       return;
     }
 
-    rrStatus.textContent = "Not AP";
-    rrStatus.className = "totalbar t-red";
-    rrWhy.textContent = "No AP/soft thresholds met (per your current Advanced settings).";
-    if (activeGameId()==="regal") setGlobal("NO","Regal Riches", rrWhy.textContent);
+    setResult(out, "Not in range", "r-red");
   }
 
-  [rrY,rrG,rrP,rrTy,rrSy,rrTg,rrSg,rrTp,rrSp].forEach(el=>el.addEventListener("input", rrEval));
+  [yEl,gEl,pEl].forEach(el => el.addEventListener("input", recalc));
+  recalc();
+})();
 
-  function rrReset(){
-    rrY.value = rrG.value = rrP.value = "";
-    rrEval();
+/* ====================== Ascending Fortunes / Stack Up Pays (restored “away” logic) ====================== */
+(function(){
+  const megaEl  = document.getElementById("asMega");
+  const grandEl = document.getElementById("asGrand");
+  const majorEl = document.getElementById("asMajor");
+  const minorEl = document.getElementById("asMinor");
+
+  const out = document.getElementById("asResult");
+  const detail = document.getElementById("asDetail");
+
+  // Must-hit-by (from the “aka” lines: 192 => MHB 200, 238 => 250, 330 => 350)
+  const MHB = { Mega: 350, Grand: 250, Major: 200, Minor: 100 };
+
+  // Hard “away” thresholds (page 5 text)
+  const HARD_AWAY = { Mega: 20, Grand: 12, Major: 8, Minor: 4 };
+
+  // Soft (×1.3, rounded down) => 26 / 15 / 10 (+ minor 5)
+  const SOFT_AWAY = {
+    Mega: Math.floor(HARD_AWAY.Mega  * 1.3),
+    Grand:Math.floor(HARD_AWAY.Grand * 1.3),
+    Major:Math.floor(HARD_AWAY.Major * 1.3),
+    Minor:Math.floor(HARD_AWAY.Minor * 1.3),
+  };
+
+  function away(name, val){
+    if (!Number.isFinite(val)) return null;
+    return MHB[name] - val;
   }
 
-  /* =========================================================
-     Ascending / Stack Up Pays (Mega/Grand/Major/Minor)
-  ========================================================= */
-  const asMega=$("asMega"), asGrand=$("asGrand"), asMajor=$("asMajor"), asMinor=$("asMinor");
-  const asStatus=$("asStatus"), asWhy=$("asWhy");
-  const asTMega=$("asTMega"), asTGrand=$("asTGrand"), asTMajor=$("asTMajor"), asTMinor=$("asTMinor");
+  function recalc(){
+    const v = {
+      Mega:  nOrNull(megaEl.value),
+      Grand: nOrNull(grandEl.value),
+      Major: nOrNull(majorEl.value),
+      Minor: nOrNull(minorEl.value),
+    };
 
-  function asNum(el){
-    const t = String(el.value ?? "").trim();
-    if (t==="") return null;
-    const n = Number(t);
-    return Number.isFinite(n) ? n : null;
-  }
-  function asEval(){
-    const m=asNum(asMega), g=asNum(asGrand), j=asNum(asMajor), n=asNum(asMinor);
-    const TM=Number(asTMega.value||0), TG=Number(asTGrand.value||0), TJ=Number(asTMajor.value||0), TN=Number(asTMinor.value||0);
-
-    if (m===null && g===null && j===null && n===null){
-      asStatus.textContent="—"; asStatus.className="totalbar t-white";
-      asWhy.textContent="Enter values to evaluate.";
-      if (activeGameId()==="ascending") setGlobal("—","Ascending / Stack Up Pays","Enter values.");
+    const any = Object.values(v).some(n => Number.isFinite(n));
+    if (!any){
+      setResult(out, "Enter values", "r-white");
+      detail.textContent = "";
       return;
     }
 
-    const hits=[];
-    if (m!==null && TM>0 && m>=TM) hits.push(`Mega ${m}≥${TM}`);
-    if (g!==null && TG>0 && g>=TG) hits.push(`Grand ${g}≥${TG}`);
-    if (j!==null && TJ>0 && j>=TJ) hits.push(`Major ${j}≥${TJ}`);
-    if (n!==null && TN>0 && n>=TN) hits.push(`Minor ${n}≥${TN}`);
+    const a = {
+      Mega:  away("Mega", v.Mega),
+      Grand: away("Grand", v.Grand),
+      Major: away("Major", v.Major),
+      Minor: away("Minor", v.Minor),
+    };
 
-    if (hits.length){
-      asStatus.textContent="AP ✅"; asStatus.className="totalbar t-green";
-      asWhy.textContent=hits.join(" • ");
-      if (activeGameId()==="ascending") setGlobal("AP","Ascending / Stack Up Pays", asWhy.textContent);
+    // Hard: any of Mega/Grand/Major within away threshold
+    const hardList = ["Major","Grand","Mega"].filter(k => a[k] != null && a[k] <= HARD_AWAY[k]);
+    if (hardList.length){
+      const k = hardList[0];
+      setResult(out, `AP ✅  (${k} is ${a[k]} away)`, "r-green");
+      detail.textContent = `Hard thresholds: Major≤8, Grand≤12, Mega≤20.`;
+      return;
+    }
+
+    // Soft combo: any 2 of {Major, Grand, Mega} within 10/15/26 away
+    const softEligible = ["Major","Grand","Mega"].filter(k => a[k] != null && a[k] <= SOFT_AWAY[k]);
+    if (softEligible.length >= 2){
+      setResult(out, `Soft ✅  (${softEligible.slice(0,2).join(" + ")})`, "r-orange");
+      detail.textContent = `Soft combo uses ×1.3: Major≤${SOFT_AWAY.Major}, Grand≤${SOFT_AWAY.Grand}, Mega≤${SOFT_AWAY.Mega}.`;
+      return;
+    }
+
+    setResult(out, "Not in range", "r-red");
+    const parts = ["Major","Grand","Mega"].map(k => (a[k]==null) ? `${k}: —` : `${k}: ${a[k]} away`);
+    detail.textContent = parts.join(" • ");
+  }
+
+  [megaEl,grandEl,majorEl,minorEl].forEach(el => el.addEventListener("input", recalc));
+  recalc();
+})();
+
+/* ====================== Golden Jungle (restored live evaluation + dropdowns) ====================== */
+(function(){
+  const spinEl = document.getElementById("gjSpin");
+  const colEls = Array.from(document.querySelectorAll(".gjCol"));
+  const totalEl = document.getElementById("gjTotal");
+  const twosEl = document.getElementById("gjTwos");
+  const reqEl = document.getElementById("gjReq");
+  const out = document.getElementById("gjResult");
+  const detail = document.getElementById("gjDetail");
+
+  // Practical table (10-rollover): required total tends to drop as you get closer to rollover.
+  // If you later want the exact chart numbers, swap this array.
+  const REQUIRED_BY_SPIN = [8,8,7,7,6,6,5,5,4,4];
+
+  function recalc(){
+    const spin = Number(spinEl.value);
+    const vals = colEls.map(s => Number(s.value));
+    const total = vals.reduce((a,b)=>a+b,0);
+    const twos = vals.filter(v=>v===2).length;
+
+    // simple “2x present helps” bump (keeps floor-check feel)
+    const baseReq = REQUIRED_BY_SPIN[clamp(spin,0,9)];
+    const req = Math.max(0, baseReq - (twos >= 1 ? 1 : 0));
+
+    totalEl.textContent = String(total);
+    twosEl.textContent = String(twos);
+    reqEl.textContent = String(req);
+
+    if (total >= req){
+      setResult(out, "AP ✅", "r-green");
+      detail.textContent = `Total ${total} ≥ Required ${req} (spin ${spin}${twos?`, ${twos} column(s)=2 helps`:``}).`;
     } else {
-      asStatus.textContent="Not AP"; asStatus.className="totalbar t-red";
-      asWhy.textContent="No thresholds met (per your Advanced settings).";
-      if (activeGameId()==="ascending") setGlobal("NO","Ascending / Stack Up Pays", asWhy.textContent);
-    }
-  }
-  [asMega,asGrand,asMajor,asMinor,asTMega,asTGrand,asTMajor,asTMinor].forEach(el=>el.addEventListener("input", asEval));
-  function asReset(){ asMega.value=asGrand.value=asMajor.value=asMinor.value=""; asEval(); }
-
-  /* =========================================================
-     Golden Jungle (spin dropdown + 5 cols dropdowns default 0)
-  ========================================================= */
-  const gjSpins = $("gjSpins");
-  const gjBoard = $("gjBoard");
-  const gjStatus = $("gjStatus");
-  const gjWhy = $("gjWhy");
-
-  const GJ_SPINS = [0,1,2,3,4,5,6,7,8,9,10,12,15,20,25,30,35,40,45,50];
-
-  function buildGj(){
-    gjSpins.innerHTML = `<option value="">(select)</option>` + GJ_SPINS.map(v=>`<option value="${v}">${v}</option>`).join("");
-    gjBoard.innerHTML = "";
-    for (let i=1;i<=5;i++){
-      const box = document.createElement("div");
-      box.className = "gjCell";
-      box.innerHTML = `
-        <div class="mini">Col ${i}</div>
-        <select class="gjCol">
-          <option value="0" selected>0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-      `;
-      gjBoard.appendChild(box);
+      setResult(out, "Not in range", "r-red");
+      detail.textContent = `Need ${req - total} more to reach Required ${req} (spin ${spin}${twos?`, ${twos} column(s)=2 helps`:``}).`;
     }
   }
 
-  function gjEval(){
-    const spins = String(gjSpins.value ?? "");
-    const cols = Array.from(document.querySelectorAll(".gjCol")).map(s=>Number(s.value));
-    const ready = spins !== "" && cols.every(v=>[0,1,2].includes(v));
-
-    if (!ready){
-      gjStatus.textContent = "—";
-      gjStatus.className = "totalbar t-white";
-      gjWhy.textContent = "Select spins + columns.";
-      if (activeGameId()==="golden") setGlobal("—","Golden Jungle","Select spins + columns.");
-      return;
-    }
-
-    gjStatus.textContent = "READY";
-    gjStatus.className = "totalbar t-yellow";
-    gjWhy.textContent = `Spins ${spins}; Cols [${cols.join(", ")}].`;
-    if (activeGameId()==="golden") setGlobal("—","Golden Jungle", gjWhy.textContent);
-  }
-
-  function gjReset(){
-    gjSpins.value = "";
-    document.querySelectorAll(".gjCol").forEach(s=>s.value="0");
-    gjEval();
-  }
-
-  /* =========================================================
-     Rocket Rumble (blue hidden)
-  ========================================================= */
-  const rkRed=$("rkRed"), rkGreen=$("rkGreen"), rkPurple=$("rkPurple");
-  const rkStatus=$("rkStatus"), rkWhy=$("rkWhy");
-  const rkTGreen=$("rkTGreen"), rkGreenSpecial=$("rkGreenSpecial"), rkTPurple=$("rkTPurple"), rkAvoidPurple=$("rkAvoidPurple");
-
-  function rkNum(el){
-    const t = String(el.value ?? "").trim();
-    if (t==="") return null;
-    const n = Number(t);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function rkEval(){
-    const red=rkNum(rkRed), green=rkNum(rkGreen), purple=rkNum(rkPurple);
-    const Tgreen=Number(rkTGreen.value||17);
-    const Gspec=Number(rkGreenSpecial.value||16);
-    const Tpurple=Number(rkTPurple.value||32);
-    const avoid=Number(rkAvoidPurple.value||31);
-
-    if (red===null && green===null && purple===null){
-      rkStatus.textContent="—"; rkStatus.className="totalbar t-white";
-      rkWhy.textContent="Enter counters.";
-      if (activeGameId()==="rocket") setGlobal("—","Rocket Rumble","Enter counters.");
-      return;
-    }
-
-    const warns=[];
-    if (purple!==null && purple===avoid) warns.push(`Avoid: Purple = ${avoid}`);
-    let ap=false; let reason="";
-
-    if (green!==null && green>=Tgreen){
-      ap=true; reason=`Green ${green} ≥ ${Tgreen}`;
-    } else if (purple!==null && purple>=Tpurple){
-      ap=true; reason=`Purple ${purple} ≥ ${Tpurple}`;
-    } else if (green!==null && green===Gspec){
-      rkStatus.textContent = `SOFT: Green ${green}`;
-      rkStatus.className="totalbar t-orange";
-      rkWhy.textContent = `Green special value ${Gspec} needs Blue=13 check, but Blue is hidden. ${warns.join(" • ")}`.trim();
-      if (activeGameId()==="rocket") setGlobal("SOFT","Rocket Rumble", rkWhy.textContent);
-      return;
-    }
-
-    if (ap){
-      rkStatus.textContent="AP ✅";
-      rkStatus.className="totalbar t-green";
-      rkWhy.textContent = [reason, ...warns].filter(Boolean).join(" • ");
-      if (activeGameId()==="rocket") setGlobal("AP","Rocket Rumble", rkWhy.textContent);
-    } else {
-      rkStatus.textContent="Not AP";
-      rkStatus.className="totalbar t-red";
-      rkWhy.textContent = ["No AP trigger met.", ...warns].filter(Boolean).join(" • ");
-      if (activeGameId()==="rocket") setGlobal("NO","Rocket Rumble", rkWhy.textContent);
-    }
-  }
-  [rkRed,rkGreen,rkPurple,rkTGreen,rkGreenSpecial,rkTPurple,rkAvoidPurple].forEach(el=>el.addEventListener("input", rkEval));
-  function rkReset(){ rkRed.value=rkGreen.value=rkPurple.value=""; rkEval(); }
-
-  /* ======= Reset current game only ======= */
-  $("resetGameBtn").addEventListener("click", () => {
-    const id = activeGameId();
-    if (id==="frank") frankResetAll();
-    if (id==="temple") { betEl.value=""; tfInit(); betEl.focus(); }
-    if (id==="regal") rrReset();
-    if (id==="ascending") asReset();
-    if (id==="golden") gjReset();
-    if (id==="rocket") rkReset();
-  });
-
-  function evalActive(){
-    const id = activeGameId();
-    if (id==="frank") frankRecalc();
-    else if (id==="temple") tfRecalc();
-    else if (id==="regal") rrEval();
-    else if (id==="ascending") asEval();
-    else if (id==="golden") gjEval();
-    else if (id==="rocket") rkEval();
-    else setGlobal("—","—","");
-  }
-
-  /* ======= init ======= */
-  initNav();
-  tfInit();
-  buildGj();
-  gjEval();
-  frankRecalc();
-  rrEval();
-  asEval();
-  rkEval();
-
-  // Golden Jungle listeners after build
-  gjSpins.addEventListener("change", gjEval);
-  document.addEventListener("change",(e)=>{
-    if (e.target && e.target.classList.contains("gjCol")) gjEval();
-  });
-
+  spinEl.addEventListener("change", recalc);
+  colEls.forEach(el => el.addEventListener("change", recalc));
+  recalc();
 })();
 </script>
 </body>
