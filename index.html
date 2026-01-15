@@ -177,33 +177,33 @@
     .logic b{ opacity:1; }
 
     /* ===== Temple Falls grid (NO row totals) ===== */
-    .tfRows{ display:flex; flex-direction:column; gap:10px; }
+    .tfRows{ display:flex; flex-direction:column; gap:8px; } /* tighter */
     .tfRow{
       display:grid;
       grid-template-columns: repeat(5, 1fr);
-      gap:8px;
+      gap:6px;               /* tighter */
       align-items:stretch;
     }
     .tfCell{
-      border-radius:12px;
+      border-radius:10px;    /* slightly tighter */
       border:1px solid rgba(0,0,0,.10);
       background:#d9f2ff;
-      padding:6px;
+      padding:4px;           /* ✅ reduced */
       display:flex;
       align-items:flex-end;
-      min-height:58px;
+      min-height:50px;       /* ✅ reduced */
       transition: background 120ms ease;
     }
     .tfCell.rainbow{
       background: linear-gradient(90deg,#ff5a5a,#ffb34d,#ffe066,#67d36b,#59c6ff,#9b6bff,#ff5ad9);
     }
-    /* ✅ even smaller font so 4 digits never clip */
+    /* ✅ smaller font + tighter padding so 4 digits never clip */
     .tfIn{
       width:100%;
       border:1px solid rgba(0,0,0,.14);
-      border-radius:10px;
-      padding:10px 6px;
-      font-size:11px;          /* was 13 */
+      border-radius:9px;
+      padding:8px 5px;       /* ✅ reduced */
+      font-size:10px;        /* ✅ smaller */
       font-weight:950;
       background: rgba(255,255,255,.92);
       text-align:right;
@@ -406,7 +406,7 @@
           </div>
 
           <div class="hint">
-            Empty cell = <span class="mono">1</span>. “.” = <span class="mono">38</span>. Numbers = (number ÷ bet).
+            Empty cell = <span class="mono">0</span>. “.” = <span class="mono">38</span>. Numbers = (number ÷ bet).
             Top-added rows don’t count in the bottom total.
           </div>
           <div class="hint">Tap the total bar to reset.</div>
@@ -420,7 +420,7 @@
             <div id="tfResult" class="result r-white clickable" title="Tap to reset">0.00</div>
 
             <div class="logic">
-              <b>AP logic:</b> Bottom total sums the 2 base rows only. Cell value: empty→1, “.”→38, number→(number ÷ bet).
+              <b>AP logic:</b> Bottom total sums the 2 base rows only. Cell value: empty→0, “.”→38, number→(number ÷ bet).
               Bands: red &lt; 50, orange &lt; 60, green ≥ 60.
             </div>
           </div>
@@ -620,7 +620,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   recalc();
 })();
 
-/* ====================== Temple Falls (Bet + EMPTY => 1) ====================== */
+/* ====================== Temple Falls (Bet + EMPTY => 0) ====================== */
 (function(){
   const tfBet = document.getElementById("tfBet");
   const tfRows = document.getElementById("tfRows");
@@ -637,13 +637,13 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
     return (n && n > 0) ? n : null;
   }
 
-  // EMPTY => 1, "." => 38, number => number/bet
+  // EMPTY => 0, "." => 38, number => number/bet
   function tfCellValue(raw, bet){
     const s = String(raw ?? "").trim();
-    if (s === "") return 1;
+    if (s === "") return 0;
     if (s === ".") return 38;
     const n = Number(s);
-    if (!Number.isFinite(n)) return 1;
+    if (!Number.isFinite(n)) return 0;
     return n / bet;
   }
 
@@ -739,11 +739,10 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       let rowSum = 0;
 
       if (!bet){
+        // bet missing: treat "." as 38, numeric as 0, empty as 0
         for (const inp of inputs){
           const s = String(inp.value ?? "").trim();
-          if (s === "") rowSum += 1;
-          else if (s === ".") rowSum += 38;
-          else rowSum += 0;
+          if (s === ".") rowSum += 38;
         }
       } else {
         for (const inp of inputs) rowSum += tfCellValue(inp.value, bet);
@@ -774,3 +773,181 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   tfBet.addEventListener("input", recalc);
 
   tfAddRow.addEventListener("click", ()=>{
+    const row = makeRow(false);
+    tfRows.prepend(row);
+    row.querySelector(".tfIn")?.focus();
+    recalc();
+  });
+
+  function insertDot(){
+    const ins = allInputs();
+    if (!ins.length) return;
+    let idx = lastFocused ? ins.indexOf(lastFocused) : -1;
+    if (idx < 0) idx = 0;
+    ins[idx].value = ".";
+    recalc();
+    focusNext(ins[idx]);
+  }
+
+  tfDot.addEventListener("click", insertDot);
+  tfDotFab.addEventListener("click", insertDot);
+
+  tfResult.addEventListener("click", reset);
+  tfResult.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
+
+  init();
+})();
+
+/* ====================== Regal Riches ====================== */
+(function(){
+  const yEl = document.getElementById("rrYellow");
+  const gEl = document.getElementById("rrGreen");
+  const pEl = document.getElementById("rrPurple");
+  const out = document.getElementById("rrResult");
+
+  function recalc(){
+    const Y = nOrNull(yEl.value);
+    const G = nOrNull(gEl.value);
+    const P = nOrNull(pEl.value);
+
+    if (!Number.isFinite(Y) && !Number.isFinite(G) && !Number.isFinite(P)){
+      setResult(out, "Enter values", "r-white");
+      return;
+    }
+
+    const y = Number.isFinite(Y) ? Y : 0;
+    const g = Number.isFinite(G) ? G : 0;
+    const p = Number.isFinite(P) ? P : 0;
+
+    const allHard = (y >= 115 && g >= 85 && p >= 60);
+    const sumHard = (y + g + p >= 210);
+
+    const softCount =
+      (y >= 106 ? 1 : 0) +
+      (g >= 81  ? 1 : 0) +
+      (p >= 56  ? 1 : 0);
+
+    const softTwo = (softCount >= 2);
+
+    if (allHard || sumHard || softTwo){
+      let msg = "AP ✅";
+      if (allHard) msg = "AP ✅ (All hard met)";
+      else if (sumHard) msg = "AP ✅ (Sum ≥ 210)";
+      else msg = "AP ✅ (2 soft met)";
+      setResult(out, msg, "r-green");
+      return;
+    }
+
+    setResult(out, "Not AP", "r-red");
+  }
+
+  [yEl,gEl,pEl].forEach(el => el.addEventListener("input", recalc));
+  recalc();
+})();
+
+/* ====================== Ascending Fortunes / Stack Up Pays ====================== */
+(function(){
+  const megaEl  = document.getElementById("asMega");
+  const grandEl = document.getElementById("asGrand");
+  const majorEl = document.getElementById("asMajor");
+  const minorEl = document.getElementById("asMinor");
+
+  const out = document.getElementById("asResult");
+  const detail = document.getElementById("asDetail");
+
+  const MHB = { Mega: 350, Grand: 250, Major: 200, Minor: 100 };
+  const HARD_AWAY = { Mega: 20, Grand: 12, Major: 8, Minor: 4 };
+  const SOFT_AWAY = { Mega: 26, Grand: 15, Major: 10, Minor: 5 };
+
+  function away(name, val){
+    if (!Number.isFinite(val)) return null;
+    return MHB[name] - val;
+  }
+
+  function recalc(){
+    const v = {
+      Mega:  nOrNull(megaEl.value),
+      Grand: nOrNull(grandEl.value),
+      Major: nOrNull(majorEl.value),
+      Minor: nOrNull(minorEl.value),
+    };
+
+    const any = Object.values(v).some(n => Number.isFinite(n));
+    if (!any){
+      setResult(out, "Enter values", "r-white");
+      detail.textContent = "";
+      return;
+    }
+
+    const a = {
+      Mega:  away("Mega", v.Mega),
+      Grand: away("Grand", v.Grand),
+      Major: away("Major", v.Major),
+      Minor: away("Minor", v.Minor),
+    };
+
+    const hardList = ["Major","Grand","Mega"].filter(k => a[k] != null && a[k] <= HARD_AWAY[k]);
+    if (hardList.length){
+      const k = hardList[0];
+      setResult(out, `AP ✅ (${k} ${a[k]} away)`, "r-green");
+      detail.textContent = `Hard: Major≤8, Grand≤12, Mega≤20.`;
+      return;
+    }
+
+    const softEligible = ["Major","Grand","Mega"].filter(k => a[k] != null && a[k] <= SOFT_AWAY[k]);
+    if (softEligible.length >= 2){
+      setResult(out, `Soft ✅ (${softEligible.slice(0,2).join(" + ")})`, "r-orange");
+      detail.textContent = `Soft: Major≤10, Grand≤15, Mega≤26.`;
+      return;
+    }
+
+    setResult(out, "Not in range", "r-red");
+    const parts = ["Major","Grand","Mega"].map(k => (a[k]==null) ? `${k}: —` : `${k}: ${a[k]} away`);
+    detail.textContent = parts.join(" • ");
+  }
+
+  [megaEl,grandEl,majorEl,minorEl].forEach(el => el.addEventListener("input", recalc));
+  recalc();
+})();
+
+/* ====================== Golden Jungle ====================== */
+(function(){
+  const spinEl = document.getElementById("gjSpin");
+  const colEls = Array.from(document.querySelectorAll(".gjCol"));
+  const totalEl = document.getElementById("gjTotal");
+  const twosEl = document.getElementById("gjTwos");
+  const reqEl = document.getElementById("gjReq");
+  const out = document.getElementById("gjResult");
+  const detail = document.getElementById("gjDetail");
+
+  const REQUIRED_BY_SPIN = [8,8,7,7,6,6,5,5,4,4];
+
+  function recalc(){
+    const spin = Number(spinEl.value);
+    const vals = colEls.map(s => Number(s.value));
+    const total = vals.reduce((a,b)=>a+b,0);
+    const twos = vals.filter(v=>v===2).length;
+
+    const baseReq = REQUIRED_BY_SPIN[clamp(spin,0,9)];
+    const req = Math.max(0, baseReq - (twos >= 1 ? 1 : 0));
+
+    totalEl.textContent = String(total);
+    twosEl.textContent = String(twos);
+    reqEl.textContent = String(req);
+
+    if (total >= req){
+      setResult(out, "AP ✅", "r-green");
+      detail.textContent = `Total ${total} ≥ Required ${req} (spin ${spin}${twos?`, ${twos} two(s)`:``}).`;
+    } else {
+      setResult(out, "Not in range", "r-red");
+      detail.textContent = `Need ${req - total} more (Required ${req}, spin ${spin}${twos?`, ${twos} two(s)`:``}).`;
+    }
+  }
+
+  spinEl.addEventListener("change", recalc);
+  colEls.forEach(el => el.addEventListener("change", recalc));
+  recalc();
+})();
+</script>
+</body>
+</html>
