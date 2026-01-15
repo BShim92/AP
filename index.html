@@ -57,10 +57,9 @@
       margin:0 auto;
       padding:10px;
     }
-
     .game{
       display:none;
-      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
     }
     .game.active{ display:block; }
 
@@ -167,6 +166,17 @@
     }
     .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-weight:900; }
 
+    /* ===== Per-game AP logic at bottom ===== */
+    .logic{
+      margin-top:12px;
+      border-top:1px dashed rgba(0,0,0,.15);
+      padding-top:10px;
+      font-size:12px;
+      line-height:1.25;
+      opacity:.78;
+    }
+    .logic b{ opacity:1; }
+
     /* ===== Temple Falls row grid ===== */
     .tfRows{
       display:flex;
@@ -192,22 +202,18 @@
     .tfCell.rainbow{
       background: linear-gradient(90deg,#ff5a5a,#ffb34d,#ffe066,#67d36b,#59c6ff,#9b6bff,#ff5ad9);
     }
-    /* FIX: allow 4-digit values without clipping */
+    /* FIX: allow 4+ digits without disappearing */
     .tfIn{
       width:100%;
       border:1px solid rgba(0,0,0,.14);
       border-radius:10px;
-      padding:10px 8px;          /* slightly tighter */
-      font-size:14px;            /* smaller so 4 digits fit */
+      padding:10px 8px;
+      font-size:14px;              /* smaller so 4 digits fit */
       font-weight:950;
       background: rgba(255,255,255,.92);
-      text-align:center;
+      text-align:right;
       font-variant-numeric: tabular-nums;
     }
-    @media (max-width: 380px){
-      .tfIn{ font-size:13px; padding:10px 6px; }
-    }
-
     .tfTotal{
       border-radius:12px;
       border:1px solid rgba(0,0,0,.10);
@@ -278,6 +284,7 @@
       font-size:16px;
       font-weight:900;
       background: rgba(255,255,255,.90);
+      text-align:right;
       font-variant-numeric: tabular-nums;
     }
 
@@ -340,7 +347,7 @@
       text-align:center;
     }
     .metric .k{ font-size:11px; opacity:.65; font-weight:900; }
-    .metric .v{ font-size:18px; font-weight:950; margin-top:6px; font-variant-numeric: tabular-nums; }
+    .metric .v{ font-size:18px; font-weight:950; margin-top:6px; }
   </style>
 </head>
 
@@ -371,61 +378,65 @@
           <div class="panelTitle">GRID</div>
 
           <div class="fGrid" id="fGrid">
+            <!-- Row 1 -->
             <div class="fCell fRed" data-mult="0"><div class="w">0</div></div>
 
             <div class="fCell fRed" data-mult="0.4">
               <div class="w">0.4</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
             <div class="fCell fRed" data-mult="1.7">
               <div class="w">1.7</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
+            <!-- Row 2 -->
             <div class="fCell fBlue" data-mult="1.6">
               <div class="w">1.6</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
             <div class="fCell fBlue" data-mult="2.4">
               <div class="w">2.4</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
             <div class="fCell fBlue" data-mult="2.0">
               <div class="w">2.0</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
+            <!-- Row 3 -->
             <div class="fCell fBlue" data-mult="1.5">
               <div class="w">1.5</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
             <div class="fCell fBlue" data-mult="1.25">
               <div class="w">1.25</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
             <div class="fCell fBlue" data-mult="0.75">
               <div class="w">0.75</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
+            <!-- Row 4 -->
             <div class="fCell fBlue" data-mult="0.75">
               <div class="w">0.75</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
             <div class="fCell fBlue" data-mult="0.8">
               <div class="w">0.8</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
 
             <div class="fCell fBlue" data-mult="0.4">
               <div class="w">0.4</div>
-              <input class="fIn" type="number" inputmode="decimal" step="any" />
+              <input class="fIn" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
           </div>
 
@@ -433,9 +444,10 @@
             <div id="fResult" class="result r-white">0.00</div>
           </div>
 
-          <!-- AP logic at bottom -->
-          <div class="hint" style="margin-top:10px;">
-            <b>AP logic:</b> Total = Σ( cell_value × multiplier ). Empty cell_value = <span class="mono">1</span>. Color bands: &lt;17 red, &lt;17.5 orange, &lt;18 yellow, ≥18 green.
+          <div class="logic">
+            <b>AP logic:</b> Uses the exact weighted total shown (sum of each cell value × multiplier). Color bands:
+            red &lt; 17, orange &lt; 17.5, yellow &lt; 18, green ≥ 18.
+            Empty cells are treated as <span class="mono">1</span>.
           </div>
         </div>
       </div>
@@ -445,592 +457,4 @@
     <section id="game-temple" class="game" aria-label="Temple Falls Jungle Adventure">
       <div class="grid2">
         <div class="panel">
-          <div class="panelTitle">SETUP</div>
-          <div class="field">
-            <div class="label">Bet size <span class="sub">(required)</span></div>
-          </div>
-          <div style="margin-top:8px;">
-            <input id="tfBet" type="number" inputmode="decimal" step="any" placeholder="e.g., 8.80" />
-          </div>
-
-          <div class="miniBtns">
-            <button class="miniBtn" type="button" id="tfAddRow">+ Row (top)</button>
-            <button class="miniBtn" type="button" id="tfDot">Insert “.”</button>
-          </div>
-
-          <div class="hint">
-            Empty cell counts as <span class="mono">1</span>. “.” counts as <span class="mono">38</span>.
-            Numbers are treated as raw and divided by bet. Top-added rows don’t count in the bottom total.
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panelTitle">GRID</div>
-          <div id="tfRows" class="tfRows"></div>
-
-          <div style="margin-top:10px;">
-            <div id="tfResult" class="result r-white">0.00</div>
-          </div>
-
-          <!-- AP logic at bottom -->
-          <div class="hint" style="margin-top:10px;">
-            <b>AP logic:</b> Each cell contributes:
-            empty → <span class="mono">1</span>,
-            "." → <span class="mono">38</span>,
-            number → <span class="mono">number / bet</span>.
-            Bottom total sums only the 2 base rows (top-added rows excluded). Bands: &lt;50 red, &lt;60 orange, ≥60 green.
-          </div>
-        </div>
-      </div>
-
-      <div class="fab">
-        <button type="button" id="tfDotFab">.</button>
-      </div>
-    </section>
-
-    <!-- ====================== Regal Riches ====================== -->
-    <section id="game-regal" class="game" aria-label="Regal Riches">
-      <div class="grid2">
-        <div class="panel">
-          <div class="panelTitle">INPUTS</div>
-          <div class="vStack">
-            <div class="colorRow">
-              <div class="pill"><span class="dot yellow"></span> Yellow</div>
-              <input id="rrYellow" type="number" inputmode="numeric" step="1" />
-            </div>
-            <div class="colorRow">
-              <div class="pill"><span class="dot green"></span> Green</div>
-              <input id="rrGreen" type="number" inputmode="numeric" step="1" />
-            </div>
-            <div class="colorRow">
-              <div class="pill"><span class="dot purple"></span> Purple</div>
-              <input id="rrPurple" type="number" inputmode="numeric" step="1" />
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panelTitle">RESULT</div>
-          <div id="rrResult" class="result r-white">Enter values</div>
-          <div class="hint" id="rrDetail"></div>
-
-          <!-- AP logic at bottom -->
-          <div class="hint" style="margin-top:10px;">
-            <b>AP logic:</b>
-            Must satisfy <b>both</b>:
-            (1) <span class="mono">Yellow+Green+Purple ≥ 210</span> AND
-            (2) at least one “hard” threshold:
-            <span class="mono">Y≥115</span> or <span class="mono">G≥85</span> or <span class="mono">P≥60</span>.
-            Also requires at least <b>two</b> “soft” thresholds:
-            <span class="mono">Y≥106</span>, <span class="mono">G≥81</span>, <span class="mono">P≥56</span>.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================== Ascending Fortunes / Stack Up Pays ====================== -->
-    <section id="game-ascend" class="game" aria-label="Ascending Fortunes / Stack Up Pays">
-      <div class="grid2">
-        <div class="panel">
-          <div class="panelTitle">INPUTS</div>
-
-          <div class="vStack">
-            <div class="colorRow">
-              <div class="pill">Mega <span class="sub">(MHB 350)</span></div>
-              <input id="asMega" type="number" inputmode="numeric" step="1" />
-            </div>
-            <div class="colorRow">
-              <div class="pill">Grand <span class="sub">(MHB 250)</span></div>
-              <input id="asGrand" type="number" inputmode="numeric" step="1" />
-            </div>
-            <div class="colorRow">
-              <div class="pill">Major <span class="sub">(MHB 200)</span></div>
-              <input id="asMajor" type="number" inputmode="numeric" step="1" />
-            </div>
-            <div class="colorRow">
-              <div class="pill">Minor <span class="sub">(MHB 100)</span></div>
-              <input id="asMinor" type="number" inputmode="numeric" step="1" />
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panelTitle">RESULT</div>
-          <div id="asResult" class="result r-white">Enter values</div>
-          <div class="hint" id="asDetail"></div>
-
-          <!-- AP logic at bottom -->
-          <div class="hint" style="margin-top:10px;">
-            <b>AP logic:</b> Compute “away” = (must-hit-by − current).
-            Hard: Major≤8 OR Grand≤12 OR Mega≤20.
-            Soft combo: any 2 of (Major≤10, Grand≤15, Mega≤26).
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================== Golden Jungle ====================== -->
-    <section id="game-golden" class="game" aria-label="Golden Jungle">
-      <div class="grid2">
-        <div class="panel">
-          <div class="panelTitle">INPUTS</div>
-
-          <div class="field">
-            <div class="label">Red spin count</div>
-          </div>
-          <div style="margin-top:8px;">
-            <select id="gjSpin">
-              <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-              <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
-            </select>
-          </div>
-
-          <div class="hint">
-            Columns default to <span class="mono">0</span> and only allow <span class="mono">0 / 1 / 2</span>.
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panelTitle">COLUMNS</div>
-
-          <div class="gjRow">
-            <div class="gjCell"><div class="label">C1</div><select class="gjCol" data-i="0"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
-            <div class="gjCell"><div class="label">C2</div><select class="gjCol" data-i="1"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
-            <div class="gjCell"><div class="label">C3</div><select class="gjCol" data-i="2"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
-            <div class="gjCell"><div class="label">C4</div><select class="gjCol" data-i="3"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
-            <div class="gjCell"><div class="label">C5</div><select class="gjCol" data-i="4"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
-          </div>
-
-          <div class="gjMetrics">
-            <div class="metric"><div class="k">Total</div><div class="v" id="gjTotal">0</div></div>
-            <div class="metric"><div class="k"># of “2”</div><div class="v" id="gjTwos">0</div></div>
-            <div class="metric"><div class="k">Required</div><div class="v" id="gjReq">—</div></div>
-          </div>
-
-          <div style="margin-top:10px;">
-            <div id="gjResult" class="result r-white">—</div>
-            <div class="hint" id="gjDetail"></div>
-          </div>
-
-          <!-- AP logic at bottom -->
-          <div class="hint" style="margin-top:10px;">
-            <b>AP logic:</b> Required total depends on red spin count (rollover proximity). A “2” column gives a small requirement reduction.
-            AP if <span class="mono">Total ≥ Required</span>.
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </div><!-- /wrap -->
-
-<script>
-/* ====================== Shared helpers ====================== */
-function nOrNull(v){
-  const t = String(v ?? "").trim();
-  if (t === "") return null;
-  const n = Number(t);
-  return Number.isFinite(n) ? n : null;
-}
-function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
-function setResult(el, text, cls){
-  el.textContent = text;
-  el.classList.remove("r-white","r-red","r-orange","r-yellow","r-green");
-  el.classList.add(cls);
-}
-
-/* ====================== Game switching ====================== */
-const chips = Array.from(document.querySelectorAll(".chip"));
-const games = {
-  frank: document.getElementById("game-frank"),
-  temple: document.getElementById("game-temple"),
-  regal: document.getElementById("game-regal"),
-  ascend: document.getElementById("game-ascend"),
-  golden: document.getElementById("game-golden"),
-};
-function showGame(key){
-  for (const k in games) games[k].classList.toggle("active", k === key);
-  for (const c of chips) c.setAttribute("aria-selected", c.dataset.game === key ? "true" : "false");
-}
-chips.forEach(btn => btn.addEventListener("click", () => showGame(btn.dataset.game)));
-
-/* ====================== Frankenstein (EMPTY => 1) ====================== */
-(function(){
-  const fCells = Array.from(document.querySelectorAll("#fGrid .fCell"));
-  const fInputs = Array.from(document.querySelectorAll("#fGrid .fIn"));
-  const fResult = document.getElementById("fResult");
-
-  function band(total){
-    if (total < 17) return "r-red";
-    if (total < 17.5) return "r-orange";
-    if (total < 18) return "r-yellow";
-    return "r-green";
-  }
-
-  function cellVal(inp){
-    const t = String(inp.value ?? "").trim();
-    if (t === "") return 1;
-    const n = Number(t);
-    return Number.isFinite(n) ? n : 1;
-  }
-
-  function recalc(){
-    let total = 0;
-    for (const cell of fCells){
-      const mult = Number(cell.dataset.mult || "0");
-      const inp = cell.querySelector(".fIn");
-      const v = inp ? cellVal(inp) : 0;
-      total += v * mult;
-    }
-    setResult(fResult, total.toFixed(2), band(total));
-  }
-
-  fInputs.forEach(inp => {
-    inp.addEventListener("input", recalc);
-    inp.addEventListener("focus", ()=> setTimeout(()=> inp.select?.(), 0));
-  });
-
-  recalc();
-})();
-
-/* ====================== Temple Falls (Bet + EMPTY => 1) ====================== */
-(function(){
-  const tfBet = document.getElementById("tfBet");
-  const tfRows = document.getElementById("tfRows");
-  const tfResult = document.getElementById("tfResult");
-  const tfAddRow = document.getElementById("tfAddRow");
-  const tfDot = document.getElementById("tfDot");
-  const tfDotFab = document.getElementById("tfDotFab");
-
-  const BASE_ROWS = 2;
-  let lastFocused = null;
-
-  function parseBet(){
-    const n = nOrNull(tfBet.value);
-    return (n && n > 0) ? n : null;
-  }
-
-  // EMPTY => 1, "." => 38, number => number/bet
-  function tfCellValue(raw, bet){
-    const s = String(raw ?? "").trim();
-    if (s === "") return 1;       // FIX: empty counts as 1
-    if (s === ".") return 38;
-    const n = Number(s);
-    if (!Number.isFinite(n)) return 1;
-    return n / bet;
-  }
-
-  function setCellColor(inp){
-    const cell = inp.closest(".tfCell");
-    const s = String(inp.value ?? "").trim();
-
-    if (s === "") {
-      cell.classList.remove("rainbow");
-      cell.style.background = "#d9f2ff";
-      return;
-    }
-    if (s.includes(".")) {
-      cell.classList.add("rainbow");
-      cell.style.background = "";
-      return;
-    }
-    const n = Number(s);
-    if (!Number.isFinite(n)) {
-      cell.classList.remove("rainbow");
-      cell.style.background = "#d9f2ff";
-      return;
-    }
-    cell.classList.remove("rainbow");
-    const v = clamp(n, 1, 200);
-    const t = (v - 1) / 199;
-    const light = 92 - t * 22;
-    cell.style.background = `hsl(45 90% ${light}%)`;
-  }
-
-  function band(total){
-    if (total < 50) return "r-red";
-    if (total < 60) return "r-orange";
-    return "r-green";
-  }
-
-  function makeRow(included){
-    const row = document.createElement("div");
-    row.className = "tfRow";
-    row.dataset.included = included ? "true" : "false";
-
-    for (let i=0;i<5;i++){
-      const cell = document.createElement("div");
-      cell.className = "tfCell";
-
-      const inp = document.createElement("input");
-      inp.className = "tfIn";
-      inp.type = "text";
-      inp.setAttribute("inputmode","decimal");
-      inp.setAttribute("pattern","[0-9.]*");
-      inp.autocorrect = "off";
-      inp.spellcheck = false;
-
-      cell.appendChild(inp);
-      row.appendChild(cell);
-
-      cell.addEventListener("click", (e)=>{ if (e.target!==inp) inp.focus(); });
-      inp.addEventListener("focus", ()=>{ lastFocused = inp; setTimeout(()=> inp.select?.(), 0); });
-      inp.addEventListener("input", recalc);
-      inp.addEventListener("keydown", (e)=>{
-        if (e.key === "Enter"){ e.preventDefault(); focusNext(inp); }
-      });
-    }
-
-    const total = document.createElement("div");
-    total.className = "tfTotal";
-    total.textContent = "0.00";
-    row.appendChild(total);
-    return row;
-  }
-
-  function allRows(){ return Array.from(tfRows.querySelectorAll(".tfRow")); }
-  function allInputs(){ return Array.from(tfRows.querySelectorAll(".tfIn")); }
-
-  function focusNext(inp){
-    const ins = allInputs();
-    const idx = ins.indexOf(inp);
-    if (idx >= 0 && idx < ins.length - 1) ins[idx+1].focus();
-    else inp.blur();
-  }
-
-  function init(){
-    tfRows.innerHTML = "";
-    for (let r=0;r<BASE_ROWS;r++) tfRows.appendChild(makeRow(true));
-    recalc();
-  }
-
-  function recalc(){
-    const bet = parseBet();
-    const rows = allRows();
-    let bottomTotal = 0;
-
-    for (const row of rows){
-      const inputs = Array.from(row.querySelectorAll(".tfIn"));
-      inputs.forEach(setCellColor);
-
-      let rowSum = 0;
-
-      if (!bet){
-        // bet missing: still count empties as 1 and "." as 38; numeric treated as 0
-        for (const inp of inputs){
-          const s = String(inp.value ?? "").trim();
-          if (s === "") rowSum += 1;      // FIX: empty = 1 even without bet
-          else if (s === ".") rowSum += 38;
-          else rowSum += 0;
-        }
-      } else {
-        for (const inp of inputs) rowSum += tfCellValue(inp.value, bet);
-      }
-
-      row.querySelector(".tfTotal").textContent = rowSum.toFixed(2);
-      if (row.dataset.included === "true") bottomTotal += rowSum;
-    }
-
-    if (!bet && allInputs().every(i => String(i.value ?? "").trim() === "")){
-      setResult(tfResult, "0.00", "r-white");
-      return;
-    }
-
-    if (!bet){
-      setResult(tfResult, bottomTotal.toFixed(2), "r-white");
-      return;
-    }
-
-    setResult(tfResult, bottomTotal.toFixed(2), band(bottomTotal));
-  }
-
-  tfBet.addEventListener("input", recalc);
-
-  tfAddRow.addEventListener("click", ()=>{
-    const row = makeRow(false);
-    tfRows.prepend(row);
-    row.querySelector(".tfIn")?.focus();
-    recalc();
-  });
-
-  function insertDot(){
-    const ins = allInputs();
-    if (!ins.length) return;
-    let idx = lastFocused ? ins.indexOf(lastFocused) : -1;
-    if (idx < 0) idx = 0;
-    ins[idx].value = ".";
-    recalc();
-    focusNext(ins[idx]);
-  }
-
-  tfDot.addEventListener("click", insertDot);
-  tfDotFab.addEventListener("click", insertDot);
-
-  init();
-})();
-
-/* ====================== Regal Riches (NEW LOGIC) ====================== */
-(function(){
-  const yEl = document.getElementById("rrYellow");
-  const gEl = document.getElementById("rrGreen");
-  const pEl = document.getElementById("rrPurple");
-  const out = document.getElementById("rrResult");
-  const detail = document.getElementById("rrDetail");
-
-  const HARD = { Yellow:115, Green:85, Purple:60 };
-  const SOFT = { Yellow:106, Green:81, Purple:56 };
-  const SUM_REQ = 210;
-
-  function recalc(){
-    const y = nOrNull(yEl.value);
-    const g = nOrNull(gEl.value);
-    const p = nOrNull(pEl.value);
-
-    if (![y,g,p].every(n => Number.isFinite(n))){
-      setResult(out, "Enter all 3", "r-white");
-      detail.textContent = "";
-      return;
-    }
-
-    const sum = y + g + p;
-
-    const hardMet =
-      (y >= HARD.Yellow) || (g >= HARD.Green) || (p >= HARD.Purple);
-
-    const softCount =
-      (y >= SOFT.Yellow ? 1 : 0) +
-      (g >= SOFT.Green  ? 1 : 0) +
-      (p >= SOFT.Purple ? 1 : 0);
-
-    const sumMet = sum >= SUM_REQ;
-
-    // AP if: sum >= 210 AND hardMet AND softCount>=2
-    if (sumMet && hardMet && softCount >= 2){
-      setResult(out, "AP ✅", "r-green");
-    } else {
-      setResult(out, "Not AP", "r-red");
-    }
-
-    const softParts = [
-      `Y ${y}${y>=SOFT.Yellow?"✓":"✗"}`,
-      `G ${g}${g>=SOFT.Green?"✓":"✗"}`,
-      `P ${p}${p>=SOFT.Purple?"✓":"✗"}`
-    ].join(" • ");
-
-    detail.textContent =
-      `Sum: ${sum} ${sumMet ? "✓" : "✗"} (need ≥${SUM_REQ})  •  Hard: ${hardMet ? "✓" : "✗"}  •  Soft met: ${softCount}/2  •  ${softParts}`;
-  }
-
-  [yEl,gEl,pEl].forEach(el => el.addEventListener("input", recalc));
-  recalc();
-})();
-
-/* ====================== Ascending Fortunes / Stack Up Pays ====================== */
-(function(){
-  const megaEl  = document.getElementById("asMega");
-  const grandEl = document.getElementById("asGrand");
-  const majorEl = document.getElementById("asMajor");
-  const minorEl = document.getElementById("asMinor");
-
-  const out = document.getElementById("asResult");
-  const detail = document.getElementById("asDetail");
-
-  const MHB = { Mega: 350, Grand: 250, Major: 200, Minor: 100 };
-  const HARD_AWAY = { Mega: 20, Grand: 12, Major: 8, Minor: 4 };
-  const SOFT_AWAY = {
-    Mega: Math.floor(HARD_AWAY.Mega  * 1.3),
-    Grand:Math.floor(HARD_AWAY.Grand * 1.3),
-    Major:Math.floor(HARD_AWAY.Major * 1.3),
-    Minor:Math.floor(HARD_AWAY.Minor * 1.3),
-  };
-
-  function away(name, val){
-    if (!Number.isFinite(val)) return null;
-    return MHB[name] - val;
-  }
-
-  function recalc(){
-    const v = {
-      Mega:  nOrNull(megaEl.value),
-      Grand: nOrNull(grandEl.value),
-      Major: nOrNull(majorEl.value),
-      Minor: nOrNull(minorEl.value),
-    };
-
-    const any = Object.values(v).some(n => Number.isFinite(n));
-    if (!any){
-      setResult(out, "Enter values", "r-white");
-      detail.textContent = "";
-      return;
-    }
-
-    const a = {
-      Mega:  away("Mega", v.Mega),
-      Grand: away("Grand", v.Grand),
-      Major: away("Major", v.Major),
-      Minor: away("Minor", v.Minor),
-    };
-
-    const hardList = ["Major","Grand","Mega"].filter(k => a[k] != null && a[k] <= HARD_AWAY[k]);
-    if (hardList.length){
-      const k = hardList[0];
-      setResult(out, `AP ✅  (${k} ${a[k]} away)`, "r-green");
-      detail.textContent = `Hard: Major≤8, Grand≤12, Mega≤20.`;
-      return;
-    }
-
-    const softEligible = ["Major","Grand","Mega"].filter(k => a[k] != null && a[k] <= SOFT_AWAY[k]);
-    if (softEligible.length >= 2){
-      setResult(out, `Soft ✅  (${softEligible.slice(0,2).join(" + ")})`, "r-orange");
-      detail.textContent = `Soft combo: Major≤${SOFT_AWAY.Major}, Grand≤${SOFT_AWAY.Grand}, Mega≤${SOFT_AWAY.Mega}.`;
-      return;
-    }
-
-    setResult(out, "Not in range", "r-red");
-    detail.textContent = ["Major","Grand","Mega"].map(k => (a[k]==null) ? `${k}: —` : `${k}: ${a[k]} away`).join(" • ");
-  }
-
-  [megaEl,grandEl,majorEl,minorEl].forEach(el => el.addEventListener("input", recalc));
-  recalc();
-})();
-
-/* ====================== Golden Jungle ====================== */
-(function(){
-  const spinEl = document.getElementById("gjSpin");
-  const colEls = Array.from(document.querySelectorAll(".gjCol"));
-  const totalEl = document.getElementById("gjTotal");
-  const twosEl = document.getElementById("gjTwos");
-  const reqEl = document.getElementById("gjReq");
-  const out = document.getElementById("gjResult");
-  const detail = document.getElementById("gjDetail");
-
-  const REQUIRED_BY_SPIN = [8,8,7,7,6,6,5,5,4,4];
-
-  function recalc(){
-    const spin = Number(spinEl.value);
-    const vals = colEls.map(s => Number(s.value));
-    const total = vals.reduce((a,b)=>a+b,0);
-    const twos = vals.filter(v=>v===2).length;
-
-    const baseReq = REQUIRED_BY_SPIN[clamp(spin,0,9)];
-    const req = Math.max(0, baseReq - (twos >= 1 ? 1 : 0));
-
-    totalEl.textContent = String(total);
-    twosEl.textContent = String(twos);
-    reqEl.textContent = String(req);
-
-    if (total >= req){
-      setResult(out, "AP ✅", "r-green");
-      detail.textContent = `Total ${total} ≥ Required ${req} (spin ${spin}${twos?`, twos=${twos}`:``}).`;
-    } else {
-      setResult(out, "Not in range", "r-red");
-      detail.textContent = `Need ${req - total} more (spin ${spin}${twos?`, twos=${twos}`:``}).`;
-    }
-  }
-
-  spinEl.addEventListener("change", recalc);
-  colEls.forEach(el => el.addEventListener("change", recalc));
-  recalc();
-})();
-</script>
-</body>
-</html>
+         
