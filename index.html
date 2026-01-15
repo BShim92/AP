@@ -3,713 +3,1219 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AP Slot Calculators — Regal / Ascending / Golden Jungle / Rocket Rumble</title>
+  <title>AP Calculators — Frankenstein / Temple Falls / Regal / Ascending / Golden / Rocket</title>
   <style>
     :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; }
-    body { margin: 14px; max-width: 1020px; }
-    h1 { margin: 0 0 10px; font-size: 22px; }
-    .sub { color:#555; line-height:1.35; margin-bottom:12px; }
+    body { margin: 10px; }
 
+    /* ---------- App shell ---------- */
+    .shell{ max-width: 1020px; margin: 0 auto; }
     .topbar{
       display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-      margin-bottom:12px;
+      margin: 2px 0 10px;
     }
-    select, button, input[type="number"]{
-      border:1px solid #ccc; border-radius:10px; padding:10px; font-size:16px;
-      background:#fff; box-sizing:border-box;
-    }
-    button{ cursor:pointer; background:#f7f7f7; }
-    button:active{ transform: translateY(1px); }
-
-    .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin: 8px 0 12px; }
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; }
     .tab{
-      border:1px solid #ddd; background:#fafafa; border-radius:999px;
-      padding:8px 12px; font-size:13px; cursor:pointer;
+      border:1px solid rgba(0,0,0,.12);
+      background:#fafafa;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:13px;
+      font-weight:900;
+      cursor:pointer;
       user-select:none;
     }
     .tab.active{ background:#e8f2ff; border-color:#b9d3ff; }
 
-    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    @media (max-width: 900px){ .grid{ grid-template-columns:1fr; } }
-
-    .card{ border:1px solid #ddd; border-radius:10px; padding:12px; background:#fff; }
-    label{ display:block; font-size:13px; color:#444; margin-bottom:6px; }
-    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-
-    .result{ margin-top:12px; padding:12px; border-radius:12px; border:1px solid #ddd; }
-    .ok{ background:#e9f7ee; border-color:#bfe7cd; }
-    .bad{ background:#fdecec; border-color:#f3bcbc; }
-    .warn{ background:#fff7e6; border-color:#f1d18a; }
-
-    .pill{
-      padding:6px 10px; border-radius:999px; border:1px solid #ddd;
-      background:#fafafa; font-size:12px; color:#333;
+    select, button{
+      border: 1px solid rgba(0,0,0,.18);
+      background:#fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      user-select: none;
     }
-    .tiny{ font-size:12px; color:#666; line-height:1.35; }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    select{ font-weight:800; }
+    button:active{ transform: translateY(1px); }
 
-    details summary{ cursor:pointer; user-select:none; margin: 6px 0 10px; color:#333; }
-
-    table{ width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
-    th, td{ border:1px solid #e5e5e5; padding:8px; text-align:left; vertical-align:top; }
-    th{ background:#fafafa; }
-    ul{ margin: 8px 0 0 18px; }
+    .hint{ font-size:12px; color:#333; line-height:1.25; margin-top: 6px; }
     .hidden{ display:none !important; }
+
+    /* ---------- Shared "Franken/Temple" style bits ---------- */
+    .layout{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-items: start;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    @media (max-width: 520px){
+      .layout{ grid-template-columns: 1fr; }
+    }
+
+    .totalbar{
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: center;
+      font-weight: 900;
+      font-size: 22px;
+      line-height: 1;
+      user-select: none;
+      cursor: pointer;
+      color: #000;
+      background: #fff;
+    }
+    .totalbar:active{ transform: translateY(1px); }
+
+    .t-white  { background: #ffffff; }
+    .t-red    { background: #ff5a5a; }
+    .t-orange { background: #ffb34d; }
+    .t-yellow { background: #ffe066; }
+    .t-green  { background: #67d36b; }
+
+    /* ---------- Generic inputs (for the non-grid games) ---------- */
+    .panel{
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 10px;
+      background: #fafafa;
+      padding: 10px;
+    }
+    .field{
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 10px;
+      padding: 10px;
+      background:#fff;
+      margin-bottom: 8px;
+    }
+    .field label{
+      display:block;
+      font-weight: 900;
+      font-size: 12px;
+      margin-bottom: 6px;
+      color:#000;
+    }
+    .field input, .field select{
+      width:100%;
+      font-size:16px;
+      padding: 10px 10px;
+      border-radius: 9px;
+      border: 1px solid rgba(0,0,0,.18);
+      background: rgba(255,255,255,.92);
+      box-sizing:border-box;
+      color:#000;
+      font-weight: 900;
+    }
+
+    /* Color-coded field wrappers */
+    .c-yellow{ background:#fff6c7; }
+    .c-green { background:#d9ffe0; }
+    .c-purple{ background:#efe0ff; }
+    .c-red   { background:#ffd6d6; }
+    .c-orange{ background:#ffe6c8; }
+
+    /* Result banner */
+    .banner{
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background:#fff;
+    }
+    .bannerTitle{ font-size: 18px; font-weight: 900; margin: 0; }
+    .bannerWhy{ margin-top:6px; font-size: 13px; line-height: 1.25; font-weight: 800; }
+
+    .banner.ok{ background:#67d36b; }
+    .banner.bad{ background:#ff5a5a; }
+    .banner.neutral{ background:#fff; }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight:800; }
+    details summary{ cursor:pointer; user-select:none; font-weight:900; }
+    .footerNote{ font-size:12px; color:#333; line-height:1.25; }
+
+    /* ---------- Frankenstein (scoped) ---------- */
+    #game-frank .grid{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    #game-frank .cell{
+      position: relative;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.12);
+      min-height: 64px;
+      padding: 28px 6px 6px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: flex-end;
+    }
+    #game-frank .r0 { background: #ffd6d6; }
+    #game-frank .r1,#game-frank .r2,#game-frank .r3 { background: #d9f2ff; }
+    #game-frank .w{
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #000;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.80);
+      border: 1px solid rgba(0,0,0,.10);
+      pointer-events: none;
+    }
+    #game-frank input[type="number"]{
+      width: 100%;
+      font-size: 16px;
+      padding: 8px 8px;
+      border-radius: 9px;
+      border: 1px solid rgba(0,0,0,.18);
+      background: rgba(255,255,255,.88);
+      box-sizing: border-box;
+      color: #000;
+      font-weight: 900;
+    }
+    #game-frank .footer{ grid-column: 1 / -1; }
+
+    /* ---------- Temple Falls (scoped) ---------- */
+    #game-temple .panel{
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 10px;
+      background: #fafafa;
+      padding: 8px;
+    }
+    #game-temple .betRow{ display:flex; gap:8px; align-items:center; margin-bottom: 8px; }
+    #game-temple .betLabel{ font-weight:900; font-size:13px; white-space:nowrap; }
+    #game-temple .betInput{
+      width: 100%;
+      font-size: 16px;
+      padding: 8px 8px;
+      border-radius: 9px;
+      border: 1px solid rgba(0,0,0,.18);
+      background: rgba(255,255,255,.95);
+      box-sizing: border-box;
+      color: #000;
+      font-weight: 900;
+    }
+    #game-temple .actions{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+    #game-temple .btn{
+      border: 1px solid rgba(0,0,0,.18);
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+    }
+    #game-temple .btn:active{ transform: translateY(1px); }
+    #game-temple .grid{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    #game-temple .row{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr) 0.85fr;
+      gap:8px;
+      align-items:stretch;
+    }
+    #game-temple .cell{
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.12);
+      min-height: 56px;
+      padding: 6px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: flex-end;
+      background: #d9f2ff;
+      transition: background 120ms ease;
+    }
+    #game-temple .cell.rainbow{
+      background: linear-gradient(90deg,
+        #ff5a5a, #ffb34d, #ffe066, #67d36b, #59c6ff, #9b6bff, #ff5ad9);
+    }
+    #game-temple .cell input{
+      width:100%;
+      font-size:16px;
+      padding: 8px 8px;
+      border-radius: 9px;
+      border: 1px solid rgba(0,0,0,.18);
+      background: rgba(255,255,255,.88);
+      box-sizing: border-box;
+      color: #000;
+      font-weight: 900;
+      autocapitalize: none;
+    }
+    #game-temple .rowTotal{
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.12);
+      background: #f3f3f3;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 900;
+      font-size: 16px;
+      color:#000;
+      min-height:56px;
+      padding:6px;
+      box-sizing:border-box;
+      user-select:none;
+    }
+    #game-temple .footer{ grid-column: 1 / -1; }
+    #game-temple .fab{
+      position: fixed;
+      right: 14px;
+      bottom: calc(110px + env(safe-area-inset-bottom));
+      display:flex;
+      gap:8px;
+      align-items:center;
+      z-index: 99999;
+    }
+    #game-temple .fab button{
+      border: 1px solid rgba(0,0,0,.18);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,.12);
+    }
+    #game-temple .fab button:active{ transform: translateY(1px); }
+    @media (max-width: 520px){
+      #game-temple .fab{ bottom: calc(90px + env(safe-area-inset-bottom)); }
+      #game-temple .row{ grid-template-columns: repeat(5, 1fr) 1fr; }
+    }
   </style>
 </head>
+
 <body>
-  <h1>AP Slot Calculators</h1>
-  <div class="sub">
-    One offline page for: <strong>Regal Riches</strong>, <strong>Ascending Fortunes / Stack Up Pays</strong>,
-    <strong>Golden Jungle (2x)</strong>, <strong>Rocket Rumble</strong>.
-  </div>
+<div class="shell">
 
   <div class="topbar">
-    <span class="tiny"><strong>Switch game:</strong></span>
-    <select id="gameSelect" aria-label="Select game"></select>
     <div class="tabs" id="tabs"></div>
+
+    <select id="gameSelect" aria-label="Select game"></select>
+
     <button id="resetGameBtn" type="button">Reset this game</button>
-    <button id="resetAllBtn" type="button">Reset ALL games</button>
+    <button id="resetAllBtn" type="button">Reset ALL</button>
   </div>
 
   <!-- ========================= -->
-  <!-- Regal Riches -->
+  <!-- 1) Frankenstein -->
   <!-- ========================= -->
-  <section id="game-regal" class="game">
-    <div class="grid">
-      <div class="card">
-        <h2 style="margin:0 0 10px;font-size:16px;">Regal Riches — Inputs</h2>
+  <section id="game-frank" class="game">
+    <div class="layout">
+      <div id="frank_barTop" class="totalbar t-white">0.00</div>
 
-        <div style="margin-bottom:10px;">
-          <label for="regal_blue">Blue number (bottom blue “Wilds”)</label>
-          <input id="regal_blue" type="number" min="0" step="1" value="0" />
+      <div class="grid" id="frank_grid">
+        <div class="cell r0" data-mult="0"><div class="w">0</div></div>
+
+        <div class="cell r0" data-mult="0.4"><div class="w">0.4</div>
+          <input value="" placeholder="" type="number" inputmode="decimal" step="any" />
+        </div>
+        <div class="cell r0" data-mult="1.7"><div class="w">1.7</div>
+          <input value="" placeholder="" type="number" inputmode="decimal" step="any" />
         </div>
 
-        <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
-          <div>
-            <label for="regal_diamond">“Diamond” number</label>
-            <input id="regal_diamond" type="number" min="0" step="1" value="0" />
+        <div class="cell r1" data-mult="1.6"><div class="w">1.6</div>
+          <input value="" type="number" inputmode="decimal" step="any" />
+        </div>
+        <div class="cell r1" data-mult="2.4"><div class="w">2.4</div>
+          <input value="" type="number" inputmode="decimal" step="any" />
+        </div>
+        <div class="cell r1" data-mult="2.0"><div class="w">2.0</div>
+          <input value="" type="number" inputmode="decimal" step="any" />
+        </div>
+
+        <div class="cell r2" data-mult="1.5"><div class="w">1.5</div>
+          <input value="" type="number" inputmode="decimal" step="any" />
+        </div>
+        <div class="cell r2" data-mult="1.25"><div class="w">1.25</div>
+          <input value="" type="number" inputmode="decimal" step="any" />
+        </div>
+        <div class="cell r2" data-mult="0.75"><div class="w">0.75</div>
+          <input value="" type="number" inputmode="decimal" step="any" />
+        </div>
+
+        <div class="cell r3" data-mult="0.75"><div class="w">0.75</divnd>
+          <input value="" type="number" inputmode="decimal" step="any" />
+        </div>
+        <div class="cell r3" data-mult="0.8"><div class="w">0.8</div>
+          <input value="" type="number" inputmode="decimal" step="any" />
+        </div>
+        <div class="cell r3" data-mult="0.4"><div class="w">0.4</div>
+          <input value="" type="number" inputmode="decimal" step="any" />
+        </div>
+      </div>
+
+      <div id="frank_barBottom" class="totalbar t-white footer">0.00</div>
+    </div>
+
+    <div class="hint" style="max-width:980px;margin:8px auto 0;">
+      Frankenstein total bar colors: <span class="mono">&lt;17 red</span>, <span class="mono">&lt;17.5 orange</span>, <span class="mono">&lt;18 yellow</span>, <span class="mono">≥18 green</span>.
+      Tap either total bar to reset.
+    </div>
+  </section>
+
+  <!-- ========================= -->
+  <!-- 2) Temple Falls -->
+  <!-- ========================= -->
+  <section id="game-temple" class="game hidden">
+    <div class="layout">
+      <div class="panel">
+        <form id="temple_calcForm" autocomplete="off">
+          <div class="betRow">
+            <div class="betLabel">Bet size</div>
+            <input id="temple_bet" class="betInput"
+                   type="number"
+                   inputmode="decimal"
+                   step="any"
+                   placeholder=""
+                   enterkeyhint="next" />
           </div>
-          <div>
-            <label for="regal_green">Green “Guaranteed Wilds”</label>
-            <input id="regal_green" type="number" min="0" step="1" value="0" />
+
+          <div class="actions">
+            <button class="btn" type="button" id="temple_addRowBtn">+ Row (top)</button>
           </div>
-          <div style="grid-column:1 / -1;">
-            <label for="regal_purple">Purple “Guaranteed Wilds”</label>
-            <input id="regal_purple" type="number" min="0" step="1" value="0" />
-          </div>
+        </form>
+
+        <div class="hint">
+          Put a <b>.</b> to represent a wheel. (Rows you add at the top are <b>excluded</b> from the bottom total.)
+        </div>
+      </div>
+
+      <form class="grid" id="temple_gridForm" autocomplete="off">
+        <div id="temple_rows"></div>
+      </form>
+
+      <div id="temple_barBottom" class="totalbar t-white footer">0.00</div>
+    </div>
+
+    <div class="fab">
+      <button type="button" id="temple_dotBtn">.</button>
+    </div>
+  </section>
+
+  <!-- ========================= -->
+  <!-- 3) Regal Riches (Yellow/Green/Purple only) -->
+  <!-- ========================= -->
+  <section id="game-regal" class="game hidden">
+    <div class="layout">
+      <div class="panel">
+        <div class="field c-yellow">
+          <label for="regal_yellow">Yellow</label>
+          <input id="regal_yellow" type="number" inputmode="numeric" step="1" placeholder="" />
+        </div>
+        <div class="field c-green">
+          <label for="regal_green">Green</label>
+          <input id="regal_green" type="number" inputmode="numeric" step="1" placeholder="" />
+        </div>
+        <div class="field c-purple" style="margin-bottom:0;">
+          <label for="regal_purple">Purple</label>
+          <input id="regal_purple" type="number" inputmode="numeric" step="1" placeholder="" />
         </div>
 
         <details style="margin-top:10px;">
-          <summary><strong>Advanced: thresholds (editable)</strong></summary>
-          <div class="tiny" style="margin-bottom:10px;">
-            Defaults: Blue ≥ 8; Sum ≥ 210. Red thresholds require 2-of-3. Gold thresholds require 1-of-3.
+          <summary>Advanced thresholds (editable)</summary>
+          <div class="hint">No blue shown. Triggers used: GOLD (1-of-3), RED (2-of-3), SUM.</div>
+
+          <div class="field c-yellow">
+            <label>Yellow RED / GOLD</label>
+            <div class="row">
+              <input id="regal_tYellowRed" type="number" step="1" placeholder="RED" style="flex:1;" />
+              <input id="regal_tYellowGold" type="number" step="1" placeholder="GOLD" style="flex:1;" />
+            </div>
           </div>
-          <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
-            <div>
-              <label for="regal_tBlueMin">Blue min</label>
-              <input id="regal_tBlueMin" type="number" min="0" step="1" value="8" />
+          <div class="field c-green">
+            <label>Green RED / GOLD</label>
+            <div class="row">
+              <input id="regal_tGreenRed" type="number" step="1" placeholder="RED" style="flex:1;" />
+              <input id="regal_tGreenGold" type="number" step="1" placeholder="GOLD" style="flex:1;" />
             </div>
-            <div>
-              <label for="regal_tSumMin">Sum min (Diamond+Green+Purple)</label>
-              <input id="regal_tSumMin" type="number" min="0" step="1" value="210" />
+          </div>
+          <div class="field c-purple">
+            <label>Purple RED / GOLD</label>
+            <div class="row">
+              <input id="regal_tPurpleRed" type="number" step="1" placeholder="RED" style="flex:1;" />
+              <input id="regal_tPurpleGold" type="number" step="1" placeholder="GOLD" style="flex:1;" />
             </div>
-
-            <div>
-              <label for="regal_tDiamondRed">Diamond RED</label>
-              <input id="regal_tDiamondRed" type="number" min="0" step="1" value="106" />
-            </div>
-            <div>
-              <label for="regal_tDiamondGold">Diamond GOLD</label>
-              <input id="regal_tDiamondGold" type="number" min="0" step="1" value="115" />
-            </div>
-
-            <div>
-              <label for="regal_tGreenRed">Green RED</label>
-              <input id="regal_tGreenRed" type="number" min="0" step="1" value="81" />
-            </div>
-            <div>
-              <label for="regal_tGreenGold">Green GOLD</label>
-              <input id="regal_tGreenGold" type="number" min="0" step="1" value="85" />
-            </div>
-
-            <div>
-              <label for="regal_tPurpleRed">Purple RED</label>
-              <input id="regal_tPurpleRed" type="number" min="0" step="1" value="56" />
-            </div>
-            <div>
-              <label for="regal_tPurpleGold">Purple GOLD</label>
-              <input id="regal_tPurpleGold" type="number" min="0" step="1" value="60" />
-            </div>
+          </div>
+          <div class="field">
+            <label>Sum min (Yellow+Green+Purple)</label>
+            <input id="regal_tSumMin" type="number" step="1" placeholder="" />
           </div>
         </details>
+
+        <div class="hint">Fields start empty. Blank inputs count as 0 for checks.</div>
       </div>
 
-      <div class="card">
-        <h2 style="margin:0 0 10px;font-size:16px;">Regal Riches — Result</h2>
-
-        <div id="regal_banner" class="result bad">
-          <div id="regal_headline" style="font-size:18px;font-weight:800;">Not AP</div>
-          <div id="regal_why" style="margin-top:6px;color:#333;line-height:1.35;"></div>
+      <div class="panel">
+        <div id="regal_banner" class="banner neutral">
+          <div id="regal_head" class="bannerTitle">—</div>
+          <div id="regal_why" class="bannerWhy"></div>
         </div>
 
-        <div style="margin-top:12px;">
-          <div class="row" style="margin-bottom:8px;">
-            <span class="pill">Blue ≥ <span id="regal_pBlue" class="mono">8</span></span>
-            <span class="pill">Sum ≥ <span id="regal_pSum" class="mono">210</span></span>
-            <span class="pill">Red needs: <span class="mono">2</span></span>
-            <span class="pill">Gold needs: <span class="mono">1</span></span>
-          </div>
+        <div class="hint" style="margin-top:10px;">
+          Triggers (in order):
+          <div class="mono">GOLD: any 1 of (Yellow/Green/Purple) ≥ GOLD</div>
+          <div class="mono">RED: any 2 of (Yellow/Green/Purple) ≥ RED</div>
+          <div class="mono">SUM: Yellow+Green+Purple ≥ SUM</div>
+        </div>
 
-          <div id="regal_runNote" class="result warn hidden">
-            <strong>Run-length warning:</strong>
-            <div id="regal_runText" style="margin-top:6px; line-height:1.35;"></div>
-          </div>
-
-          <div class="tiny" style="margin-top:12px;">
-            <strong>Computed</strong>
-            <div id="regal_computed" class="mono" style="margin-top:6px; white-space:pre-wrap;"></div>
-          </div>
+        <div class="hint" style="margin-top:10px;">
+          <strong>Computed</strong>
+          <div id="regal_comp" class="mono" style="white-space:pre-wrap;margin-top:6px;"></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ========================= -->
-  <!-- Ascending Fortunes / Stack Up Pays -->
+  <!-- 4) Ascending Fortunes / Stack Up Pays (Mega/Grand/Major/Minor only) -->
   <!-- ========================= -->
   <section id="game-ascending" class="game hidden">
-    <div class="grid">
-      <div class="card">
-        <h2 style="margin:0 0 10px;font-size:16px;">Ascending Fortunes / Stack Up Pays — Inputs</h2>
-
-        <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
-          <div>
-            <label for="asc_minorVal">Minor (green) — current EXPANDS</label>
-            <input id="asc_minorVal" type="number" min="0" step="1" value="0" />
-          </div>
-          <div>
-            <label for="asc_miniVal">Mini (blue) — current EXPANDS (ignored)</label>
-            <input id="asc_miniVal" type="number" min="0" step="1" value="0" />
-          </div>
-          <div>
-            <label for="asc_majorVal">Major (purple) — current EXPANDS</label>
-            <input id="asc_majorVal" type="number" min="0" step="1" value="0" />
-          </div>
-          <div>
-            <label for="asc_grandVal">Grand (orange) — current EXPANDS</label>
-            <input id="asc_grandVal" type="number" min="0" step="1" value="0" />
-          </div>
-          <div style="grid-column:1 / -1;">
-            <label for="asc_megaVal">Mega (red) — current EXPANDS</label>
-            <input id="asc_megaVal" type="number" min="0" step="1" value="0" />
-          </div>
+    <div class="layout">
+      <div class="panel">
+        <div class="field c-red">
+          <label for="asc_mega">Mega (red)</label>
+          <input id="asc_mega" type="number" step="1" placeholder="" />
+        </div>
+        <div class="field c-orange">
+          <label for="asc_grand">Grand (orange)</label>
+          <input id="asc_grand" type="number" step="1" placeholder="" />
+        </div>
+        <div class="field c-purple">
+          <label for="asc_major">Major (purple)</label>
+          <input id="asc_major" type="number" step="1" placeholder="" />
+        </div>
+        <div class="field c-green" style="margin-bottom:0;">
+          <label for="asc_minor">Minor (green)</label>
+          <input id="asc_minor" type="number" step="1" placeholder="" />
         </div>
 
         <details style="margin-top:10px;">
-          <summary><strong>Advanced: Must-Hit-By + thresholds (editable)</strong></summary>
-          <div class="tiny" style="margin-bottom:10px;">
-            Defaults: Minor 4 away (MHB 150), Major 8 away (MHB 200), Grand 12 away (MHB 250), Mega 20 away (MHB 350).
-            Soft rule uses floor(strict × 1.3) and needs 2-of-3 among Major/Grand/Mega.
+          <summary>Advanced: Must-Hit-By + thresholds (editable)</summary>
+          <div class="hint">
+            Defaults shown below match the earlier page logic. Mini is omitted entirely.
           </div>
 
-          <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
-            <div>
-              <label for="asc_mhbMinor">Minor Must-Hit-By</label>
-              <input id="asc_mhbMinor" type="number" min="0" step="1" value="150" />
+          <div class="field c-green">
+            <label>Minor MHB / strict-away</label>
+            <div class="row">
+              <input id="asc_mhbMinor" type="number" step="1" placeholder="MHB" style="flex:1;" />
+              <input id="asc_thrMinor" type="number" step="1" placeholder="away" style="flex:1;" />
             </div>
-            <div>
-              <label for="asc_thrMinor">Minor strict away</label>
-              <input id="asc_thrMinor" type="number" min="0" step="1" value="4" />
-            </div>
+          </div>
 
-            <div>
-              <label for="asc_mhbMajor">Major Must-Hit-By</label>
-              <input id="asc_mhbMajor" type="number" min="0" step="1" value="200" />
+          <div class="field c-purple">
+            <label>Major MHB / strict-away</label>
+            <div class="row">
+              <input id="asc_mhbMajor" type="number" step="1" placeholder="MHB" style="flex:1;" />
+              <input id="asc_thrMajor" type="number" step="1" placeholder="away" style="flex:1;" />
             </div>
-            <div>
-              <label for="asc_thrMajor">Major strict away</label>
-              <input id="asc_thrMajor" type="number" min="0" step="1" value="8" />
-            </div>
+          </div>
 
-            <div>
-              <label for="asc_mhbGrand">Grand Must-Hit-By</label>
-              <input id="asc_mhbGrand" type="number" min="0" step="1" value="250" />
+          <div class="field c-orange">
+            <label>Grand MHB / strict-away</label>
+            <div class="row">
+              <input id="asc_mhbGrand" type="number" step="1" placeholder="MHB" style="flex:1;" />
+              <input id="asc_thrGrand" type="number" step="1" placeholder="away" style="flex:1;" />
             </div>
-            <div>
-              <label for="asc_thrGrand">Grand strict away</label>
-              <input id="asc_thrGrand" type="number" min="0" step="1" value="12" />
-            </div>
+          </div>
 
-            <div>
-              <label for="asc_mhbMega">Mega Must-Hit-By</label>
-              <input id="asc_mhbMega" type="number" min="0" step="1" value="350" />
+          <div class="field c-red">
+            <label>Mega MHB / strict-away</label>
+            <div class="row">
+              <input id="asc_mhbMega" type="number" step="1" placeholder="MHB" style="flex:1;" />
+              <input id="asc_thrMega" type="number" step="1" placeholder="away" style="flex:1;" />
             </div>
-            <div>
-              <label for="asc_thrMega">Mega strict away</label>
-              <input id="asc_thrMega" type="number" min="0" step="1" value="20" />
-            </div>
+          </div>
 
-            <div style="grid-column:1 / -1;">
-              <label for="asc_softMult">Soft multiplier</label>
-              <input id="asc_softMult" type="number" min="1" step="0.1" value="1.3" />
-            </div>
-            <div style="grid-column:1 / -1;">
-              <label for="asc_softNeed">Soft rule needs this many of (Major/Grand/Mega)</label>
-              <input id="asc_softNeed" type="number" min="1" step="1" value="2" />
+          <div class="field">
+            <label>Soft multiplier + need (Major/Grand/Mega)</label>
+            <div class="row">
+              <input id="asc_softMult" type="number" step="0.1" placeholder="mult" style="flex:1;" />
+              <input id="asc_softNeed" type="number" step="1" placeholder="need" style="flex:1;" />
             </div>
           </div>
         </details>
+
+        <div class="hint">
+          Run-length warning: this is long-run (often hundreds of spins).
+        </div>
       </div>
 
-      <div class="card">
-        <h2 style="margin:0 0 10px;font-size:16px;">Ascending Fortunes / Stack Up Pays — Result</h2>
-
-        <div id="asc_banner" class="result bad">
-          <div id="asc_headline" style="font-size:18px;font-weight:800;">Not AP</div>
-          <div id="asc_why" style="margin-top:6px;color:#333;line-height:1.35;"></div>
+      <div class="panel">
+        <div id="asc_banner" class="banner neutral">
+          <div id="asc_head" class="bannerTitle">—</div>
+          <div id="asc_why" class="bannerWhy"></div>
         </div>
 
-        <div class="result warn" style="margin-top:12px;">
-          <strong>Run-length warning:</strong>
-          <div class="tiny" style="margin-top:6px;">
-            This is a very long-run chase game. Several hundred spins is typical.
-          </div>
-        </div>
-
-        <div class="tiny" style="margin-top:12px;">
-          <strong>Computed (distances)</strong>
-          <div id="asc_computed" class="mono" style="margin-top:6px; white-space:pre-wrap;"></div>
+        <div class="hint" style="margin-top:10px;">
+          <strong>Computed</strong>
+          <div id="asc_comp" class="mono" style="white-space:pre-wrap;margin-top:6px;"></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ========================= -->
-  <!-- Golden Jungle (2x) -->
+  <!-- 5) Golden Jungle (2x) — columns in one row, values EMPTY/0/1/2 -->
   <!-- ========================= -->
   <section id="game-golden" class="game hidden">
-    <div class="grid">
-      <div class="card">
-        <h2 style="margin:0 0 10px;font-size:16px;">Golden Jungle (2x) — Inputs</h2>
-
-        <div style="margin-bottom:10px;">
+    <div class="layout">
+      <div class="panel">
+        <div class="field" style="margin-bottom:10px;">
           <label for="gj_spin">Red spin count (already happened)</label>
-          <input id="gj_spin" type="number" min="0" step="1" value="0" />
-          <div class="tiny" style="margin-top:6px;">
-            Conservative: uses the next stricter stage among <span class="mono">1,2,4,6,8</span>. Example: spin=3 uses stage 4.
-          </div>
+          <input id="gj_spin" type="number" step="1" placeholder="" />
+          <div class="hint">Conservative stage mapping: uses next stricter stage among <span class="mono">1,2,4,6,8</span>.</div>
         </div>
 
-        <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
-          <div>
-            <label for="gj_c1">Column 1 — top dudes</label>
-            <input id="gj_c1" type="number" min="0" step="1" value="0" />
+        <div class="field" style="margin-bottom:0;">
+          <label>Columns 1–5 (single row) — allowed: EMPTY, 0, 1, 2</label>
+          <div class="row" style="gap:8px;">
+            <select id="gj_c1" class="mono" style="flex:1;"></select>
+            <select id="gj_c2" class="mono" style="flex:1;"></select>
+            <select id="gj_c3" class="mono" style="flex:1;"></select>
+            <select id="gj_c4" class="mono" style="flex:1;"></select>
+            <select id="gj_c5" class="mono" style="flex:1;"></select>
           </div>
-          <div>
-            <label for="gj_c2">Column 2 — top dudes</label>
-            <input id="gj_c2" type="number" min="0" step="1" value="0" />
-          </div>
-          <div>
-            <label for="gj_c3">Column 3 — top dudes</label>
-            <input id="gj_c3" type="number" min="0" step="1" value="0" />
-          </div>
-          <div>
-            <label for="gj_c4">Column 4 — top dudes</label>
-            <input id="gj_c4" type="number" min="0" step="1" value="0" />
-          </div>
-          <div style="grid-column:1 / -1;">
-            <label for="gj_c5">Column 5 — top dudes</label>
-            <input id="gj_c5" type="number" min="0" step="1" value="0" />
-          </div>
-        </div>
-
-        <div class="result warn" style="margin-top:12px;">
-          <strong>Reminder:</strong>
-          <div class="tiny" style="margin-top:6px;">
-            Short-run “10-rollover” style play (usually ≤ 9 spins left), but very all-or-nothing.
-            This calculator matches the <span class="mono">“2x”</span> chart.
-          </div>
+          <div class="hint">EMPTY is treated like 0 for the chart checks.</div>
         </div>
       </div>
 
-      <div class="card">
-        <h2 style="margin:0 0 10px;font-size:16px;">Golden Jungle (2x) — Result</h2>
-
-        <div id="gj_banner" class="result bad">
-          <div id="gj_headline" style="font-size:18px;font-weight:800;">Not AP</div>
-          <div id="gj_why" style="margin-top:6px;color:#333;line-height:1.35;"></div>
+      <div class="panel">
+        <div id="gj_banner" class="banner neutral">
+          <div id="gj_head" class="bannerTitle">—</div>
+          <div id="gj_why" class="bannerWhy"></div>
         </div>
 
-        <div style="margin-top:12px;">
-          <div class="row" style="margin-bottom:8px;">
-            <span class="pill">Stage: <span id="gj_stageP" class="mono">—</span></span>
-            <span class="pill">Total: <span id="gj_totalP" class="mono">0</span></span>
-            <span class="pill">Sum(1–3): <span id="gj_sum13P" class="mono">0</span></span>
-            <span class="pill">Any 2x in 1–4: <span id="gj_any2x14P" class="mono">no</span></span>
-          </div>
-
-          <div class="tiny">
-            <strong>Computed</strong>
-            <div id="gj_computed" class="mono" style="margin-top:6px; white-space:pre-wrap;"></div>
-          </div>
-
-          <details style="margin-top:10px;">
-            <summary><strong>Stage rules reference</strong></summary>
-            <table>
-              <thead><tr><th>Stage</th><th>Pass if…</th></tr></thead>
-              <tbody class="tiny">
-                <tr><td class="mono">1</td><td>At least one top dude exists in columns <span class="mono">1–4</span>.</td></tr>
-                <tr><td class="mono">2</td><td>(sum 1–3 ≥ 1) OR (c4 ≥ 2) OR (c4 ≥ 1 AND c5 ≥ 2)</td></tr>
-                <tr><td class="mono">4</td><td>(total ≥ 3) OR (any 2x on 1–4)</td></tr>
-                <tr><td class="mono">6</td><td>(total ≥ 4) OR (sum 1–3 ≥ 3)</td></tr>
-                <tr>
-                  <td class="mono">8</td>
-                  <td>
-                    Any of:
-                    <ul>
-                      <li><span class="mono">sum(1–3) ≥ 3</span></li>
-                      <li><span class="mono">any2x(1–3)</span> AND (<span class="mono">c4 ≥ 1</span> OR <span class="mono">c5 ≥ 2</span>)</li>
-                      <li><span class="mono">sum(1–3) ≥ 2</span> AND <span class="mono">c4 ≥ 2</span></li>
-                      <li><span class="mono">sum(1–3) ≥ 2</span> AND <span class="mono">c4 ≥ 1</span> AND <span class="mono">c5 ≥ 2</span></li>
-                      <li><span class="mono">sum(1–3) ≥ 1</span> AND <span class="mono">c4 ≥ 2</span> AND <span class="mono">c5 ≥ 2</span></li>
-                    </ul>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </details>
+        <div class="hint" style="margin-top:10px;">
+          <strong>Computed</strong>
+          <div id="gj_comp" class="mono" style="white-space:pre-wrap;margin-top:6px;"></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ========================= -->
-  <!-- Rocket Rumble -->
+  <!-- 6) Rocket Rumble -->
   <!-- ========================= -->
   <section id="game-rocket" class="game hidden">
-    <div class="grid">
-      <div class="card">
-        <h2 style="margin:0 0 10px;font-size:16px;">Rocket Rumble — Inputs</h2>
-
-        <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
-          <div>
-            <label for="rr_green">Green counter</label>
-            <input id="rr_green" type="number" min="0" step="1" value="0" />
-          </div>
-          <div>
-            <label for="rr_blue">Blue counter</label>
-            <input id="rr_blue" type="number" min="0" step="1" value="0" />
-          </div>
-          <div>
-            <label for="rr_purple">Purple counter</label>
-            <input id="rr_purple" type="number" min="0" step="1" value="0" />
-          </div>
-          <div>
-            <label for="rr_red">Red counter</label>
-            <input id="rr_red" type="number" min="0" step="1" value="0" />
-          </div>
+    <div class="layout">
+      <div class="panel">
+        <div class="field c-green">
+          <label for="rr_green">Green counter</label>
+          <input id="rr_green" type="number" step="1" placeholder="" />
+        </div>
+        <div class="field" style="background:#d9f2ff;">
+          <label for="rr_blue">Blue counter</label>
+          <input id="rr_blue" type="number" step="1" placeholder="" />
+        </div>
+        <div class="field c-purple">
+          <label for="rr_purple">Purple counter</label>
+          <input id="rr_purple" type="number" step="1" placeholder="" />
+        </div>
+        <div class="field c-red" style="margin-bottom:0;">
+          <label for="rr_red">Red counter</label>
+          <input id="rr_red" type="number" step="1" placeholder="" />
         </div>
 
         <details style="margin-top:10px;">
-          <summary><strong>Advanced (editable thresholds)</strong></summary>
-          <div class="tiny" style="margin-bottom:10px;">
-            Defaults: Green 17+, or Green 16 if Blue 13. Purple 32+ (long run). Avoid starting at Purple 31.
-            Blue 13–14 defaults to “ignore” (optional WEAK mode).
+          <summary>Advanced thresholds (editable)</summary>
+          <div class="field c-green">
+            <label>Green strong / special</label>
+            <div class="row">
+              <input id="rr_tGreenStrong" type="number" step="1" placeholder="green≥" style="flex:1;">
+              <input id="rr_tGreenSpecial" type="number" step="1" placeholder="green=" style="flex:1;">
+              <input id="rr_tBlueSpecial" type="number" step="1" placeholder="blue=" style="flex:1;">
+            </div>
           </div>
-
-          <div class="grid" style="grid-template-columns:1fr 1fr; gap:10px;">
-            <div>
-              <label for="rr_tGreenStrong">Green strong (≥)</label>
-              <input id="rr_tGreenStrong" type="number" min="0" step="1" value="17" />
+          <div class="field c-purple">
+            <label>Purple playable / avoid</label>
+            <div class="row">
+              <input id="rr_tPurplePlayable" type="number" step="1" placeholder="purple≥" style="flex:1;">
+              <input id="rr_tPurpleAvoid" type="number" step="1" placeholder="avoid=" style="flex:1;">
             </div>
-            <div>
-              <label for="rr_tGreenSpecial">Green special (=)</label>
-              <input id="rr_tGreenSpecial" type="number" min="0" step="1" value="16" />
-            </div>
-            <div>
-              <label for="rr_tBlueSpecial">Blue special (=)</label>
-              <input id="rr_tBlueSpecial" type="number" min="0" step="1" value="13" />
-            </div>
-            <div>
-              <label for="rr_tPurplePlayable">Purple playable (≥)</label>
-              <input id="rr_tPurplePlayable" type="number" min="0" step="1" value="32" />
-            </div>
-            <div>
-              <label for="rr_tPurpleAvoid">Purple avoid (=)</label>
-              <input id="rr_tPurpleAvoid" type="number" min="0" step="1" value="31" />
-            </div>
-            <div>
-              <label for="rr_tRedInfo">Red “safe-ish” info (≥)</label>
-              <input id="rr_tRedInfo" type="number" min="0" step="1" value="98" />
-            </div>
-
-            <div style="grid-column:1 / -1;">
-              <label for="rr_blueMode">How to treat Blue 13–14</label>
-              <select id="rr_blueMode">
-                <option value="ignore" selected>Default (ignore / NOT AP)</option>
-                <option value="weak">Treat as WEAK AP (manual override)</option>
+          </div>
+          <div class="field c-red">
+            <label>Red info threshold</label>
+            <input id="rr_tRedInfo" type="number" step="1" placeholder="" />
+          </div>
+          <div class="field">
+            <label>Blue 13–14 handling</label>
+            <div class="row">
+              <select id="rr_blueMode" style="flex:1;">
+                <option value="ignore" selected>Default: ignore</option>
+                <option value="weak">WEAK override</option>
               </select>
-            </div>
-
-            <div>
-              <label for="rr_tBlueWeakMin">Blue weak min</label>
-              <input id="rr_tBlueWeakMin" type="number" min="0" step="1" value="13" />
-            </div>
-            <div>
-              <label for="rr_tBlueWeakMax">Blue weak max</label>
-              <input id="rr_tBlueWeakMax" type="number" min="0" step="1" value="14" />
+              <input id="rr_tBlueWeakMin" type="number" step="1" placeholder="min" style="flex:1;">
+              <input id="rr_tBlueWeakMax" type="number" step="1" placeholder="max" style="flex:1;">
             </div>
           </div>
         </details>
       </div>
 
-      <div class="card">
-        <h2 style="margin:0 0 10px;font-size:16px;">Rocket Rumble — Result</h2>
-
-        <div id="rr_banner" class="result bad">
-          <div id="rr_headline" style="font-size:18px;font-weight:800;">Not AP</div>
-          <div id="rr_why" style="margin-top:6px;color:#333;line-height:1.35;"></div>
+      <div class="panel">
+        <div id="rr_banner" class="banner neutral">
+          <div id="rr_head" class="bannerTitle">—</div>
+          <div id="rr_why" class="bannerWhy"></div>
         </div>
 
-        <div id="rr_warnings" class="result warn hidden" style="margin-top:12px;">
-          <strong>Warnings</strong>
-          <ul id="rr_warnList" class="tiny"></ul>
+        <div id="rr_warnBox" class="panel" style="margin-top:10px;background:#fff6c7;">
+          <div style="font-weight:900;">Warnings</div>
+          <ul id="rr_warnList" class="hint" style="margin:6px 0 0 18px;"></ul>
         </div>
 
-        <div class="tiny" style="margin-top:12px;">
+        <div class="hint" style="margin-top:10px;">
           <strong>Computed</strong>
-          <div id="rr_computed" class="mono" style="margin-top:6px; white-space:pre-wrap;"></div>
+          <div id="rr_comp" class="mono" style="white-space:pre-wrap;margin-top:6px;"></div>
         </div>
       </div>
     </div>
   </section>
+
+</div><!-- /shell -->
 
 <script>
 (() => {
-  // -----------------------------
-  // Helpers
-  // -----------------------------
+  /* =========================================================
+     App navigation
+  ========================================================= */
   const $ = (id) => document.getElementById(id);
-  const clampInt = (v, fb=0) => Math.max(0, Math.floor(Number.isFinite(Number(v)) ? Number(v) : fb));
+  const LS_UI = "apcalc_ui_v2";
 
-  function lsGet(key, fb=null){ try{ const r = localStorage.getItem(key); return r ? JSON.parse(r) : fb; }catch{ return fb; } }
+  const GAMES = [
+    { id:"frank",    name:"Frankenstein" },
+    { id:"temple",   name:"Temple Falls" },
+    { id:"regal",    name:"Regal Riches" },
+    { id:"ascending",name:"Ascending Fortunes / Stack Up Pays" },
+    { id:"golden",   name:"Golden Jungle (2x)" },
+    { id:"rocket",   name:"Rocket Rumble" },
+  ];
+
+  function lsGet(key, fb=null){ try{ const r=localStorage.getItem(key); return r ? JSON.parse(r) : fb; }catch{ return fb; } }
   function lsSet(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch{} }
   function lsDel(key){ try{ localStorage.removeItem(key); }catch{} }
 
-  // -----------------------------
-  // Game registry + switching UI
-  // -----------------------------
-  const GAMES = [
-    { id: "regal",    name: "Regal Riches" },
-    { id: "ascending",name: "Ascending Fortunes / Stack Up Pays" },
-    { id: "golden",   name: "Golden Jungle (2x)" },
-    { id: "rocket",   name: "Rocket Rumble" },
-  ];
-
-  const GAME_KEYS = {
-    regal: "apcalc_regal_v1",
-    ascending: "apcalc_ascending_v1",
-    golden: "apcalc_golden_v1",
-    rocket: "apcalc_rocket_v1",
-    ui: "apcalc_ui_v1",
-  };
-
   function showGame(gameId){
-    // sections
-    document.querySelectorAll(".game").forEach(sec => sec.classList.add("hidden"));
+    document.querySelectorAll(".game").forEach(s => s.classList.add("hidden"));
     const sec = $("game-" + gameId);
     if (sec) sec.classList.remove("hidden");
 
-    // tabs
     document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.game === gameId));
-    // select
     $("gameSelect").value = gameId;
 
-    // save UI state
-    lsSet(GAME_KEYS.ui, { gameId });
+    lsSet(LS_UI, { gameId });
+    // re-eval on show (keeps banners fresh)
+    evalAll();
   }
 
-  function initSwitcher(){
-    const sel = $("gameSelect");
+  function initNav(){
     const tabs = $("tabs");
-
-    // build select options
-    sel.innerHTML = "";
-    GAMES.forEach(g => {
-      const opt = document.createElement("option");
-      opt.value = g.id;
-      opt.textContent = g.name;
-      sel.appendChild(opt);
-    });
-
-    // build tabs
+    const sel = $("gameSelect");
     tabs.innerHTML = "";
-    GAMES.forEach(g => {
+    sel.innerHTML = "";
+
+    for (const g of GAMES){
       const t = document.createElement("div");
       t.className = "tab";
       t.textContent = g.name;
       t.dataset.game = g.id;
       t.addEventListener("click", () => showGame(g.id));
       tabs.appendChild(t);
-    });
 
+      const opt = document.createElement("option");
+      opt.value = g.id;
+      opt.textContent = g.name;
+      sel.appendChild(opt);
+    }
     sel.addEventListener("change", () => showGame(sel.value));
 
-    const uiState = lsGet(GAME_KEYS.ui, { gameId: "regal" });
-    showGame(uiState?.gameId || "regal");
+    const ui = lsGet(LS_UI, { gameId: "frank" });
+    showGame(ui?.gameId || "frank");
   }
 
-  // -----------------------------
-  // Regal Riches
-  // -----------------------------
+  /* =========================================================
+     Shared helpers
+  ========================================================= */
+  function numOrZero(v){
+    const t = String(v ?? "").trim();
+    if (t === "") return 0;
+    const n = Number(t);
+    return Number.isFinite(n) ? n : 0;
+  }
+  function intOrZero(v){
+    const t = String(v ?? "").trim();
+    if (t === "") return 0;
+    const n = Math.floor(Number(t));
+    return Number.isFinite(n) ? n : 0;
+  }
+  function isAllBlank(inputs){
+    return inputs.every(el => String(el.value ?? "").trim() === "");
+  }
+  function setTotalBars(topEl, botEl, text, cls){
+    for (const el of [topEl, botEl]){
+      if (!el) continue;
+      el.textContent = text;
+      el.classList.remove("t-white","t-red","t-orange","t-yellow","t-green");
+      el.classList.add(cls);
+    }
+  }
+  function setBanner(el, headEl, whyEl, state, head, why){
+    el.classList.remove("ok","bad","neutral");
+    el.classList.add(state);
+    headEl.textContent = head;
+    whyEl.textContent = why || "";
+  }
+
+  /* =========================================================
+     1) Frankenstein
+  ========================================================= */
+  const LS_FRANK = "apcalc_frank_v2";
+  const frankCells = Array.from(document.querySelectorAll("#game-frank .cell"));
+  const frankBarTop = $("frank_barTop");
+  const frankBarBottom = $("frank_barBottom");
+
+  function frankBand(total){
+    if (total < 17) return "t-red";
+    if (total < 17.5) return "t-orange";
+    if (total < 18) return "t-yellow";
+    return "t-green";
+  }
+
+  function frankReadInputs(){
+    const inputs = frankCells.map(c => c.querySelector("input")).filter(Boolean);
+    return inputs;
+  }
+
+  function frankRecalc(){
+    const inputs = frankReadInputs();
+    const allBlank = isAllBlank(inputs);
+    if (allBlank){
+      setTotalBars(frankBarTop, frankBarBottom, "0.00", "t-white");
+      return;
+    }
+
+    let total = 0;
+    for (const cell of frankCells){
+      const mult = Number(cell.dataset.mult || "0");
+      const inp = cell.querySelector("input");
+      const val = inp ? numOrZero(inp.value) : 0;
+      total += val * mult;
+    }
+    setTotalBars(frankBarTop, frankBarBottom, total.toFixed(2), frankBand(total));
+    lsSet(LS_FRANK, inputs.map(i => i.value ?? ""));
+  }
+
+  function frankReset(){
+    frankReadInputs().forEach(inp => inp.value = "");
+    lsDel(LS_FRANK);
+    frankRecalc();
+    frankReadInputs()[0]?.focus();
+  }
+
+  function frankRestore(){
+    const saved = lsGet(LS_FRANK, null);
+    if (!saved) return;
+    const inputs = frankReadInputs();
+    saved.forEach((v, i) => { if (inputs[i]) inputs[i].value = v; });
+  }
+
+  frankReadInputs().forEach(inp => inp.addEventListener("input", frankRecalc));
+  frankBarTop.addEventListener("click", frankReset);
+  frankBarBottom.addEventListener("click", frankReset);
+
+  /* =========================================================
+     2) Temple Falls
+  ========================================================= */
+  const LS_TEMPLE = "apcalc_temple_v2";
+  const templeBetEl = $("temple_bet");
+  const templeBarBottom = $("temple_barBottom");
+  const templeGridForm = $("temple_gridForm");
+  const templeDotBtn = $("temple_dotBtn");
+  const templeAddRowBtn = $("temple_addRowBtn");
+  const templeRowsHost = $("temple_rows");
+  const TEMPLE_BASE_ROWS = 2;
+  let templeLastFocused = null;
+
+  function templeMakeRow({ included } = {}){
+    const row = document.createElement("div");
+    row.className = "row";
+    row.dataset.included = included ? "true" : "false";
+
+    for (let i=0;i<5;i++){
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      const inp = document.createElement("input");
+      inp.className = "cellInput";
+      inp.type = "text";
+      inp.setAttribute("inputmode","decimal");
+      inp.setAttribute("pattern","[0-9.]*");
+      inp.setAttribute("autocorrect","off");
+      inp.setAttribute("spellcheck","false");
+      inp.setAttribute("enterkeyhint","next");
+
+      cell.appendChild(inp);
+      row.appendChild(cell);
+
+      cell.addEventListener("click", (e)=>{ if (e.target !== inp) inp.focus(); });
+      inp.addEventListener("focus", ()=>{ templeLastFocused = inp; });
+      inp.addEventListener("input", templeRecalc);
+    }
+
+    const total = document.createElement("div");
+    total.className = "rowTotal";
+    total.textContent = "0.00";
+    row.appendChild(total);
+    return row;
+  }
+
+  function templeInitRows(){
+    templeRowsHost.innerHTML = "";
+    for (let r=0;r<TEMPLE_BASE_ROWS;r++){
+      templeRowsHost.appendChild(templeMakeRow({ included:true }));
+    }
+    templeRefreshEnterHints();
+    templeRecalc();
+  }
+
+  function templeGetAllRows(){ return Array.from(templeRowsHost.querySelectorAll(".row")); }
+  function templeGetAllInputs(){ return Array.from(templeRowsHost.querySelectorAll(".cellInput")); }
+
+  function templeParseBet(){
+    const t = String(templeBetEl.value ?? "").trim();
+    if (t === "") return null;
+    const n = Number(t);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }
+
+  function templeCellValue(raw, bet){
+    const s = String(raw ?? "").trim();
+    if (s === "") return 0;
+    if (s === ".") return 38;
+    const n = Number(s);
+    if (!Number.isFinite(n)) return 0;
+    return n / bet;
+  }
+
+  function templeClamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
+
+  function templeSetCellColor(inp){
+    const cell = inp.closest(".cell");
+    const s = String(inp.value ?? "").trim();
+
+    if (s === ""){
+      cell.classList.remove("rainbow");
+      cell.style.background = "#d9f2ff";
+      return;
+    }
+    if (s.includes(".")){
+      cell.classList.add("rainbow");
+      cell.style.background = "";
+      return;
+    }
+    const n = Number(s);
+    if (!Number.isFinite(n)){
+      cell.classList.remove("rainbow");
+      cell.style.background = "#d9f2ff";
+      return;
+    }
+    cell.classList.remove("rainbow");
+    const v = templeClamp(n, 1, 200);
+    const t = (v - 1) / 199;
+    const light = 92 - t * 22;
+    cell.style.background = `hsl(45 90% ${light}%)`;
+  }
+
+  function templeBand(total){
+    if (total < 50) return "t-red";
+    if (total < 60) return "t-orange";
+    return "t-green";
+  }
+
+  function templeIsEmptyAll(){
+    if (String(templeBetEl.value ?? "").trim() !== "") return false;
+    return templeGetAllInputs().every(inp => String(inp.value ?? "").trim() === "");
+  }
+
+  function templeSetBar(text, cls){
+    templeBarBottom.textContent = text;
+    templeBarBottom.classList.remove("t-white","t-red","t-orange","t-green");
+    templeBarBottom.classList.add(cls);
+  }
+
+  function templeRecalc(){
+    const rows = templeGetAllRows();
+    const bet = templeParseBet();
+
+    let bottomTotal = 0;
+
+    for (const row of rows){
+      const rowInputs = Array.from(row.querySelectorAll(".cellInput"));
+      rowInputs.forEach(templeSetCellColor);
+
+      let rowSum = 0;
+      if (bet){
+        for (const inp of rowInputs) rowSum += templeCellValue(inp.value, bet);
+      }
+      row.querySelector(".rowTotal").textContent = rowSum.toFixed(2);
+      if (row.dataset.included === "true" && bet) bottomTotal += rowSum;
+    }
+
+    if (templeIsEmptyAll() || !bet){
+      templeSetBar("0.00", "t-white");
+    } else {
+      templeSetBar(bottomTotal.toFixed(2), templeBand(bottomTotal));
+    }
+
+    // persist
+    const state = {
+      bet: String(templeBetEl.value ?? ""),
+      rows: rows.map(r => ({
+        included: r.dataset.included === "true",
+        vals: Array.from(r.querySelectorAll(".cellInput")).map(i => String(i.value ?? ""))
+      }))
+    };
+    lsSet(LS_TEMPLE, state);
+  }
+
+  function templeReset(){
+    templeBetEl.value = "";
+    lsDel(LS_TEMPLE);
+    templeInitRows();
+    templeBetEl.focus();
+  }
+
+  function templeRefreshEnterHints(){
+    const inputs = templeGetAllInputs();
+    inputs.forEach((inp, i) => inp.setAttribute("enterkeyhint", i === inputs.length - 1 ? "done" : "next"));
+  }
+
+  templeBarBottom.addEventListener("click", templeReset);
+
+  templeBetEl.addEventListener("input", templeRecalc);
+  templeBetEl.addEventListener("keydown", (e)=>{ if (e.key==="Enter"){ e.preventDefault(); templeGetAllInputs()[0]?.focus(); }});
+
+  templeAddRowBtn.addEventListener("click", ()=>{
+    const newRow = templeMakeRow({ included:false });
+    templeRowsHost.prepend(newRow);
+    templeRefreshEnterHints();
+    newRow.querySelector(".cellInput")?.focus();
+    templeRecalc();
+  });
+
+  templeDotBtn.addEventListener("click", ()=>{
+    const inputs = templeGetAllInputs();
+    if (!inputs.length) return;
+    let idx = templeLastFocused ? inputs.indexOf(templeLastFocused) : -1;
+    if (idx < 0) idx = 0;
+    inputs[idx].value = ".";
+    templeRecalc();
+    if (idx < inputs.length - 1) inputs[idx + 1].focus();
+    else inputs[idx].blur();
+  });
+
+  templeGridForm.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const inputs = templeGetAllInputs();
+    const active = document.activeElement;
+    const idx = inputs.indexOf(active);
+    if (idx >= 0 && idx < inputs.length - 1) inputs[idx + 1].focus();
+    else active?.blur();
+  });
+
+  function templeRestore(){
+    const S = lsGet(LS_TEMPLE, null);
+    if (!S) return;
+    templeRowsHost.innerHTML = "";
+    templeBetEl.value = S.bet ?? "";
+
+    // restore rows
+    if (Array.isArray(S.rows) && S.rows.length){
+      for (const r of S.rows){
+        const row = templeMakeRow({ included: !!r.included });
+        const inputs = Array.from(row.querySelectorAll(".cellInput"));
+        (r.vals || []).forEach((v, i)=>{ if (inputs[i]) inputs[i].value = v; });
+        templeRowsHost.appendChild(row);
+      }
+    } else {
+      templeInitRows();
+    }
+    templeRefreshEnterHints();
+  }
+
+  /* =========================================================
+     3) Regal Riches (Yellow/Green/Purple only)
+  ========================================================= */
+  const LS_REGAL = "apcalc_regal_v2";
+
+  // defaults
+  const REGAL_DEFAULTS = {
+    tYellowRed: 106, tYellowGold: 115,
+    tGreenRed:  81, tGreenGold:   85,
+    tPurpleRed: 56, tPurpleGold:  60,
+    tSumMin:   210
+  };
+
   function regalRead(){
     return {
-      blue: clampInt($("regal_blue").value),
-      diamond: clampInt($("regal_diamond").value),
-      green: clampInt($("regal_green").value),
-      purple: clampInt($("regal_purple").value),
+      y: intOrZero($("regal_yellow").value),
+      g: intOrZero($("regal_green").value),
+      p: intOrZero($("regal_purple").value),
       T: {
-        blueMin: clampInt($("regal_tBlueMin").value, 8),
-        sumMin: clampInt($("regal_tSumMin").value, 210),
-        red: {
-          diamond: clampInt($("regal_tDiamondRed").value, 106),
-          green: clampInt($("regal_tGreenRed").value, 81),
-          purple: clampInt($("regal_tPurpleRed").value, 56),
-        },
-        gold: {
-          diamond: clampInt($("regal_tDiamondGold").value, 115),
-          green: clampInt($("regal_tGreenGold").value, 85),
-          purple: clampInt($("regal_tPurpleGold").value, 60),
-        }
+        yRed: intOrZero($("regal_tYellowRed").value) || REGAL_DEFAULTS.tYellowRed,
+        yGold:intOrZero($("regal_tYellowGold").value) || REGAL_DEFAULTS.tYellowGold,
+        gRed: intOrZero($("regal_tGreenRed").value) || REGAL_DEFAULTS.tGreenRed,
+        gGold:intOrZero($("regal_tGreenGold").value) || REGAL_DEFAULTS.tGreenGold,
+        pRed: intOrZero($("regal_tPurpleRed").value) || REGAL_DEFAULTS.tPurpleRed,
+        pGold:intOrZero($("regal_tPurpleGold").value) || REGAL_DEFAULTS.tPurpleGold,
+        sumMin: intOrZero($("regal_tSumMin").value) || REGAL_DEFAULTS.tSumMin
       }
     };
   }
 
-  function regalRender(S){
-    const { blue, diamond, green, purple, T } = S;
-    $("regal_pBlue").textContent = T.blueMin;
-    $("regal_pSum").textContent = T.sumMin;
+  function regalEval(){
+    const S = regalRead();
+    const sum = S.y + S.g + S.p;
 
-    const vals = { diamond, green, purple };
-    const goldHits = Object.keys(vals).filter(k => vals[k] >= T.gold[k]);
-    const redHits  = Object.keys(vals).filter(k => vals[k] >= T.red[k]);
-    const sum = diamond + green + purple;
+    const goldHits = [];
+    if (S.y >= S.T.yGold) goldHits.push("Yellow");
+    if (S.g >= S.T.gGold) goldHits.push("Green");
+    if (S.p >= S.T.pGold) goldHits.push("Purple");
+
+    const redHits = [];
+    if (S.y >= S.T.yRed) redHits.push("Yellow");
+    if (S.g >= S.T.gRed) redHits.push("Green");
+    if (S.p >= S.T.pRed) redHits.push("Purple");
 
     let playable = false;
-    const reasons = [];
+    let why = "";
 
-    if (blue >= T.blueMin) {
+    if (goldHits.length >= 1){
       playable = true;
-      reasons.push(`Blue rule: blue (${blue}) ≥ ${T.blueMin}.`);
+      why = `GOLD trigger: ${goldHits.join(", ")} (need 1).`;
+    } else if (redHits.length >= 2){
+      playable = true;
+      why = `RED trigger: ${redHits.join(", ")} (need 2).`;
+    } else if (sum >= S.T.sumMin){
+      playable = true;
+      why = `SUM trigger: ${sum} ≥ ${S.T.sumMin}.`;
     } else {
-      if (goldHits.length >= 1) {
-        playable = true;
-        reasons.push(`Gold rule: ${goldHits.join(", ")} met GOLD threshold (need 1).`);
-      }
-      if (!playable && redHits.length >= 2) {
-        playable = true;
-        reasons.push(`Red rule: ${redHits.join(", ")} met RED thresholds (need 2).`);
-      }
-      if (!playable && sum >= T.sumMin) {
-        playable = true;
-        reasons.push(`Sum rule: diamond+green+purple = ${sum} ≥ ${T.sumMin}.`);
-      }
+      playable = false;
+      why = "No triggers hit (GOLD / RED / SUM).";
     }
 
-    const banner = $("regal_banner");
-    const headline = $("regal_headline");
-    const why = $("regal_why");
-    banner.classList.remove("ok","bad");
-    if (playable) {
-      banner.classList.add("ok");
-      headline.textContent = "AP (Playable)";
-      why.textContent = reasons.join("  ");
-      $("regal_runNote").classList.remove("hidden");
-      $("regal_runText").textContent = (blue >= T.blueMin)
-        ? "Blue-trigger plays are usually the shortest run. Still watch loss tolerance."
-        : "Non-blue triggers can be brutally long-run (often hundreds to thousands of spins).";
-    } else {
-      banner.classList.add("bad");
-      headline.textContent = "Not AP";
-      why.textContent = "None of the triggers hit (Blue, Gold-any-1, Red-2-of-3, or Sum).";
-      $("regal_runNote").classList.add("hidden");
-    }
+    const state = playable ? "ok" : "bad";
+    setBanner($("regal_banner"), $("regal_head"), $("regal_why"),
+      state,
+      playable ? "AP (Playable)" : "Not AP",
+      why
+    );
 
-    $("regal_computed").textContent =
-      `blue=${blue} (need ≥ ${T.blueMin})\n` +
-      `diamond=${diamond} (RED≥${T.red.diamond}, GOLD≥${T.gold.diamond})\n` +
-      `green=${green}   (RED≥${T.red.green},   GOLD≥${T.gold.green})\n` +
-      `purple=${purple} (RED≥${T.red.purple}, GOLD≥${T.gold.purple})\n` +
-      `sum=${sum} (need ≥ ${T.sumMin})\n` +
-      `redHits=[${redHits.join(", ")}], goldHits=[${goldHits.join(", ")}]`;
+    $("regal_comp").textContent =
+      `Yellow=${S.y} (RED≥${S.T.yRed}, GOLD≥${S.T.yGold})\n` +
+      `Green =${S.g} (RED≥${S.T.gRed}, GOLD≥${S.T.gGold})\n` +
+      `Purple=${S.p} (RED≥${S.T.pRed}, GOLD≥${S.T.pGold})\n` +
+      `Sum=${sum} (SUM≥${S.T.sumMin})\n` +
+      `goldHits=[${goldHits.join(", ")}], redHits=[${redHits.join(", ")}]`;
 
-    lsSet(GAME_KEYS.regal, S);
+    lsSet(LS_REGAL, {
+      y: $("regal_yellow").value, g: $("regal_green").value, p: $("regal_purple").value,
+      adv: {
+        tYellowRed: $("regal_tYellowRed").value, tYellowGold: $("regal_tYellowGold").value,
+        tGreenRed: $("regal_tGreenRed").value, tGreenGold: $("regal_tGreenGold").value,
+        tPurpleRed: $("regal_tPurpleRed").value, tPurpleGold: $("regal_tPurpleGold").value,
+        tSumMin: $("regal_tSumMin").value
+      }
+    });
+  }
+
+  function regalReset(){
+    $("regal_yellow").value = "";
+    $("regal_green").value = "";
+    $("regal_purple").value = "";
+    // keep advanced fields empty too (they’ll fall back to defaults)
+    $("regal_tYellowRed").value = "";
+    $("regal_tYellowGold").value = "";
+    $("regal_tGreenRed").value = "";
+    $("regal_tGreenGold").value = "";
+    $("regal_tPurpleRed").value = "";
+    $("regal_tPurpleGold").value = "";
+    $("regal_tSumMin").value = "";
+    lsDel(LS_REGAL);
+    regalEval();
+    $("regal_yellow").focus();
   }
 
   function regalRestore(){
-    const S = lsGet(GAME_KEYS.regal, null);
+    const S = lsGet(LS_REGAL, null);
     if (!S) return;
-    $("regal_blue").value = S.blue ?? 0;
-    $("regal_diamond").value = S.diamond ?? 0;
-    $("regal_green").value = S.green ?? 0;
-    $("regal_purple").value = S.purple ?? 0;
-
-    if (S.T){
-      $("regal_tBlueMin").value = S.T.blueMin ?? 8;
-      $("regal_tSumMin").value = S.T.sumMin ?? 210;
-      $("regal_tDiamondRed").value = S.T.red?.diamond ?? 106;
-      $("regal_tGreenRed").value = S.T.red?.green ?? 81;
-      $("regal_tPurpleRed").value = S.T.red?.purple ?? 56;
-      $("regal_tDiamondGold").value = S.T.gold?.diamond ?? 115;
-      $("regal_tGreenGold").value = S.T.gold?.green ?? 85;
-      $("regal_tPurpleGold").value = S.T.gold?.purple ?? 60;
+    $("regal_yellow").value = S.y ?? "";
+    $("regal_green").value = S.g ?? "";
+    $("regal_purple").value = S.p ?? "";
+    if (S.adv){
+      $("regal_tYellowRed").value = S.adv.tYellowRed ?? "";
+      $("regal_tYellowGold").value = S.adv.tYellowGold ?? "";
+      $("regal_tGreenRed").value = S.adv.tGreenRed ?? "";
+      $("regal_tGreenGold").value = S.adv.tGreenGold ?? "";
+      $("regal_tPurpleRed").value = S.adv.tPurpleRed ?? "";
+      $("regal_tPurpleGold").value = S.adv.tPurpleGold ?? "";
+      $("regal_tSumMin").value = S.adv.tSumMin ?? "";
     }
   }
 
-  function regalEval(){ regalRender(regalRead()); }
+  /* =========================================================
+     4) Ascending (Mega/Grand/Major/Minor only)
+  ========================================================= */
+  const LS_ASC = "apcalc_ascending_v2";
+  const ASC_DEFAULTS = {
+    mhbMinor:150, thrMinor:4,
+    mhbMajor:200, thrMajor:8,
+    mhbGrand:250, thrGrand:12,
+    mhbMega:350,  thrMega:20,
+    softMult:1.3, softNeed:2
+  };
 
-  function regalReset(){
-    $("regal_blue").value = 0;
-    $("regal_diamond").value = 0;
-    $("regal_green").value = 0;
-    $("regal_purple").value = 0;
-    lsDel(GAME_KEYS.regal);
-    regalEval();
-  }
-
-  // -----------------------------
-  // Ascending Fortunes / Stack Up Pays
-  // -----------------------------
   function ascRead(){
+    const softMultRaw = String($("asc_softMult").value ?? "").trim();
+    const softNeedRaw = String($("asc_softNeed").value ?? "").trim();
+    const softMult = softMultRaw === "" ? ASC_DEFAULTS.softMult : Number(softMultRaw);
+    const softNeed = softNeedRaw === "" ? ASC_DEFAULTS.softNeed : Math.max(1, Math.floor(Number(softNeedRaw)));
+
     return {
       vals: {
-        minor: clampInt($("asc_minorVal").value),
-        mini: clampInt($("asc_miniVal").value),
-        major: clampInt($("asc_majorVal").value),
-        grand: clampInt($("asc_grandVal").value),
-        mega: clampInt($("asc_megaVal").value),
+        mega:  intOrZero($("asc_mega").value),
+        grand: intOrZero($("asc_grand").value),
+        major: intOrZero($("asc_major").value),
+        minor: intOrZero($("asc_minor").value),
       },
       mhb: {
-        minor: clampInt($("asc_mhbMinor").value, 150),
-        major: clampInt($("asc_mhbMajor").value, 200),
-        grand: clampInt($("asc_mhbGrand").value, 250),
-        mega: clampInt($("asc_mhbMega").value, 350),
+        minor: intOrZero($("asc_mhbMinor").value) || ASC_DEFAULTS.mhbMinor,
+        major: intOrZero($("asc_mhbMajor").value) || ASC_DEFAULTS.mhbMajor,
+        grand: intOrZero($("asc_mhbGrand").value) || ASC_DEFAULTS.mhbGrand,
+        mega:  intOrZero($("asc_mhbMega").value)  || ASC_DEFAULTS.mhbMega,
       },
       thr: {
-        minor: clampInt($("asc_thrMinor").value, 4),
-        major: clampInt($("asc_thrMajor").value, 8),
-        grand: clampInt($("asc_thrGrand").value, 12),
-        mega: clampInt($("asc_thrMega").value, 20),
+        minor: intOrZero($("asc_thrMinor").value) || ASC_DEFAULTS.thrMinor,
+        major: intOrZero($("asc_thrMajor").value) || ASC_DEFAULTS.thrMajor,
+        grand: intOrZero($("asc_thrGrand").value) || ASC_DEFAULTS.thrGrand,
+        mega:  intOrZero($("asc_thrMega").value)  || ASC_DEFAULTS.thrMega,
       },
-      softMult: Number.isFinite(Number($("asc_softMult").value)) ? Number($("asc_softMult").value) : 1.3,
-      softNeed: Math.max(1, Math.floor(Number.isFinite(Number($("asc_softNeed").value)) ? Number($("asc_softNeed").value) : 2)),
+      softMult: Number.isFinite(softMult) ? softMult : ASC_DEFAULTS.softMult,
+      softNeed
     };
   }
 
   function ascAway(mhb, current){ return Math.max(0, Math.floor(mhb - current)); }
 
-  function ascRender(S){
+  function ascEval(){
+    const S = ascRead();
     const away = {
       minor: ascAway(S.mhb.minor, S.vals.minor),
       major: ascAway(S.mhb.major, S.vals.major),
@@ -728,7 +1234,6 @@
       grand: Math.floor(S.thr.grand * S.softMult),
       mega:  Math.floor(S.thr.mega  * S.softMult),
     };
-
     const softHits = [];
     if (away.major <= softThr.major) softHits.push(`Major ${away.major} away (≤ ${softThr.major})`);
     if (away.grand <= softThr.grand) softHits.push(`Grand ${away.grand} away (≤ ${softThr.grand})`);
@@ -738,112 +1243,134 @@
 
     let playable = false;
     let why = "";
-    if (strictHits.length) {
+    if (strictHits.length){
       playable = true;
-      why = "Strict trigger hit: " + strictHits.join(" | ");
-    } else if (softPass) {
+      why = "Strict: " + strictHits.join(" | ");
+    } else if (softPass){
       playable = true;
-      why = `Soft ${S.softNeed}-of-3 trigger hit: ` + softHits.join(" | ");
+      why = `Soft ${S.softNeed}-of-3: ` + softHits.join(" | ");
     } else {
       playable = false;
       why = "No strict trigger and no soft trigger.";
     }
 
-    const banner = $("asc_banner");
-    banner.classList.remove("ok","bad");
-    if (playable) {
-      banner.classList.add("ok");
-      $("asc_headline").textContent = "AP (Playable)";
-    } else {
-      banner.classList.add("bad");
-      $("asc_headline").textContent = "Not AP";
-    }
-    $("asc_why").textContent = why;
+    setBanner($("asc_banner"), $("asc_head"), $("asc_why"),
+      playable ? "ok" : "bad",
+      playable ? "AP (Playable)" : "Not AP",
+      why
+    );
 
-    $("asc_computed").textContent =
-      `Minor: current=${S.vals.minor}, MHB=${S.mhb.minor}, away=${away.minor} (strict≤${S.thr.minor})\n` +
-      `Major: current=${S.vals.major}, MHB=${S.mhb.major}, away=${away.major} (strict≤${S.thr.major}, soft≤${softThr.major})\n` +
-      `Grand: current=${S.vals.grand}, MHB=${S.mhb.grand}, away=${away.grand} (strict≤${S.thr.grand}, soft≤${softThr.grand})\n` +
+    $("asc_comp").textContent =
       `Mega : current=${S.vals.mega},  MHB=${S.mhb.mega},  away=${away.mega}  (strict≤${S.thr.mega},  soft≤${softThr.mega})\n` +
-      `Mini : current=${S.vals.mini} (ignored)\n` +
-      `Soft rule: floor(strict × ${S.softMult}) and need ${S.softNeed} of (Major/Grand/Mega).`;
+      `Grand: current=${S.vals.grand}, MHB=${S.mhb.grand}, away=${away.grand} (strict≤${S.thr.grand}, soft≤${softThr.grand})\n` +
+      `Major: current=${S.vals.major}, MHB=${S.mhb.major}, away=${away.major} (strict≤${S.thr.major}, soft≤${softThr.major})\n` +
+      `Minor: current=${S.vals.minor}, MHB=${S.mhb.minor}, away=${away.minor} (strict≤${S.thr.minor})\n` +
+      `Soft rule: floor(strict×${S.softMult}) and need ${S.softNeed} of (Major/Grand/Mega).`;
 
-    lsSet(GAME_KEYS.ascending, S);
+    lsSet(LS_ASC, {
+      vals: {
+        mega: $("asc_mega").value, grand: $("asc_grand").value, major: $("asc_major").value, minor: $("asc_minor").value
+      },
+      adv: {
+        mhbMinor:$("asc_mhbMinor").value, thrMinor:$("asc_thrMinor").value,
+        mhbMajor:$("asc_mhbMajor").value, thrMajor:$("asc_thrMajor").value,
+        mhbGrand:$("asc_mhbGrand").value, thrGrand:$("asc_thrGrand").value,
+        mhbMega:$("asc_mhbMega").value,   thrMega:$("asc_thrMega").value,
+        softMult:$("asc_softMult").value, softNeed:$("asc_softNeed").value
+      }
+    });
+  }
+
+  function ascReset(){
+    $("asc_mega").value = "";
+    $("asc_grand").value = "";
+    $("asc_major").value = "";
+    $("asc_minor").value = "";
+
+    $("asc_mhbMinor").value = "";
+    $("asc_thrMinor").value = "";
+    $("asc_mhbMajor").value = "";
+    $("asc_thrMajor").value = "";
+    $("asc_mhbGrand").value = "";
+    $("asc_thrGrand").value = "";
+    $("asc_mhbMega").value = "";
+    $("asc_thrMega").value = "";
+    $("asc_softMult").value = "";
+    $("asc_softNeed").value = "";
+
+    lsDel(LS_ASC);
+    ascEval();
+    $("asc_mega").focus();
   }
 
   function ascRestore(){
-    const S = lsGet(GAME_KEYS.ascending, null);
+    const S = lsGet(LS_ASC, null);
     if (!S) return;
-
-    $("asc_minorVal").value = S.vals?.minor ?? 0;
-    $("asc_miniVal").value  = S.vals?.mini  ?? 0;
-    $("asc_majorVal").value = S.vals?.major ?? 0;
-    $("asc_grandVal").value = S.vals?.grand ?? 0;
-    $("asc_megaVal").value  = S.vals?.mega  ?? 0;
-
-    $("asc_mhbMinor").value = S.mhb?.minor ?? 150;
-    $("asc_mhbMajor").value = S.mhb?.major ?? 200;
-    $("asc_mhbGrand").value = S.mhb?.grand ?? 250;
-    $("asc_mhbMega").value  = S.mhb?.mega  ?? 350;
-
-    $("asc_thrMinor").value = S.thr?.minor ?? 4;
-    $("asc_thrMajor").value = S.thr?.major ?? 8;
-    $("asc_thrGrand").value = S.thr?.grand ?? 12;
-    $("asc_thrMega").value  = S.thr?.mega  ?? 20;
-
-    $("asc_softMult").value = (S.softMult ?? 1.3);
-    $("asc_softNeed").value = (S.softNeed ?? 2);
+    if (S.vals){
+      $("asc_mega").value = S.vals.mega ?? "";
+      $("asc_grand").value = S.vals.grand ?? "";
+      $("asc_major").value = S.vals.major ?? "";
+      $("asc_minor").value = S.vals.minor ?? "";
+    }
+    if (S.adv){
+      $("asc_mhbMinor").value = S.adv.mhbMinor ?? "";
+      $("asc_thrMinor").value = S.adv.thrMinor ?? "";
+      $("asc_mhbMajor").value = S.adv.mhbMajor ?? "";
+      $("asc_thrMajor").value = S.adv.thrMajor ?? "";
+      $("asc_mhbGrand").value = S.adv.mhbGrand ?? "";
+      $("asc_thrGrand").value = S.adv.thrGrand ?? "";
+      $("asc_mhbMega").value = S.adv.mhbMega ?? "";
+      $("asc_thrMega").value = S.adv.thrMega ?? "";
+      $("asc_softMult").value = S.adv.softMult ?? "";
+      $("asc_softNeed").value = S.adv.softNeed ?? "";
+    }
   }
 
-  function ascEval(){ ascRender(ascRead()); }
-
-  function ascReset(){
-    $("asc_minorVal").value = 0;
-    $("asc_miniVal").value  = 0;
-    $("asc_majorVal").value = 0;
-    $("asc_grandVal").value = 0;
-    $("asc_megaVal").value  = 0;
-    lsDel(GAME_KEYS.ascending);
-    ascEval();
-  }
-
-  // -----------------------------
-  // Golden Jungle (2x)
-  // -----------------------------
+  /* =========================================================
+     5) Golden Jungle (2x)
+  ========================================================= */
+  const LS_GJ = "apcalc_golden_v2";
   const GJ_STAGES = [1,2,4,6,8];
+
   function gjStageForSpin(spin){
     if (spin <= 1) return 1;
     for (const s of GJ_STAGES) if (spin <= s) return s;
     return 8;
   }
-  function any2x(arr){ return arr.some(v => v >= 2); }
+  function gjAny2x(arr){ return arr.some(v => v >= 2); }
 
-  function gjRead(){
-    return {
-      spin: clampInt($("gj_spin").value),
-      c1: clampInt($("gj_c1").value),
-      c2: clampInt($("gj_c2").value),
-      c3: clampInt($("gj_c3").value),
-      c4: clampInt($("gj_c4").value),
-      c5: clampInt($("gj_c5").value),
-    };
+  function gjSelOptions(sel){
+    const opts = ["", "EMPTY", "0", "1", "2"];
+    sel.innerHTML = "";
+    for (const o of opts){
+      const opt = document.createElement("option");
+      opt.value = o;
+      opt.textContent = (o === "" ? "" : o);
+      sel.appendChild(opt);
+    }
   }
 
-  function gjRender(S){
-    const spin = S.spin;
-    const c1=S.c1,c2=S.c2,c3=S.c3,c4=S.c4,c5=S.c5;
+  function gjParseCell(v){
+    const t = String(v ?? "").trim();
+    if (t === "" || t.toUpperCase() === "EMPTY") return 0;
+    const n = Number(t);
+    return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
+  }
+
+  function gjEval(){
+    const spin = intOrZero($("gj_spin").value);
+    const c1 = gjParseCell($("gj_c1").value);
+    const c2 = gjParseCell($("gj_c2").value);
+    const c3 = gjParseCell($("gj_c3").value);
+    const c4 = gjParseCell($("gj_c4").value);
+    const c5 = gjParseCell($("gj_c5").value);
 
     const total = c1+c2+c3+c4+c5;
     const sum13 = c1+c2+c3;
     const stage = gjStageForSpin(spin);
 
-    const any2x14 = any2x([c1,c2,c3,c4]);
-    const any2x13 = any2x([c1,c2,c3]);
-
-    $("gj_stageP").textContent = stage;
-    $("gj_totalP").textContent = total;
-    $("gj_sum13P").textContent = sum13;
-    $("gj_any2x14P").textContent = any2x14 ? "yes" : "no";
+    const any2x14 = gjAny2x([c1,c2,c3,c4]);
+    const any2x13 = gjAny2x([c1,c2,c3]);
 
     const s1 = () => ((c1+c2+c3+c4) >= 1);
     const s2 = () => (sum13 >= 1) || (c4 >= 2) || (c4 >= 1 && c5 >= 2);
@@ -859,236 +1386,284 @@
 
     let pass = false;
     let why = "";
-    if (stage === 1) { pass = s1(); why = pass ? "Stage 1: ≥1 on columns 1–4." : "Stage 1 failed: nothing on columns 1–4."; }
-    if (stage === 2) { pass = s2(); why = pass ? "Stage 2: (≥1 in 1–3) OR (2x on 4) OR (≥1 on 4 AND 2x on 5)." : "Stage 2 failed."; }
-    if (stage === 4) { pass = s4(); why = pass ? "Stage 4: total ≥ 3 OR a 2x exists on columns 1–4." : "Stage 4 failed."; }
-    if (stage === 6) { pass = s6(); why = pass ? "Stage 6: total ≥ 4 OR sum(1–3) ≥ 3." : "Stage 6 failed."; }
-    if (stage === 8) { pass = s8(); why = pass ? "Stage 8: one of the advanced combos hit (see reference)." : "Stage 8 failed."; }
+    if (stage === 1) { pass = s1(); why = pass ? "Stage 1: ≥1 on columns 1–4." : "Stage 1 failed."; }
+    if (stage === 2) { pass = s2(); why = pass ? "Stage 2 passed." : "Stage 2 failed."; }
+    if (stage === 4) { pass = s4(); why = pass ? "Stage 4 passed." : "Stage 4 failed."; }
+    if (stage === 6) { pass = s6(); why = pass ? "Stage 6 passed." : "Stage 6 failed."; }
+    if (stage === 8) { pass = s8(); why = pass ? "Stage 8 passed." : "Stage 8 failed."; }
 
-    const banner = $("gj_banner");
-    banner.classList.remove("ok","bad");
-    if (pass) {
-      banner.classList.add("ok");
-      $("gj_headline").textContent = "AP (Playable)";
-    } else {
-      banner.classList.add("bad");
-      $("gj_headline").textContent = "Not AP";
-    }
-    $("gj_why").textContent = why;
+    setBanner($("gj_banner"), $("gj_head"), $("gj_why"),
+      pass ? "ok" : "bad",
+      pass ? "AP (Playable)" : "Not AP",
+      `spin=${spin} → stage=${stage}. ${why}`
+    );
 
-    $("gj_computed").textContent =
-      `spin=${spin} → stage=${stage}\n` +
+    $("gj_comp").textContent =
+      `spin=${spin} stage=${stage}\n` +
       `c1=${c1}, c2=${c2}, c3=${c3}, c4=${c4}, c5=${c5}\n` +
       `total=${total}, sum(1–3)=${sum13}\n` +
       `any2x(1–3)=${any2x13}, any2x(1–4)=${any2x14}`;
 
-    lsSet(GAME_KEYS.golden, S);
+    lsSet(LS_GJ, {
+      spin: $("gj_spin").value,
+      c1: $("gj_c1").value, c2: $("gj_c2").value, c3: $("gj_c3").value, c4: $("gj_c4").value, c5: $("gj_c5").value
+    });
+  }
+
+  function gjReset(){
+    $("gj_spin").value = "";
+    $("gj_c1").value = "";
+    $("gj_c2").value = "";
+    $("gj_c3").value = "";
+    $("gj_c4").value = "";
+    $("gj_c5").value = "";
+    lsDel(LS_GJ);
+    gjEval();
+    $("gj_spin").focus();
   }
 
   function gjRestore(){
-    const S = lsGet(GAME_KEYS.golden, null);
+    const S = lsGet(LS_GJ, null);
     if (!S) return;
-    $("gj_spin").value = S.spin ?? 0;
-    $("gj_c1").value = S.c1 ?? 0;
-    $("gj_c2").value = S.c2 ?? 0;
-    $("gj_c3").value = S.c3 ?? 0;
-    $("gj_c4").value = S.c4 ?? 0;
-    $("gj_c5").value = S.c5 ?? 0;
+    $("gj_spin").value = S.spin ?? "";
+    $("gj_c1").value = S.c1 ?? "";
+    $("gj_c2").value = S.c2 ?? "";
+    $("gj_c3").value = S.c3 ?? "";
+    $("gj_c4").value = S.c4 ?? "";
+    $("gj_c5").value = S.c5 ?? "";
   }
 
-  function gjEval(){ gjRender(gjRead()); }
+  /* =========================================================
+     6) Rocket Rumble
+  ========================================================= */
+  const LS_RR = "apcalc_rocket_v2";
+  const RR_DEFAULTS = {
+    greenStrong:17, greenSpecial:16, blueSpecial:13,
+    purplePlayable:32, purpleAvoid:31, redInfo:98,
+    blueMode:"ignore", blueWeakMin:13, blueWeakMax:14
+  };
 
-  function gjReset(){
-    $("gj_spin").value = 0;
-    $("gj_c1").value = 0;
-    $("gj_c2").value = 0;
-    $("gj_c3").value = 0;
-    $("gj_c4").value = 0;
-    $("gj_c5").value = 0;
-    lsDel(GAME_KEYS.golden);
-    gjEval();
-  }
-
-  // -----------------------------
-  // Rocket Rumble
-  // -----------------------------
   function rrRead(){
+    const blueMode = $("rr_blueMode").value || RR_DEFAULTS.blueMode;
     return {
-      green: clampInt($("rr_green").value),
-      blue: clampInt($("rr_blue").value),
-      purple: clampInt($("rr_purple").value),
-      red: clampInt($("rr_red").value),
+      green: intOrZero($("rr_green").value),
+      blue: intOrZero($("rr_blue").value),
+      purple: intOrZero($("rr_purple").value),
+      red: intOrZero($("rr_red").value),
       T: {
-        greenStrong: clampInt($("rr_tGreenStrong").value, 17),
-        greenSpecial: clampInt($("rr_tGreenSpecial").value, 16),
-        blueSpecial: clampInt($("rr_tBlueSpecial").value, 13),
-        purplePlayable: clampInt($("rr_tPurplePlayable").value, 32),
-        purpleAvoid: clampInt($("rr_tPurpleAvoid").value, 31),
-        redInfo: clampInt($("rr_tRedInfo").value, 98),
-        blueMode: $("rr_blueMode").value,
-        blueWeakMin: clampInt($("rr_tBlueWeakMin").value, 13),
-        blueWeakMax: clampInt($("rr_tBlueWeakMax").value, 14),
+        greenStrong: intOrZero($("rr_tGreenStrong").value) || RR_DEFAULTS.greenStrong,
+        greenSpecial:intOrZero($("rr_tGreenSpecial").value) || RR_DEFAULTS.greenSpecial,
+        blueSpecial: intOrZero($("rr_tBlueSpecial").value) || RR_DEFAULTS.blueSpecial,
+        purplePlayable:intOrZero($("rr_tPurplePlayable").value) || RR_DEFAULTS.purplePlayable,
+        purpleAvoid:  intOrZero($("rr_tPurpleAvoid").value) || RR_DEFAULTS.purpleAvoid,
+        redInfo:      intOrZero($("rr_tRedInfo").value) || RR_DEFAULTS.redInfo,
+        blueMode,
+        blueWeakMin:  intOrZero($("rr_tBlueWeakMin").value) || RR_DEFAULTS.blueWeakMin,
+        blueWeakMax:  intOrZero($("rr_tBlueWeakMax").value) || RR_DEFAULTS.blueWeakMax,
       }
     };
   }
 
-  function rrRender(S){
-    const { green, blue, purple, red, T } = S;
-    let ap = false;
-    let tier = "Not AP";
-    const reasons = [];
+  function rrEval(){
+    const S = rrRead();
     const warns = [];
 
-    if (purple === T.purpleAvoid) warns.push(`Purple is exactly ${T.purpleAvoid}: don’t start here.`);
-    if (purple >= T.purplePlayable) warns.push("Purple trigger is a long-run grind (usually hundreds of spins).");
-    if (red >= T.redInfo) warns.push(`Red is ${red} (≥ ${T.redInfo} “safe-ish”), but guidance is to generally ignore red.`);
+    if (S.purple === S.T.purpleAvoid) warns.push(`Purple=${S.T.purpleAvoid} (don’t start here).`);
+    if (S.purple >= S.T.purplePlayable) warns.push("Purple trigger is long-run (usually hundreds of spins).");
+    if (S.red >= S.T.redInfo) warns.push(`Red=${S.red} (≥${S.T.redInfo} “safe-ish”), generally ignore red.`);
 
-    if (green >= T.greenStrong) {
-      ap = true; tier = "AP (Playable — Green)";
-      reasons.push(`Green ${green} ≥ ${T.greenStrong}.`);
-    } else if (green === T.greenSpecial && blue === T.blueSpecial) {
-      ap = true; tier = "AP (Playable — Green special)";
-      reasons.push(`Green ${green} = ${T.greenSpecial} AND Blue ${blue} = ${T.blueSpecial}.`);
-    } else if (purple >= T.purplePlayable) {
-      ap = true; tier = "AP (Playable — Purple, long run)";
-      reasons.push(`Purple ${purple} ≥ ${T.purplePlayable}.`);
+    let ap=false;
+    let why="";
+
+    if (S.green >= S.T.greenStrong){
+      ap=true; why=`Green ${S.green} ≥ ${S.T.greenStrong}.`;
+    } else if (S.green === S.T.greenSpecial && S.blue === S.T.blueSpecial){
+      ap=true; why=`Green ${S.green} = ${S.T.greenSpecial} AND Blue ${S.blue} = ${S.T.blueSpecial}.`;
+    } else if (S.purple >= S.T.purplePlayable){
+      ap=true; why=`Purple ${S.purple} ≥ ${S.T.purplePlayable} (long run).`;
     } else {
-      const blueInWeak = (blue >= T.blueWeakMin && blue <= T.blueWeakMax);
-      if (T.blueMode === "weak" && blueInWeak) {
-        ap = true; tier = "AP (WEAK — Blue 13–14 override)";
-        reasons.push(`Blue ${blue} in [${T.blueWeakMin}, ${T.blueWeakMax}] and WEAK mode enabled.`);
-        warns.push("Blue is explicitly ‘13–14 or just ignore’ — treat as borderline.");
+      const blueInWeak = (S.blue >= S.T.blueWeakMin && S.blue <= S.T.blueWeakMax);
+      if (S.T.blueMode === "weak" && blueInWeak){
+        ap=true; why=`Blue ${S.blue} in [${S.T.blueWeakMin},${S.T.blueWeakMax}] with WEAK override.`;
+        warns.push("Blue 13–14 is explicitly ‘or just ignore’ — borderline.");
       } else {
-        ap = false; tier = "Not AP";
-        reasons.push("No Green trigger and Purple below playable threshold.");
-        if (blueInWeak) reasons.push(`Blue is ${blue} but default behavior is to ignore it.`);
+        ap=false; why="No Green trigger and Purple below playable threshold.";
       }
     }
 
-    const banner = $("rr_banner");
-    banner.classList.remove("ok","bad");
-    if (ap) { banner.classList.add("ok"); $("rr_headline").textContent = tier; }
-    else { banner.classList.add("bad"); $("rr_headline").textContent = tier; }
-    $("rr_why").textContent = reasons.join("  ");
+    setBanner($("rr_banner"), $("rr_head"), $("rr_why"),
+      ap ? "ok" : "bad",
+      ap ? "AP (Playable)" : "Not AP",
+      why
+    );
 
-    // warnings box
-    const wBox = $("rr_warnings");
-    const wList = $("rr_warnList");
-    wList.innerHTML = "";
-    if (warns.length){
-      wBox.classList.remove("hidden");
-      warns.forEach(w => { const li=document.createElement("li"); li.textContent=w; wList.appendChild(li); });
-    } else {
-      wBox.classList.add("hidden");
+    const list = $("rr_warnList");
+    list.innerHTML = "";
+    for (const w of warns){
+      const li = document.createElement("li");
+      li.textContent = w;
+      list.appendChild(li);
     }
+    $("rr_warnBox").classList.toggle("hidden", warns.length === 0);
 
-    $("rr_computed").textContent =
-      `green=${green}, blue=${blue}, purple=${purple}, red=${red}\n` +
-      `Green strong: ≥${T.greenStrong}\n` +
-      `Green special: ${T.greenSpecial} if blue=${T.blueSpecial}\n` +
-      `Purple playable: ≥${T.purplePlayable} (avoid=${T.purpleAvoid})\n` +
-      `Blue weak range: [${T.blueWeakMin}, ${T.blueWeakMax}] (mode=${T.blueMode})\n` +
-      `Red info: ≥${T.redInfo}`;
+    $("rr_comp").textContent =
+      `green=${S.green}, blue=${S.blue}, purple=${S.purple}, red=${S.red}\n` +
+      `Green: ≥${S.T.greenStrong} OR (${S.T.greenSpecial} if blue=${S.T.blueSpecial})\n` +
+      `Purple: ≥${S.T.purplePlayable} (avoid=${S.T.purpleAvoid})\n` +
+      `Blue weak: [${S.T.blueWeakMin},${S.T.blueWeakMax}] mode=${S.T.blueMode}\n` +
+      `Red info: ≥${S.T.redInfo}`;
 
-    lsSet(GAME_KEYS.rocket, S);
+    lsSet(LS_RR, {
+      vals: { green:$("rr_green").value, blue:$("rr_blue").value, purple:$("rr_purple").value, red:$("rr_red").value },
+      adv: {
+        tGreenStrong:$("rr_tGreenStrong").value, tGreenSpecial:$("rr_tGreenSpecial").value, tBlueSpecial:$("rr_tBlueSpecial").value,
+        tPurplePlayable:$("rr_tPurplePlayable").value, tPurpleAvoid:$("rr_tPurpleAvoid").value, tRedInfo:$("rr_tRedInfo").value,
+        blueMode:$("rr_blueMode").value, tBlueWeakMin:$("rr_tBlueWeakMin").value, tBlueWeakMax:$("rr_tBlueWeakMax").value
+      }
+    });
+  }
+
+  function rrReset(){
+    $("rr_green").value = "";
+    $("rr_blue").value = "";
+    $("rr_purple").value = "";
+    $("rr_red").value = "";
+
+    $("rr_tGreenStrong").value = "";
+    $("rr_tGreenSpecial").value = "";
+    $("rr_tBlueSpecial").value = "";
+    $("rr_tPurplePlayable").value = "";
+    $("rr_tPurpleAvoid").value = "";
+    $("rr_tRedInfo").value = "";
+    $("rr_blueMode").value = "ignore";
+    $("rr_tBlueWeakMin").value = "";
+    $("rr_tBlueWeakMax").value = "";
+
+    lsDel(LS_RR);
+    rrEval();
+    $("rr_green").focus();
   }
 
   function rrRestore(){
-    const S = lsGet(GAME_KEYS.rocket, null);
+    const S = lsGet(LS_RR, null);
     if (!S) return;
-
-    $("rr_green").value = S.green ?? 0;
-    $("rr_blue").value = S.blue ?? 0;
-    $("rr_purple").value = S.purple ?? 0;
-    $("rr_red").value = S.red ?? 0;
-
-    if (S.T){
-      $("rr_tGreenStrong").value = S.T.greenStrong ?? 17;
-      $("rr_tGreenSpecial").value = S.T.greenSpecial ?? 16;
-      $("rr_tBlueSpecial").value = S.T.blueSpecial ?? 13;
-      $("rr_tPurplePlayable").value = S.T.purplePlayable ?? 32;
-      $("rr_tPurpleAvoid").value = S.T.purpleAvoid ?? 31;
-      $("rr_tRedInfo").value = S.T.redInfo ?? 98;
-      $("rr_blueMode").value = S.T.blueMode ?? "ignore";
-      $("rr_tBlueWeakMin").value = S.T.blueWeakMin ?? 13;
-      $("rr_tBlueWeakMax").value = S.T.blueWeakMax ?? 14;
+    if (S.vals){
+      $("rr_green").value = S.vals.green ?? "";
+      $("rr_blue").value = S.vals.blue ?? "";
+      $("rr_purple").value = S.vals.purple ?? "";
+      $("rr_red").value = S.vals.red ?? "";
+    }
+    if (S.adv){
+      $("rr_tGreenStrong").value = S.adv.tGreenStrong ?? "";
+      $("rr_tGreenSpecial").value = S.adv.tGreenSpecial ?? "";
+      $("rr_tBlueSpecial").value = S.adv.tBlueSpecial ?? "";
+      $("rr_tPurplePlayable").value = S.adv.tPurplePlayable ?? "";
+      $("rr_tPurpleAvoid").value = S.adv.tPurpleAvoid ?? "";
+      $("rr_tRedInfo").value = S.adv.tRedInfo ?? "";
+      $("rr_blueMode").value = S.adv.blueMode ?? "ignore";
+      $("rr_tBlueWeakMin").value = S.adv.tBlueWeakMin ?? "";
+      $("rr_tBlueWeakMax").value = S.adv.tBlueWeakMax ?? "";
     }
   }
 
-  function rrEval(){ rrRender(rrRead()); }
-
-  function rrReset(){
-    $("rr_green").value = 0;
-    $("rr_blue").value = 0;
-    $("rr_purple").value = 0;
-    $("rr_red").value = 0;
-    lsDel(GAME_KEYS.rocket);
-    rrEval();
+  /* =========================================================
+     Wiring + resets
+  ========================================================= */
+  function onInput(ids, fn){
+    ids.forEach(id => {
+      const el = $(id);
+      if (!el) return;
+      el.addEventListener("input", fn);
+      el.addEventListener("change", fn);
+    });
   }
 
-  // -----------------------------
-  // Global resets
-  // -----------------------------
   function resetCurrent(){
-    const gameId = $("gameSelect").value;
-    if (gameId === "regal") regalReset();
-    if (gameId === "ascending") ascReset();
-    if (gameId === "golden") gjReset();
-    if (gameId === "rocket") rrReset();
+    const g = $("gameSelect").value;
+    if (g === "frank") frankReset();
+    if (g === "temple") templeReset();
+    if (g === "regal") regalReset();
+    if (g === "ascending") ascReset();
+    if (g === "golden") gjReset();
+    if (g === "rocket") rrReset();
   }
 
   function resetAll(){
-    regalReset(); ascReset(); gjReset(); rrReset();
-    lsDel(GAME_KEYS.ui);
-    showGame("regal");
+    frankReset();
+    templeReset();
+    regalReset();
+    ascReset();
+    gjReset();
+    rrReset();
+    lsDel(LS_UI);
+    showGame("frank");
   }
 
-  // -----------------------------
-  // Wire up inputs -> eval
-  // -----------------------------
-  function onInputs(ids, fn){
-    ids.forEach(id => $(id).addEventListener("input", fn));
-    ids.forEach(id => $(id).addEventListener("change", fn));
+  $("resetGameBtn").addEventListener("click", resetCurrent);
+  $("resetAllBtn").addEventListener("click", resetAll);
+
+  function evalAll(){
+    // only eval the ones that exist (safe)
+    frankRecalc();
+    templeRecalc();
+    regalEval();
+    ascEval();
+    gjEval();
+    rrEval();
   }
 
-  // Init switcher first
-  initSwitcher();
+  /* =========================================================
+     Init
+  ========================================================= */
+  // Golden Jungle selects
+  ["gj_c1","gj_c2","gj_c3","gj_c4","gj_c5"].forEach(id => gjSelOptions($(id)));
 
-  // Restore saved states
+  // Restore saved states (if any)
+  frankRestore();
+  templeRestore();
   regalRestore();
   ascRestore();
   gjRestore();
   rrRestore();
 
-  // Wire events
-  onInputs([
-    "regal_blue","regal_diamond","regal_green","regal_purple",
-    "regal_tBlueMin","regal_tSumMin","regal_tDiamondRed","regal_tDiamondGold",
-    "regal_tGreenRed","regal_tGreenGold","regal_tPurpleRed","regal_tPurpleGold"
-  ], regalEval);
+  // Temple rows init if no restore
+  if (!lsGet(LS_TEMPLE, null)) templeInitRows();
 
-  onInputs([
-    "asc_minorVal","asc_miniVal","asc_majorVal","asc_grandVal","asc_megaVal",
-    "asc_mhbMinor","asc_thrMinor","asc_mhbMajor","asc_thrMajor",
-    "asc_mhbGrand","asc_thrGrand","asc_mhbMega","asc_thrMega",
-    "asc_softMult","asc_softNeed"
-  ], ascEval);
+  // Defaults for Regal/Asc/RR advanced fields: leave EMPTY (per your requirement)
+  // They fall back internally to defaults until you type.
 
-  onInputs(["gj_spin","gj_c1","gj_c2","gj_c3","gj_c4","gj_c5"], gjEval);
+  // Wire inputs
+  onInput(
+    ["regal_yellow","regal_green","regal_purple",
+     "regal_tYellowRed","regal_tYellowGold","regal_tGreenRed","regal_tGreenGold","regal_tPurpleRed","regal_tPurpleGold","regal_tSumMin"],
+    regalEval
+  );
 
-  onInputs([
-    "rr_green","rr_blue","rr_purple","rr_red",
-    "rr_tGreenStrong","rr_tGreenSpecial","rr_tBlueSpecial",
-    "rr_tPurplePlayable","rr_tPurpleAvoid","rr_tRedInfo",
-    "rr_blueMode","rr_tBlueWeakMin","rr_tBlueWeakMax"
-  ], rrEval);
+  onInput(
+    ["asc_mega","asc_grand","asc_major","asc_minor",
+     "asc_mhbMinor","asc_thrMinor","asc_mhbMajor","asc_thrMajor","asc_mhbGrand","asc_thrGrand","asc_mhbMega","asc_thrMega","asc_softMult","asc_softNeed"],
+    ascEval
+  );
 
-  // Buttons
-  $("resetGameBtn").addEventListener("click", resetCurrent);
-  $("resetAllBtn").addEventListener("click", resetAll);
+  onInput(["gj_spin","gj_c1","gj_c2","gj_c3","gj_c4","gj_c5"], gjEval);
 
-  // Initial eval (after restore)
-  regalEval(); ascEval(); gjEval(); rrEval();
+  onInput(
+    ["rr_green","rr_blue","rr_purple","rr_red",
+     "rr_tGreenStrong","rr_tGreenSpecial","rr_tBlueSpecial","rr_tPurplePlayable","rr_tPurpleAvoid","rr_tRedInfo",
+     "rr_blueMode","rr_tBlueWeakMin","rr_tBlueWeakMax"],
+    rrEval
+  );
+
+  // Initial evals
+  frankRecalc();
+  templeRecalc();
+  regalEval();
+  ascEval();
+  gjEval();
+  rrEval();
+
+  // Navigation last
+  initNav();
 })();
 </script>
 </body>
