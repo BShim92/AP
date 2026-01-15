@@ -176,11 +176,11 @@
     }
     .logic b{ opacity:1; }
 
-    /* ===== Temple Falls row grid ===== */
+    /* ===== Temple Falls grid (NO row totals) ===== */
     .tfRows{ display:flex; flex-direction:column; gap:10px; }
     .tfRow{
       display:grid;
-      grid-template-columns: repeat(5, 1fr) 1fr;
+      grid-template-columns: repeat(5, 1fr);
       gap:8px;
       align-items:stretch;
     }
@@ -197,30 +197,16 @@
     .tfCell.rainbow{
       background: linear-gradient(90deg,#ff5a5a,#ffb34d,#ffe066,#67d36b,#59c6ff,#9b6bff,#ff5ad9);
     }
-    /* ✅ bigger cell font + fits 4 digits comfortably */
+    /* ✅ smaller font so 4 digits fit comfortably */
     .tfIn{
       width:100%;
       border:1px solid rgba(0,0,0,.14);
       border-radius:10px;
       padding:10px 8px;
-      font-size:16px;
+      font-size:13px;          /* was 16 */
       font-weight:950;
       background: rgba(255,255,255,.92);
       text-align:right;
-      font-variant-numeric: tabular-nums;
-    }
-    /* ✅ row total bigger, NOT rounded */
-    .tfTotal{
-      border-radius:12px;
-      border:1px solid rgba(0,0,0,.10);
-      background:#f2f3f7;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:950;
-      font-size:16px;
-      min-height:58px;
-      user-select:none;
       font-variant-numeric: tabular-nums;
     }
 
@@ -395,7 +381,6 @@
           </div>
 
           <div style="margin-top:10px;">
-            <!-- ✅ clickable reset -->
             <div id="fResult" class="result r-white clickable" title="Tap to reset">0.00</div>
           </div>
 
@@ -432,8 +417,7 @@
           <div id="tfRows" class="tfRows"></div>
 
           <div style="margin-top:10px;">
-            <!-- ✅ NOT a reset button anymore -->
-            <div id="tfResult" class="result r-white">0.00</div>
+            <div id="tfResult" class="result r-white clickable" title="Tap to reset">0.00</div>
 
             <div class="logic">
               <b>AP logic:</b> Bottom total sums the 2 base rows only. Cell value: empty→1, “.”→38, number→(number ÷ bet).
@@ -630,7 +614,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
     inp.addEventListener("focus", ()=> setTimeout(()=> inp.select?.(), 0));
   });
 
-  /* ✅ total bar acts as reset */
   fResult.addEventListener("click", reset);
   fResult.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
 
@@ -725,10 +708,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       });
     }
 
-    const total = document.createElement("div");
-    total.className = "tfTotal";
-    total.textContent = "0.00";
-    row.appendChild(total);
     return row;
   }
 
@@ -770,8 +749,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
         for (const inp of inputs) rowSum += tfCellValue(inp.value, bet);
       }
 
-      row.querySelector(".tfTotal").textContent = rowSum.toFixed(2);
-
       if (row.dataset.included === "true") bottomTotal += rowSum;
     }
 
@@ -790,7 +767,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
 
   function reset(){
     tfBet.value = "";
-    // remove added rows + clear base inputs
     init();
     tfBet.focus();
   }
@@ -817,9 +793,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   tfDot.addEventListener("click", insertDot);
   tfDotFab.addEventListener("click", insertDot);
 
-  /* ✅ total bar IS a reset button */
-  tfResult.classList.add("clickable");
-  tfResult.title = "Tap to reset";
   tfResult.addEventListener("click", reset);
   tfResult.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
 
@@ -861,7 +834,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       let msg = "AP ✅";
       if (allHard) msg = "AP ✅ (All hard met)";
       else if (sumHard) msg = "AP ✅ (Sum ≥ 210)";
-      else msg = `AP ✅ (2 soft met)`;
+      else msg = "AP ✅ (2 soft met)";
       setResult(out, msg, "r-green");
       return;
     }
