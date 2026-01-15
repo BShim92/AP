@@ -188,22 +188,22 @@
       border-radius:10px;    /* slightly tighter */
       border:1px solid rgba(0,0,0,.10);
       background:#d9f2ff;
-      padding:4px;           /* ✅ reduced */
+      padding:4px;           /* reduced */
       display:flex;
       align-items:flex-end;
-      min-height:50px;       /* ✅ reduced */
+      min-height:50px;       /* reduced */
       transition: background 120ms ease;
     }
     .tfCell.rainbow{
       background: linear-gradient(90deg,#ff5a5a,#ffb34d,#ffe066,#67d36b,#59c6ff,#9b6bff,#ff5ad9);
     }
-    /* ✅ smaller font + tighter padding so 4 digits never clip */
+    /* ✅ 2/3 of previous size (was 10px) => ~6.67px; using 7px for readability */
     .tfIn{
       width:100%;
       border:1px solid rgba(0,0,0,.14);
       border-radius:9px;
-      padding:8px 5px;       /* ✅ reduced */
-      font-size:10px;        /* ✅ smaller */
+      padding:8px 5px;
+      font-size:7px;         /* ✅ smaller */
       font-weight:950;
       background: rgba(255,255,255,.92);
       text-align:right;
@@ -739,7 +739,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       let rowSum = 0;
 
       if (!bet){
-        // bet missing: treat "." as 38, numeric as 0, empty as 0
         for (const inp of inputs){
           const s = String(inp.value ?? "").trim();
           if (s === ".") rowSum += 38;
