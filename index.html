@@ -51,7 +51,7 @@
       user-select:none;
       white-space:nowrap;
       box-shadow:0 1px 0 rgba(0,0,0,.03);
-      touch-action: manipulation; /* iOS/Android: makes taps more reliable */
+      touch-action: manipulation;
       -webkit-user-select:none;
     }
     .chip:active{ transform: translateY(1px); }
@@ -66,10 +66,7 @@
       margin:0 auto;
       padding:10px;
     }
-    .game{
-      display:none;
-      padding-bottom: calc(18px + env(safe-area-inset-bottom));
-    }
+    .game{ display:none; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
     .game.active{ display:block; }
 
     /* ===== Light panels ===== */
@@ -100,21 +97,10 @@
     }
 
     /* ===== Inputs ===== */
-    .field{
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .label{
-      font-weight:900;
-      font-size:13px;
-      white-space:nowrap;
-    }
-    .sub{
-      font-weight:800;
-      font-size:11px;
-      opacity:.65;
-    }
+    .field{ display:flex; gap:8px; align-items:center; }
+    .label{ font-weight:900; font-size:13px; white-space:nowrap; }
+    .sub{ font-weight:800; font-size:11px; opacity:.65; }
+
     input[type="number"], input[type="text"], select{
       width:100%;
       border:1px solid rgba(0,0,0,.14);
@@ -140,6 +126,9 @@
       background:#ffffff;
       color:#0b0f18;
     }
+    .result.clickable{ cursor:pointer; }
+    .result.clickable:active{ transform: translateY(1px); }
+
     .r-white{ background:#ffffff; }
     .r-red{ background:#ff5a5a; }
     .r-orange{ background:#ffb34d; }
@@ -188,14 +177,10 @@
     .logic b{ opacity:1; }
 
     /* ===== Temple Falls row grid ===== */
-    .tfRows{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
+    .tfRows{ display:flex; flex-direction:column; gap:10px; }
     .tfRow{
       display:grid;
-      grid-template-columns: repeat(5, 1fr) .9fr;
+      grid-template-columns: repeat(5, 1fr) 1fr;
       gap:8px;
       align-items:stretch;
     }
@@ -206,23 +191,25 @@
       padding:6px;
       display:flex;
       align-items:flex-end;
-      min-height:56px;
+      min-height:58px;
       transition: background 120ms ease;
     }
     .tfCell.rainbow{
       background: linear-gradient(90deg,#ff5a5a,#ffb34d,#ffe066,#67d36b,#59c6ff,#9b6bff,#ff5ad9);
     }
+    /* ✅ bigger cell font + fits 4 digits comfortably */
     .tfIn{
       width:100%;
       border:1px solid rgba(0,0,0,.14);
       border-radius:10px;
       padding:10px 8px;
-      font-size:14px;
+      font-size:16px;
       font-weight:950;
       background: rgba(255,255,255,.92);
       text-align:right;
       font-variant-numeric: tabular-nums;
     }
+    /* ✅ row total bigger, NOT rounded */
     .tfTotal{
       border-radius:12px;
       border:1px solid rgba(0,0,0,.10);
@@ -231,8 +218,8 @@
       align-items:center;
       justify-content:center;
       font-weight:950;
-      font-size:15px;
-      min-height:56px;
+      font-size:16px;
+      min-height:58px;
       user-select:none;
       font-variant-numeric: tabular-nums;
     }
@@ -382,6 +369,7 @@
           <div class="hint">
             Defaults are <b>empty</b>, but each empty field is treated as <span class="mono">1</span> in the total.
           </div>
+          <div class="hint">Tap the total bar to reset.</div>
         </div>
 
         <div class="panel">
@@ -407,7 +395,8 @@
           </div>
 
           <div style="margin-top:10px;">
-            <div id="fResult" class="result r-white">0.00</div>
+            <!-- ✅ clickable reset -->
+            <div id="fResult" class="result r-white clickable" title="Tap to reset">0.00</div>
           </div>
 
           <div class="logic">
@@ -435,6 +424,7 @@
             Empty cell = <span class="mono">1</span>. “.” = <span class="mono">38</span>. Numbers = (number ÷ bet).
             Top-added rows don’t count in the bottom total.
           </div>
+          <div class="hint">Tap the total bar to reset.</div>
         </div>
 
         <div class="panel">
@@ -442,7 +432,9 @@
           <div id="tfRows" class="tfRows"></div>
 
           <div style="margin-top:10px;">
+            <!-- ✅ NOT a reset button anymore -->
             <div id="tfResult" class="result r-white">0.00</div>
+
             <div class="logic">
               <b>AP logic:</b> Bottom total sums the 2 base rows only. Cell value: empty→1, “.”→38, number→(number ÷ bet).
               Bands: red &lt; 50, orange &lt; 60, green ≥ 60.
@@ -575,7 +567,7 @@ function setResult(el, text, cls){
   el.classList.add(cls);
 }
 
-/* ====================== Game switching (FIXED: responsive on iOS/Android) ====================== */
+/* ====================== Game switching (tap-safe) ====================== */
 const chipsHost = document.getElementById("chips");
 const chipBtns = Array.from(document.querySelectorAll(".chip"));
 const games = {
@@ -588,10 +580,8 @@ const games = {
 function showGame(key){
   for (const k in games) games[k].classList.toggle("active", k === key);
   for (const c of chipBtns) c.setAttribute("aria-selected", c.dataset.game === key ? "true" : "false");
-  // ensure tap immediately scrolls to the top of content area (keeps UI feeling snappy)
   window.scrollTo({ top: 0, behavior: "instant" });
 }
-/* Event delegation + touchstart (prevents “dead taps” on some mobile browsers) */
 function onChipActivate(e){
   const btn = e.target.closest(".chip");
   if (!btn) return;
@@ -629,11 +619,20 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
     }
     setResult(fResult, total.toFixed(2), band(total));
   }
+  function reset(){
+    for (const inp of fInputs) inp.value = "";
+    recalc();
+    fInputs[0]?.focus();
+  }
 
   fInputs.forEach(inp => {
     inp.addEventListener("input", recalc);
     inp.addEventListener("focus", ()=> setTimeout(()=> inp.select?.(), 0));
   });
+
+  /* ✅ total bar acts as reset */
+  fResult.addEventListener("click", reset);
+  fResult.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
 
   recalc();
 })();
@@ -772,6 +771,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       }
 
       row.querySelector(".tfTotal").textContent = rowSum.toFixed(2);
+
       if (row.dataset.included === "true") bottomTotal += rowSum;
     }
 
@@ -786,6 +786,13 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
     }
 
     setResult(tfResult, bottomTotal.toFixed(2), band(bottomTotal));
+  }
+
+  function reset(){
+    tfBet.value = "";
+    // remove added rows + clear base inputs
+    init();
+    tfBet.focus();
   }
 
   tfBet.addEventListener("input", recalc);
@@ -809,6 +816,12 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
 
   tfDot.addEventListener("click", insertDot);
   tfDotFab.addEventListener("click", insertDot);
+
+  /* ✅ total bar IS a reset button */
+  tfResult.classList.add("clickable");
+  tfResult.title = "Tap to reset";
+  tfResult.addEventListener("click", reset);
+  tfResult.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
 
   init();
 })();
@@ -848,7 +861,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       let msg = "AP ✅";
       if (allHard) msg = "AP ✅ (All hard met)";
       else if (sumHard) msg = "AP ✅ (Sum ≥ 210)";
-      else msg = "AP ✅ (2 soft met)";
+      else msg = `AP ✅ (2 soft met)`;
       setResult(out, msg, "r-green");
       return;
     }
