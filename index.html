@@ -37,7 +37,6 @@
       padding:6px 0 8px;
     }
 
-    /* Row 1: tiny game chips + reset */
     .navRow1{
       display:flex;
       align-items:center;
@@ -57,9 +56,9 @@
       background:#fff;
       color:var(--text);
       border-radius:999px;
-      padding:6px 9px;           /* smaller */
+      padding:6px 9px;
       font-weight:900;
-      font-size:12px;            /* smaller */
+      font-size:12px;
       cursor:pointer;
       user-select:none;
       line-height:1;
@@ -74,9 +73,9 @@
       background:#fff;
       color:var(--text);
       border-radius:999px;
-      padding:6px 10px;          /* smaller */
+      padding:6px 10px;
       font-weight:900;
-      font-size:12px;            /* smaller */
+      font-size:12px;
       cursor:pointer;
       user-select:none;
       line-height:1;
@@ -84,7 +83,6 @@
     }
     .btn:active,.chip:active{ transform: translateY(1px); }
 
-    /* Row 2: compact AP badge */
     .navRow2{
       margin-top:6px;
       display:flex;
@@ -95,13 +93,13 @@
       flex:1;
       border:1px solid var(--stroke2);
       border-radius: 12px;
-      padding: 8px 10px;         /* tighter */
+      padding: 8px 10px;
       background:#fff;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      min-height: 42px;          /* smaller */
+      min-height: 42px;
     }
     .badge .left{ display:flex; flex-direction:column; gap:1px; }
     .badge .title{ font-weight:1000; font-size:14px; line-height:1.05; }
@@ -388,7 +386,6 @@
 <body>
 <div class="shell">
 
-  <!-- Compact sticky header -->
   <div class="nav">
     <div class="navRow1">
       <div class="chipbar" id="chipbar"></div>
@@ -412,9 +409,19 @@
   <section id="game-frank" class="game active" aria-label="Frankenstein">
     <div class="grid2">
       <div class="panel">
-        <div class="panelTitle">TOTAL (tap to reset)</div>
+        <div class="panelTitle">SETUP</div>
+        <div class="field" style="min-height:auto;">
+          <div class="label">Bet size <span class="sub">(required)</span></div>
+          <input id="frankBet" type="number" inputmode="decimal" step="any" placeholder="e.g., 8.80" />
+        </div>
+
+        <div class="panelTitle" style="margin-top:12px;">TOTAL (tap to reset)</div>
         <div id="frankTop" class="totalbar t-white">0.00</div>
-        <div class="hint">Rule: <span class="mono">&lt;17</span> red, <span class="mono">&lt;17.5</span> orange, <span class="mono">&lt;18</span> yellow, <span class="mono">≥18</span> green.</div>
+
+        <div class="hint">
+          Frankenstein: EMPTY counts as <span class="mono">1</span> then divides by bet.
+          Bands: <span class="mono">&lt;17</span> red, <span class="mono">&lt;17.5</span> orange, <span class="mono">&lt;18</span> yellow, <span class="mono">≥18</span> green.
+        </div>
       </div>
 
       <div class="panel">
@@ -466,16 +473,17 @@
   </section>
 
   <!-- ============================= -->
-  <!-- GAME: Temple Falls -->
+  <!-- GAME: Temple Falls (UPDATED PER YOUR REQUEST) -->
   <!-- ============================= -->
   <section id="game-temple" class="game" aria-label="Temple Falls">
     <div class="grid2">
       <div class="panel">
         <div class="panelTitle">SETUP</div>
 
+        <!-- Bet size field up top -->
         <div class="field" style="min-height:auto;">
           <div class="label">Bet size <span class="sub">(required)</span></div>
-          <input id="tfBet" type="number" inputmode="decimal" step="any" />
+          <input id="tfBet" type="number" inputmode="decimal" step="any" placeholder="e.g., 8.80" />
         </div>
 
         <div class="miniBtns" style="margin-top:10px;">
@@ -483,12 +491,16 @@
           <button class="miniBtn" id="tfDot" type="button">Insert “.”</button>
         </div>
 
-        <div class="hint">Put <span class="mono">.</span> to represent a wheel. Top-added rows are excluded from bottom total.</div>
+        <div class="hint">
+          Empty cell counts as <span class="mono">1</span> (then divided by bet). “.” counts as <span class="mono">38</span>.
+          Top-added rows are excluded from bottom total.
+        </div>
       </div>
 
       <div class="panel">
         <div class="panelTitle">GRID</div>
         <div id="tfRows" style="display:flex;flex-direction:column;gap:10px;"></div>
+
         <div class="panelTitle" style="margin-top:10px;">TOTAL (tap to reset)</div>
         <div id="tfTotal" class="totalbar t-white">0.00</div>
       </div>
@@ -667,14 +679,8 @@
           <div class="label">Red spin count</div>
           <select id="gjSpinSel">
             <option value="" selected>—</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
+            <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
             <option value="8">8</option>
           </select>
         </div>
@@ -831,11 +837,15 @@
   }
 
   /* ======= HELPERS ======= */
-  function numOrZero(v){
+  function numOrNull(v){
     const t = String(v ?? "").trim();
-    if (t === "") return 0;
+    if (t === "") return null;
     const n = Number(t);
-    return Number.isFinite(n) ? n : 0;
+    return Number.isFinite(n) ? n : null;
+  }
+  function numOrZero(v){
+    const n = numOrNull(v);
+    return (n === null) ? 0 : n;
   }
   function intOrZero(v){
     const t = String(v ?? "").trim();
@@ -843,13 +853,11 @@
     const n = Math.floor(Number(t));
     return Number.isFinite(n) ? n : 0;
   }
-  function isAllBlank(inputs){
-    return inputs.every(el => String(el.value ?? "").trim() === "");
-  }
 
   /* =========================================================
      Frankenstein
   ========================================================= */
+  const frankBet = $("frankBet");
   const frankTop = $("frankTop");
   const frankBottom = $("frankBottom");
   const frankInputs = Array.from(document.querySelectorAll(".frankIn"));
@@ -860,91 +868,172 @@
     if (total < 18) return "t-yellow";
     return "t-green";
   }
-
+  function frankSetBars(text, cls){
+    [frankTop, frankBottom].forEach(el => {
+      el.textContent = text;
+      el.className = "totalbar " + cls;
+    });
+  }
+  function frankParseBet(){
+    const n = numOrNull(frankBet.value);
+    return (n && n > 0) ? n : null;
+  }
+  function frankCellVal(raw){
+    const t = String(raw ?? "").trim();
+    if (t === "") return 1; // empty->1
+    const n = Number(t);
+    return Number.isFinite(n) ? n : 1;
+  }
   function frankRecalc(){
-    if (isAllBlank(frankInputs)){
-      frankTop.textContent = frankBottom.textContent = "0.00";
-      frankTop.className = frankBottom.className = "totalbar t-white";
-      if (activeGameId()==="frank") setGlobal("—","Frankenstein","Enter values.");
+    const bet = frankParseBet();
+    if (!bet && frankInputs.every(i => String(i.value ?? "").trim() === "")){
+      frankSetBars("0.00", "t-white");
+      if (activeGameId()==="frank") setGlobal("—","Frankenstein","Enter bet + grid values.");
       return;
     }
-
+    if (!bet){
+      frankSetBars("0.00", "t-white");
+      if (activeGameId()==="frank") setGlobal("—","Frankenstein","Enter bet size first.");
+      return;
+    }
     const cells = Array.from(document.querySelectorAll("#game-frank .fcell"));
     let total = 0;
     for (const cell of cells){
       const mult = Number(cell.dataset.mult || "0");
       const inp = cell.querySelector("input");
-      total += (inp ? numOrZero(inp.value) : 0) * mult;
+      const vRaw = inp ? frankCellVal(inp.value) : 0;
+      total += (vRaw / bet) * mult;
     }
-
-    const cls = frankBand(total);
-    frankTop.textContent = frankBottom.textContent = total.toFixed(2);
-    frankTop.className = "totalbar " + cls;
-    frankBottom.className = "totalbar " + cls;
-
+    frankSetBars(total.toFixed(2), frankBand(total));
     if (activeGameId()==="frank"){
       setGlobal(total>=18 ? "AP" : "NO","Frankenstein",`Total ${total.toFixed(2)} ${total>=18?"≥18":"<18"}.`);
     }
   }
-
   function frankReset(){
+    frankBet.value = "";
     frankInputs.forEach(i => i.value="");
     frankRecalc();
-    frankInputs[0]?.focus();
+    frankBet.focus();
   }
-
+  frankBet.addEventListener("input", frankRecalc);
   frankInputs.forEach(i => i.addEventListener("input", frankRecalc));
   frankTop.addEventListener("click", frankReset);
   frankBottom.addEventListener("click", frankReset);
 
   /* =========================================================
-     Temple Falls
+     Temple Falls — UPDATED to match your sample logic style,
+     but with:
+       - bet size field (already)
+       - EMPTY cells count as 1 (then / bet)
+       - "." counts as 38
+       - added rows excluded from bottom total
+       - if bet missing OR all empty w/ bet missing -> show 0.00 white
   ========================================================= */
-  const tfBet = $("tfBet");
-  const tfRows = $("tfRows");
-  const tfTotal = $("tfTotal");
-  const tfAddRow = $("tfAddRow");
-  const tfDot = $("tfDot");
-  const tfDotFab = $("tfDotFab");
-  const TF_BASE_ROWS = 2;
-  let tfLastFocused = null;
+  const betEl = $("tfBet");
+  const barBottom = $("tfTotal");
+  const dotBtn = $("tfDot");
+  const dotFab = $("tfDotFab");
+  const addRowBtn = $("tfAddRow");
+  const rowsHost = $("tfRows");
 
-  function tfParseBet(){
-    const t = String(tfBet.value ?? "").trim();
-    if (t === "") return null;
-    const n = Number(t);
+  const BASE_ROWS = 2;
+  let lastFocused = null;
+
+  function makeRow({ included } = {}) {
+    const row = document.createElement("div");
+    row.className = "tfRow";
+    row.dataset.included = included ? "true" : "false";
+
+    for (let i = 0; i < 5; i++) {
+      const cell = document.createElement("div");
+      cell.className = "tfCell";
+
+      const inp = document.createElement("input");
+      inp.className = "tfIn";
+      inp.type = "text";
+      inp.setAttribute("inputmode", "decimal");
+      inp.setAttribute("pattern", "[0-9.]*");
+      inp.setAttribute("autocorrect", "off");
+      inp.setAttribute("spellcheck", "false");
+      inp.setAttribute("enterkeyhint", "next");
+
+      cell.appendChild(inp);
+      row.appendChild(cell);
+
+      cell.addEventListener("click", (e) => {
+        if (e.target !== inp) inp.focus();
+      });
+
+      inp.addEventListener("focus", () => { lastFocused = inp; });
+      inp.addEventListener("input", () => { recalcTemple(); });
+    }
+
+    const total = document.createElement("div");
+    total.className = "tfTotal";
+    total.textContent = "0.00";
+    row.appendChild(total);
+
+    return row;
+  }
+
+  function initRowsTemple() {
+    rowsHost.innerHTML = "";
+    for (let r = 0; r < BASE_ROWS; r++) {
+      rowsHost.appendChild(makeRow({ included: true }));
+    }
+    refreshEnterHintsTemple();
+    recalcTemple();
+  }
+
+  function getAllRowsTemple() {
+    return Array.from(rowsHost.querySelectorAll(".tfRow"));
+  }
+
+  function getAllInputsTemple() {
+    return Array.from(rowsHost.querySelectorAll(".tfIn"));
+  }
+
+  function parseBetTemple() {
+    const n = Number(String(betEl.value ?? "").trim());
     return Number.isFinite(n) && n > 0 ? n : null;
   }
-  function tfCellValue(raw, bet){
+
+  // "." token counts as 38 (wheel)
+  // EMPTY counts as 1 (then / bet)
+  function cellValueTemple(raw, bet) {
     const s = String(raw ?? "").trim();
-    if (s === "") return 0;
-    if (s === ".") return 38;
+    if (s === "") return 1 / bet;   // ✅ empty->1 then /bet
+    if (s === ".") return 38;       // ✅ wheel
     const n = Number(s);
     if (!Number.isFinite(n)) return 0;
     return n / bet;
   }
+
   function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
 
-  function tfSetCellColor(inp){
+  function setCellColorTemple(inp){
     const cell = inp.closest(".tfCell");
     const s = String(inp.value ?? "").trim();
 
-    if (s === ""){
+    if (s === "") {
       cell.classList.remove("rainbow");
       cell.style.background = "#d9f2ff";
       return;
     }
-    if (s.includes(".")){
+
+    if (s.includes(".")) {
       cell.classList.add("rainbow");
       cell.style.background = "";
       return;
     }
+
     const n = Number(s);
-    if (!Number.isFinite(n)){
+    if (!Number.isFinite(n)) {
       cell.classList.remove("rainbow");
       cell.style.background = "#d9f2ff";
       return;
     }
+
     cell.classList.remove("rainbow");
     const v = clamp(n, 1, 200);
     const t = (v - 1) / 199;
@@ -952,130 +1041,108 @@
     cell.style.background = `hsl(45 90% ${light}%)`;
   }
 
-  function tfBand(total){
+  function bandClassTemple(total){
     if (total < 50) return "t-red";
     if (total < 60) return "t-orange";
     return "t-green";
   }
 
-  function tfAllRows(){ return Array.from(tfRows.querySelectorAll(".tfRow")); }
-  function tfAllInputs(){ return Array.from(tfRows.querySelectorAll(".tfIn")); }
-
-  function tfFocusNext(inp){
-    const ins = tfAllInputs();
-    const idx = ins.indexOf(inp);
-    if (idx >= 0 && idx < ins.length - 1) ins[idx+1].focus();
-    else inp.blur();
+  function isEmptyAllTemple(){
+    if (String(betEl.value ?? "").trim() !== "") return false;
+    return getAllInputsTemple().every(inp => String(inp.value ?? "").trim() === "");
   }
 
-  function tfMakeRow(included){
-    const row = document.createElement("div");
-    row.className = "tfRow";
-    row.dataset.included = included ? "true" : "false";
-
-    for (let i=0;i<5;i++){
-      const cell = document.createElement("div");
-      cell.className = "tfCell";
-      const inp = document.createElement("input");
-      inp.className = "tfIn";
-      inp.type = "text";
-      inp.setAttribute("inputmode","decimal");
-      inp.setAttribute("pattern","[0-9.]*");
-      inp.autocorrect = "off";
-      inp.spellcheck = false;
-
-      cell.appendChild(inp);
-      row.appendChild(cell);
-
-      cell.addEventListener("click", (e)=>{ if (e.target!==inp) inp.focus(); });
-      inp.addEventListener("focus", ()=>{ tfLastFocused = inp; });
-      inp.addEventListener("input", tfRecalc);
-      inp.addEventListener("keydown", (e)=>{
-        if (e.key==="Enter"){ e.preventDefault(); tfFocusNext(inp); }
-      });
-    }
-
-    const total = document.createElement("div");
-    total.className = "tfTotal";
-    total.textContent = "0.00";
-    row.appendChild(total);
-    return row;
+  function setBarTemple(text, cls){
+    barBottom.textContent = text;
+    barBottom.classList.remove("t-white","t-red","t-orange","t-green");
+    barBottom.classList.add(cls);
   }
 
-  function tfInit(){
-    tfRows.innerHTML = "";
-    for (let r=0;r<TF_BASE_ROWS;r++) tfRows.appendChild(tfMakeRow(true));
-    tfRecalc();
-  }
-
-  function tfRecalc(){
-    const bet = tfParseBet();
-    const rows = tfAllRows();
+  function recalcTemple(){
+    const rows = getAllRowsTemple();
+    const bet = parseBetTemple();
 
     let bottomTotal = 0;
-    for (const row of rows){
-      const ins = Array.from(row.querySelectorAll(".tfIn"));
-      ins.forEach(tfSetCellColor);
+
+    for (const row of rows) {
+      const rowInputs = Array.from(row.querySelectorAll(".tfIn"));
+      rowInputs.forEach(setCellColorTemple);
 
       let rowSum = 0;
-      if (bet){
-        for (const inp of ins) rowSum += tfCellValue(inp.value, bet);
+      if (bet) {
+        for (const inp of rowInputs) rowSum += cellValueTemple(inp.value, bet);
+      } else {
+        // mimic your sample: if bet missing, don't compute totals
+        rowSum = 0;
       }
+
       row.querySelector(".tfTotal").textContent = rowSum.toFixed(2);
-      if (row.dataset.included==="true" && bet) bottomTotal += rowSum;
+
+      if (row.dataset.included === "true" && bet) bottomTotal += rowSum;
     }
 
-    if (!bet){
-      tfTotal.textContent = "0.00";
-      tfTotal.className = "totalbar t-white";
-      if (activeGameId()==="temple") setGlobal("—","Temple Falls","Enter bet + cells ('.' = wheel).");
+    if (isEmptyAllTemple() || !bet) {
+      setBarTemple("0.00", "t-white");
+      if (activeGameId()==="temple") setGlobal("—","Temple Falls","Enter bet size + grid.");
       return;
     }
 
-    const cls = tfBand(bottomTotal);
-    tfTotal.textContent = bottomTotal.toFixed(2);
-    tfTotal.className = "totalbar " + cls;
-
+    setBarTemple(bottomTotal.toFixed(2), bandClassTemple(bottomTotal));
     if (activeGameId()==="temple"){
       setGlobal(bottomTotal>=60 ? "AP":"NO","Temple Falls",`Total ${bottomTotal.toFixed(2)} ${bottomTotal>=60?"≥60":"<60"}.`);
     }
   }
 
-  function tfReset(){
-    tfBet.value = "";
-    tfInit();
-    tfBet.focus();
+  function resetTemple(){
+    betEl.value = "";
+    initRowsTemple();
+    betEl.focus();
   }
 
-  tfAddRow.addEventListener("click", ()=>{
-    const row = tfMakeRow(false);
-    tfRows.prepend(row);
-    row.querySelector(".tfIn")?.focus();
-    tfRecalc();
+  // click total bar resets just Temple
+  barBottom.addEventListener("click", resetTemple);
+
+  betEl.addEventListener("input", recalcTemple);
+  betEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); getAllInputsTemple()[0]?.focus(); }
   });
 
-  function insertDot(){
-    const ins = tfAllInputs();
-    if (!ins.length) return;
-    let idx = tfLastFocused ? ins.indexOf(tfLastFocused) : -1;
+  addRowBtn.addEventListener("click", () => {
+    const newRow = makeRow({ included: false });
+    rowsHost.prepend(newRow);
+    refreshEnterHintsTemple();
+    newRow.querySelector(".tfIn")?.focus();
+    recalcTemple();
+  });
+
+  function insertDotTemple(){
+    const inputs = getAllInputsTemple();
+    if (!inputs.length) return;
+
+    let idx = lastFocused ? inputs.indexOf(lastFocused) : -1;
     if (idx < 0) idx = 0;
-    ins[idx].value = ".";
-    tfRecalc();
-    tfFocusNext(ins[idx]);
+
+    inputs[idx].value = ".";
+    recalcTemple();
+
+    if (idx < inputs.length - 1) inputs[idx + 1].focus();
+    else inputs[idx].blur();
   }
-  tfDot.addEventListener("click", insertDot);
-  tfDotFab.addEventListener("click", insertDot);
 
-  tfBet.addEventListener("input", tfRecalc);
-  tfTotal.addEventListener("click", tfReset);
+  dotBtn.addEventListener("click", insertDotTemple);
+  dotFab.addEventListener("click", insertDotTemple);
 
-  tfInit();
+  // enterkeyhint="done" on last input
+  function refreshEnterHintsTemple(){
+    const inputs = getAllInputsTemple();
+    inputs.forEach((inp, i) => inp.setAttribute("enterkeyhint", i === inputs.length - 1 ? "done" : "next"));
+  }
+
+  initRowsTemple();
 
   /* =========================================================
-     Regal Riches
-     - AP triggers: GOLD (1-of-3), RED (2-of-3), SUM
-     - SOFT indicator: if NOT AP, but one color is in [RED, GOLD)
-       -> orange pill shows "SOFT Y=112" etc (closest-to-GOLD wins)
+     Regal Riches / Ascending / Golden / Rocket
+     (unchanged logic from prior combined file)
   ========================================================= */
   const REGAL_DEFAULTS = {
     yRed:106, yGold:115,
@@ -1114,13 +1181,10 @@
     if (S.g >= S.T.gRed) redHits.push("G");
     if (S.p >= S.T.pRed) redHits.push("P");
 
-    // SOFT candidates: between RED (inclusive) and GOLD (exclusive)
     const soft = [];
     if (S.y >= S.T.yRed && S.y < S.T.yGold) soft.push({k:"Y", v:S.y, need:S.T.yGold});
     if (S.g >= S.T.gRed && S.g < S.T.gGold) soft.push({k:"G", v:S.g, need:S.T.gGold});
     if (S.p >= S.T.pRed && S.p < S.T.pGold) soft.push({k:"P", v:S.p, need:S.T.pGold});
-
-    // pick "best" soft = smallest distance to GOLD
     soft.sort((a,b)=> (a.need-a.v) - (b.need-b.v));
 
     let status="NO", pillOverride=null, why="";
@@ -1167,9 +1231,6 @@
     }
   }
 
-  /* =========================================================
-     Ascending
-  ========================================================= */
   const ASC_DEFAULTS = {
     mhbMinor:150, thrMinor:4,
     mhbMajor:200, thrMajor:8,
@@ -1177,7 +1238,6 @@
     mhbMega:350,  thrMega:20,
     softMult:1.3, softNeed:2
   };
-
   function away(mhb, cur){ return Math.max(0, Math.floor(mhb - cur)); }
 
   function asRead(){
@@ -1243,13 +1303,13 @@
       String($("asMajor").value??"").trim()==="" &&
       String($("asMinor").value??"").trim()==="";
 
-    let ap=false, why="";
     if (blank){
       $("asWhy").textContent = "Enter counts.";
       if (activeGameId()==="ascending") setGlobal("—","Ascending / Stack Up Pays","Enter counts.");
       return;
     }
 
+    let ap=false, why="";
     if (strictHits.length){
       ap=true; why = "Strict: " + strictHits.join(" | ");
     } else if (softHits.length >= S.softNeed){
@@ -1271,11 +1331,6 @@
     }
   }
 
-  /* =========================================================
-     Golden Jungle (2x)
-     - Spin count is dropdown (0..8)
-     - Columns default 0; only 0/1/2 options (no EMPTY)
-  ========================================================= */
   const GJ_STAGES = [1,2,4,6,8];
   const gjState = { c:[0,0,0,0,0] };
 
@@ -1301,12 +1356,7 @@
       const seg = document.createElement("div");
       seg.className = "seg";
 
-      const options = [
-        { v:0, t:"0" },
-        { v:1, t:"1" },
-        { v:2, t:"2" },
-      ];
-
+      const options = [{v:0,t:"0"},{v:1,t:"1"},{v:2,t:"2"}];
       for (const opt of options){
         const b = document.createElement("button");
         b.type = "button";
@@ -1379,9 +1429,6 @@
     }
   }
 
-  /* =========================================================
-     Rocket Rumble
-  ========================================================= */
   const RR_DEFAULTS = {
     greenStrong:17, greenSpecial:16, blueSpecial:13,
     purplePlayable:32, purpleAvoid:31, redInfo:98,
@@ -1460,7 +1507,7 @@
   function evalActive(){
     const id = activeGameId();
     if (id==="frank") frankRecalc();
-    if (id==="temple") tfRecalc();
+    if (id==="temple") recalcTemple();
     if (id==="regal") rgEval();
     if (id==="ascending") asEval();
     if (id==="golden") gjEval();
@@ -1470,8 +1517,14 @@
   /* ======= Reset current game only ======= */
   $("resetGameBtn").addEventListener("click", () => {
     const id = activeGameId();
+
     if (id==="frank") frankReset();
-    if (id==="temple") tfReset();
+
+    if (id==="temple"){
+      betEl.value = "";
+      initRowsTemple();
+      betEl.focus();
+    }
 
     if (id==="regal"){
       ["rgY","rgG","rgP","rgTYR","rgTYG","rgTGR","rgTGG","rgTPR","rgTPG","rgTSUM"].forEach(x => $(x).value="");
@@ -1502,7 +1555,6 @@
     }
   });
 
-  /* ======= Wire inputs ======= */
   function onInput(ids, fn){
     ids.forEach(id => {
       const el = $(id);
@@ -1517,17 +1569,11 @@
   onInput(["gjSpinSel"], gjEval);
   onInput(["rrGreen","rrBlue","rrPurple","rrRed","rrTGreenStrong","rrTGreenSpecial","rrTBlueSpecial","rrTPurplePlayable","rrTPurpleAvoid","rrTRedInfo","rrBlueMode","rrTBlueWeakMin","rrTBlueWeakMax"], rrEval);
 
-  /* ======= Golden Jungle render + rules ======= */
+  /* ======= init nav + gold cols ======= */
   gjRenderCols();
-  $("gjRules").textContent =
-    `Stage mapping by red spins:\n` +
-    `spin ≤1 → stage 1\nspin ≤2 → stage 2\nspin ≤4 → stage 4\nspin ≤6 → stage 6\nspin ≤8 → stage 8`;
-
-  /* ======= Init ======= */
   initNav();
+  frankRecalc();
 
-  // Prime badge
-  setGlobal("—","Frankenstein","Enter values.");
 })();
 </script>
 </body>
