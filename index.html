@@ -177,33 +177,32 @@
     .logic b{ opacity:1; }
 
     /* ===== Temple Falls grid (NO row totals) ===== */
-    .tfRows{ display:flex; flex-direction:column; gap:8px; } /* tighter */
+    .tfRows{ display:flex; flex-direction:column; gap:8px; }
     .tfRow{
       display:grid;
       grid-template-columns: repeat(5, 1fr);
-      gap:6px;               /* tighter */
+      gap:6px;
       align-items:stretch;
     }
     .tfCell{
-      border-radius:10px;    /* slightly tighter */
+      border-radius:10px;
       border:1px solid rgba(0,0,0,.10);
       background:#d9f2ff;
-      padding:4px;           /* reduced */
+      padding:4px;
       display:flex;
       align-items:flex-end;
-      min-height:50px;       /* reduced */
+      min-height:50px;
       transition: background 120ms ease;
     }
     .tfCell.rainbow{
       background: linear-gradient(90deg,#ff5a5a,#ffb34d,#ffe066,#67d36b,#59c6ff,#9b6bff,#ff5ad9);
     }
-    /* ✅ 2/3 of previous size (was 10px) => ~6.67px; using 7px for readability */
     .tfIn{
       width:100%;
       border:1px solid rgba(0,0,0,.14);
       border-radius:9px;
       padding:8px 5px;
-      font-size:7px;         /* ✅ smaller */
+      font-size:7px;
       font-weight:950;
       background: rgba(255,255,255,.92);
       text-align:right;
@@ -467,7 +466,7 @@
             <div class="colorRow"><div class="pill">Mega <span class="sub">(MHB 350)</span></div><input id="asMega" type="number" inputmode="numeric" step="1" /></div>
             <div class="colorRow"><div class="pill">Grand <span class="sub">(MHB 250)</span></div><input id="asGrand" type="number" inputmode="numeric" step="1" /></div>
             <div class="colorRow"><div class="pill">Major <span class="sub">(MHB 200)</span></div><input id="asMajor" type="number" inputmode="numeric" step="1" /></div>
-            <div class="colorRow"><div class="pill">Minor <span class="sub">(MHB 100)</span></div><input id="asMinor" type="number" inputmode="numeric" step="1" /></div>
+            <div class="colorRow"><div class="pill">Minor <span class="sub">(MHB 150)</span></div><input id="asMinor" type="number" inputmode="numeric" step="1" /></div>
           </div>
 
           <div class="hint">
@@ -844,7 +843,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   recalc();
 })();
 
-/* ====================== Ascending Fortunes / Stack Up Pays ====================== */
+/* ====================== Ascending Fortunes / Stack Up Pays (Minor MHB=150) ====================== */
 (function(){
   const megaEl  = document.getElementById("asMega");
   const grandEl = document.getElementById("asGrand");
@@ -854,7 +853,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   const out = document.getElementById("asResult");
   const detail = document.getElementById("asDetail");
 
-  const MHB = { Mega: 350, Grand: 250, Major: 200, Minor: 100 };
+  const MHB = { Mega: 350, Grand: 250, Major: 200, Minor: 150 }; // ✅ changed from 100 to 150
   const HARD_AWAY = { Mega: 20, Grand: 12, Major: 8, Minor: 4 };
   const SOFT_AWAY = { Mega: 26, Grand: 15, Major: 10, Minor: 5 };
 
