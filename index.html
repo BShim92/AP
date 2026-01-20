@@ -373,24 +373,25 @@
     <section id="game-frank" class="game active" aria-label="Frankenstein">
       <div class="grid2">
         <div class="panel">
-          <div class="panelTitle">INPUTS</div>
+          <div class="panelTitle">NOTES</div>
           <div class="hint">
-            Defaults are <b>empty</b>, but each empty field is treated as <span class="mono">1</span> for the <b>main total</b>.
+            Defaults are <b>empty</b>, but each empty field is treated as <span class="mono">1</span> in both totals.
           </div>
           <div class="hint">
             Tap the total bar to reset.
-            The small number in the bottom-right is the <b>extra total</b> and does <b>not</b> affect the color.
           </div>
           <div class="hint">
-            <b>Extra total definition:</b> starts from the same baseline as the main total (<span class="mono">13.55</span> at all-empty),
-            then adds <span class="mono">(entered value × row weight)</span> for each non-empty input. (No multipliers used in the extra total.)
+            <b>Small total behavior (fixed):</b><br/>
+            Small total starts at the same baseline as the main total (13.55). Then for each field, it adds
+            <span class="mono">(value − 1) × rowWeight</span> (rowWeight depends only on row).<br/>
+            It does <b>not</b> use the cell multipliers.
           </div>
         </div>
 
         <div class="panel">
           <div class="panelTitle">TOTAL (tap to reset)</div>
 
-          <!-- Total bar above grid + secondary total in corner -->
+          <!-- TOTAL BAR ABOVE GRID + SECONDARY TOTAL IN CORNER -->
           <div id="fResult" class="result fBar r-white clickable" title="Tap to reset">
             <span id="fMain">0.00</span>
             <span id="fAlt" class="fAlt">0.00</span>
@@ -417,10 +418,11 @@
           </div>
 
           <div class="logic">
-            <b>Main total:</b> Σ(value × shown multiplier). Empty value = <span class="mono">1</span>.
-            Bands: red &lt; 17, orange &lt; 17.5, yellow &lt; 18, green ≥ 18.
+            <b>AP logic:</b> Main total = Σ(value × shown multiplier). Bands: red &lt; 17, orange &lt; 17.5, yellow &lt; 18, green ≥ 18.
+            Empty fields are treated as <span class="mono">1</span>.
             <br><br>
-            <b>Extra total:</b> <span class="mono">baselineMain</span> + Σ(<span class="mono">enteredValue × rowWeight</span>) over non-empty inputs only.
+            <b>Small total:</b> Baseline = main total with all fields treated as 1 (13.55).
+            Small total = 13.55 + Σ((value − 1) × rowWeight).
             Row weights: row1=1.0, row2=2.0, row3=1.2, row4=0.65.
           </div>
         </div>
@@ -610,7 +612,7 @@ function onChipActivate(e){
 chipsHost.addEventListener("click", onChipActivate, { passive:false });
 chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
 
-/* ====================== Frankenstein (EMPTY => 1 main total) + FIXED extra total ====================== */
+/* ====================== Frankenstein (EMPTY => 1) + FIXED SMALL TOTAL ====================== */
 (function(){
   const fCells = Array.from(document.querySelectorAll("#fGrid .fCell"));
   const fInputs = Array.from(document.querySelectorAll("#fGrid .fIn"));
@@ -618,14 +620,18 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   const fMain = document.getElementById("fMain");
   const fAlt = document.getElementById("fAlt");
 
-  // Row weights by grid position (12 cells including the top-left no-input cell)
-  // Layout order is row-major: indices 0-2, 3-5, 6-8, 9-11
+  // Row weights by grid position (12 cells including top-left no-input cell)
+  // indices 0-2 row1, 3-5 row2, 6-8 row3, 9-11 row4
   function rowWeightByIndex(i){
-    if (i >= 0 && i <= 2) return 1.0;   // row 1
-    if (i >= 3 && i <= 5) return 2.0;   // row 2
-    if (i >= 6 && i <= 8) return 1.2;   // row 3
-    return 0.65;                         // row 4 (9-11)
+    if (i <= 2) return 1.0;
+    if (i <= 5) return 2.0;
+    if (i <= 8) return 1.2;
+    return 0.65;
   }
+
+  // Baseline main total = sum of all multipliers (with default value = 1 everywhere)
+  // This should be 13.55 for the provided grid.
+  const BASELINE_MAIN = fCells.reduce((acc, cell) => acc + Number(cell.dataset.mult || "0"), 0);
 
   function band(total){
     if (total < 17) return "r-red";
@@ -634,63 +640,40 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
     return "r-green";
   }
 
-  // main total: empty => 1
-  function mainValue(inp){
+  function valOrOne(inp){
     const t = String(inp.value ?? "").trim();
-    if (t === "") return 1;
+    if (t === "") return 1; // empty => 1
     const n = Number(t);
     return Number.isFinite(n) ? n : 1;
   }
 
-  // extra total: only counts NON-empty entries; uses the raw entered number (no mult)
-  function enteredValueOrNull(inp){
-    const t = String(inp.value ?? "").trim();
-    if (t === "") return null;
-    const n = Number(t);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  // baseline main total when all inputs are "empty treated as 1"
-  function baselineMainTotal(){
-    let base = 0;
-    for (const cell of fCells){
-      const mult = Number(cell.dataset.mult || "0");
-      const inp = cell.querySelector(".fIn");
-      const v = inp ? 1 : 0; // input cells baseline to 1; top-left has no input and mult=0 anyway
-      base += v * mult;
-    }
-    return base;
-  }
-
-  const BASE = baselineMainTotal(); // should be 13.55 with current multipliers
-
   function recalc(){
-    // Main total (uses multipliers)
+    // MAIN total (uses cell multipliers)
     let mainTotal = 0;
-    for (const cell of fCells){
+    for (let i = 0; i < fCells.length; i++){
+      const cell = fCells[i];
       const mult = Number(cell.dataset.mult || "0");
       const inp = cell.querySelector(".fIn");
-      const v = inp ? mainValue(inp) : 0;
+      const v = inp ? valOrOne(inp) : 0;
       mainTotal += v * mult;
     }
 
-    // Extra total (starts from same baseline, then adds enteredValue*rowWeight for non-empty only)
-    let extra = BASE;
+    // SMALL total (FIXED): baseline + sum((value-1) * rowWeight) — NO multipliers
+    let smallTotal = BASELINE_MAIN;
     for (let i = 0; i < fCells.length; i++){
-      const cell = fCells[i];
-      const inp = cell.querySelector(".fIn");
+      const inp = fCells[i].querySelector(".fIn");
       if (!inp) continue;
-      const ev = enteredValueOrNull(inp);
-      if (ev == null) continue;         // ✅ only non-empty inputs contribute
-      extra += ev * rowWeightByIndex(i); // ✅ no multipliers used
+      const v = valOrOne(inp);
+      const rw = rowWeightByIndex(i);
+      smallTotal += (v - 1) * rw;
     }
 
-    // Color only from mainTotal
+    // Color based ONLY on main total
     fBar.classList.remove("r-white","r-red","r-orange","r-yellow","r-green");
     fBar.classList.add(band(mainTotal));
 
     fMain.textContent = mainTotal.toFixed(2);
-    fAlt.textContent = extra.toFixed(2);
+    fAlt.textContent = smallTotal.toFixed(2);
   }
 
   function reset(){
@@ -829,6 +812,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       let rowSum = 0;
 
       if (!bet){
+        // no bet entered: only "." contributes (shows something helpful)
         for (const inp of inputs){
           const s = String(inp.value ?? "").trim();
           if (s === ".") rowSum += 38;
@@ -1009,6 +993,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   const out = document.getElementById("gjResult");
   const detail = document.getElementById("gjDetail");
 
+  // Placeholder thresholds (keep as-is from prior version)
   const REQUIRED_BY_SPIN = [8,8,7,7,6,6,5,5,4,4];
 
   function recalc(){
