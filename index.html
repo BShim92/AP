@@ -379,6 +379,8 @@
           </div>
           <div class="hint">
             Tap the total bar to reset. The small number in the bottom-right is the <b>row-weighted</b> total and does <b>not</b> affect the color.
+            <br><br>
+            <b>Start rule:</b> when everything is empty (baseline), the small total starts equal to the main total. Once you type anything, the row-weights kick in.
           </div>
         </div>
 
@@ -417,6 +419,8 @@
             <br><br>
             <b>Extra total:</b> Σ(cell value × shown multiplier × rowWeight), where rowWeights are:
             row1=1.0, row2=2.0, row3=1.2, row4=0.65.
+            <br>
+            Baseline display: if all inputs are empty, extra total starts equal to the main total.
           </div>
         </div>
       </div>
@@ -637,8 +641,10 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   }
 
   function recalc(){
+    const allEmpty = fInputs.every(inp => String(inp.value ?? "").trim() === "");
+
     let mainTotal = 0;
-    let altTotal = 0;
+    let weightedTotal = 0;
 
     for (let i = 0; i < fCells.length; i++){
       const cell = fCells[i];
@@ -650,7 +656,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       mainTotal += contrib;
 
       const rw = rowWeightByIndex(i);
-      altTotal += contrib * rw;
+      weightedTotal += contrib * rw;
     }
 
     // color based ONLY on main total
@@ -658,7 +664,11 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
     fBar.classList.add(band(mainTotal));
 
     fMain.textContent = mainTotal.toFixed(2);
-    fAlt.textContent = altTotal.toFixed(2);
+
+    // ✅ baseline behavior: when all inputs are empty, small total starts at mainTotal
+    // once any input is typed, it becomes row-weighted
+    const alt = allEmpty ? mainTotal : weightedTotal;
+    fAlt.textContent = alt.toFixed(2);
   }
 
   function reset(){
