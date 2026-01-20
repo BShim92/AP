@@ -375,19 +375,22 @@
         <div class="panel">
           <div class="panelTitle">INPUTS</div>
           <div class="hint">
-            Defaults are <b>empty</b>, but each empty field is treated as <span class="mono">1</span> in both totals.
+            Defaults are <b>empty</b>, but each empty field is treated as <span class="mono">1</span> for the <b>main total</b>.
           </div>
           <div class="hint">
-            Tap the total bar to reset. The small number in the bottom-right is the <b>row-weighted</b> total and does <b>not</b> affect the color.
-            <br><br>
-            <b>Start rule:</b> when everything is empty (baseline), the small total starts equal to the main total. Once you type anything, the row-weights kick in.
+            Tap the total bar to reset.
+            The small number in the bottom-right is the <b>extra total</b> and does <b>not</b> affect the color.
+          </div>
+          <div class="hint">
+            <b>Extra total definition:</b> starts from the same baseline as the main total (<span class="mono">13.55</span> at all-empty),
+            then adds <span class="mono">(entered value × row weight)</span> for each non-empty input. (No multipliers used in the extra total.)
           </div>
         </div>
 
         <div class="panel">
           <div class="panelTitle">TOTAL (tap to reset)</div>
 
-          <!-- MOVED ABOVE GRID + SECONDARY TOTAL IN CORNER -->
+          <!-- Total bar above grid + secondary total in corner -->
           <div id="fResult" class="result fBar r-white clickable" title="Tap to reset">
             <span id="fMain">0.00</span>
             <span id="fAlt" class="fAlt">0.00</span>
@@ -414,13 +417,11 @@
           </div>
 
           <div class="logic">
-            <b>AP logic:</b> Main total = Σ(cell value × shown multiplier). Bands: red &lt; 17, orange &lt; 17.5, yellow &lt; 18, green ≥ 18.
-            Empty cells are treated as <span class="mono">1</span>.
+            <b>Main total:</b> Σ(value × shown multiplier). Empty value = <span class="mono">1</span>.
+            Bands: red &lt; 17, orange &lt; 17.5, yellow &lt; 18, green ≥ 18.
             <br><br>
-            <b>Extra total:</b> Σ(cell value × shown multiplier × rowWeight), where rowWeights are:
-            row1=1.0, row2=2.0, row3=1.2, row4=0.65.
-            <br>
-            Baseline display: if all inputs are empty, extra total starts equal to the main total.
+            <b>Extra total:</b> <span class="mono">baselineMain</span> + Σ(<span class="mono">enteredValue × rowWeight</span>) over non-empty inputs only.
+            Row weights: row1=1.0, row2=2.0, row3=1.2, row4=0.65.
           </div>
         </div>
       </div>
@@ -609,7 +610,7 @@ function onChipActivate(e){
 chipsHost.addEventListener("click", onChipActivate, { passive:false });
 chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
 
-/* ====================== Frankenstein (EMPTY => 1) + SECOND TOTAL (row weights) ====================== */
+/* ====================== Frankenstein (EMPTY => 1 main total) + FIXED extra total ====================== */
 (function(){
   const fCells = Array.from(document.querySelectorAll("#fGrid .fCell"));
   const fInputs = Array.from(document.querySelectorAll("#fGrid .fIn"));
@@ -619,12 +620,12 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
 
   // Row weights by grid position (12 cells including the top-left no-input cell)
   // Layout order is row-major: indices 0-2, 3-5, 6-8, 9-11
-  const rowWeightByIndex = (i) => {
+  function rowWeightByIndex(i){
     if (i >= 0 && i <= 2) return 1.0;   // row 1
     if (i >= 3 && i <= 5) return 2.0;   // row 2
     if (i >= 6 && i <= 8) return 1.2;   // row 3
     return 0.65;                         // row 4 (9-11)
-  };
+  }
 
   function band(total){
     if (total < 17) return "r-red";
@@ -633,42 +634,63 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
     return "r-green";
   }
 
-  function cellVal(inp){
+  // main total: empty => 1
+  function mainValue(inp){
     const t = String(inp.value ?? "").trim();
-    if (t === "") return 1; // ✅ empty treated as 1
+    if (t === "") return 1;
     const n = Number(t);
     return Number.isFinite(n) ? n : 1;
   }
 
-  function recalc(){
-    const allEmpty = fInputs.every(inp => String(inp.value ?? "").trim() === "");
+  // extra total: only counts NON-empty entries; uses the raw entered number (no mult)
+  function enteredValueOrNull(inp){
+    const t = String(inp.value ?? "").trim();
+    if (t === "") return null;
+    const n = Number(t);
+    return Number.isFinite(n) ? n : null;
+  }
 
-    let mainTotal = 0;
-    let weightedTotal = 0;
-
-    for (let i = 0; i < fCells.length; i++){
-      const cell = fCells[i];
+  // baseline main total when all inputs are "empty treated as 1"
+  function baselineMainTotal(){
+    let base = 0;
+    for (const cell of fCells){
       const mult = Number(cell.dataset.mult || "0");
       const inp = cell.querySelector(".fIn");
-      const v = inp ? cellVal(inp) : 0;
+      const v = inp ? 1 : 0; // input cells baseline to 1; top-left has no input and mult=0 anyway
+      base += v * mult;
+    }
+    return base;
+  }
 
-      const contrib = v * mult;
-      mainTotal += contrib;
+  const BASE = baselineMainTotal(); // should be 13.55 with current multipliers
 
-      const rw = rowWeightByIndex(i);
-      weightedTotal += contrib * rw;
+  function recalc(){
+    // Main total (uses multipliers)
+    let mainTotal = 0;
+    for (const cell of fCells){
+      const mult = Number(cell.dataset.mult || "0");
+      const inp = cell.querySelector(".fIn");
+      const v = inp ? mainValue(inp) : 0;
+      mainTotal += v * mult;
     }
 
-    // color based ONLY on main total
+    // Extra total (starts from same baseline, then adds enteredValue*rowWeight for non-empty only)
+    let extra = BASE;
+    for (let i = 0; i < fCells.length; i++){
+      const cell = fCells[i];
+      const inp = cell.querySelector(".fIn");
+      if (!inp) continue;
+      const ev = enteredValueOrNull(inp);
+      if (ev == null) continue;         // ✅ only non-empty inputs contribute
+      extra += ev * rowWeightByIndex(i); // ✅ no multipliers used
+    }
+
+    // Color only from mainTotal
     fBar.classList.remove("r-white","r-red","r-orange","r-yellow","r-green");
     fBar.classList.add(band(mainTotal));
 
     fMain.textContent = mainTotal.toFixed(2);
-
-    // ✅ baseline behavior: when all inputs are empty, small total starts at mainTotal
-    // once any input is typed, it becomes row-weighted
-    const alt = allEmpty ? mainTotal : weightedTotal;
-    fAlt.textContent = alt.toFixed(2);
+    fAlt.textContent = extra.toFixed(2);
   }
 
   function reset(){
