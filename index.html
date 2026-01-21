@@ -381,7 +381,7 @@
             Tap the total bar to reset.
           </div>
           <div class="hint">
-            <b>Small total behavior (fixed):</b><br/>
+            <b>Small total behavior:</b><br/>
             Small total starts at the same baseline as the main total (13.55). Then for each field, it adds
             <span class="mono">(value − 1) × rowWeight</span> (rowWeight depends only on row).<br/>
             It does <b>not</b> use the cell multipliers.
@@ -534,28 +534,38 @@
           <div class="field"><div class="label">Red spin count</div></div>
           <div style="margin-top:8px;">
             <select id="gjSpin">
-              <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-              <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
             </select>
           </div>
 
-          <div class="hint">Columns default to <span class="mono">0</span> and only allow <span class="mono">0 / 1 / 2</span>.</div>
+          <div class="hint">
+            Columns default to <span class="mono">0</span> and only allow <span class="mono">0 / 1 / 2</span>.
+            Filled spins: 3→use 4, 5→use 6, 7→use 8. Spin 9 = reevaluate.
+          </div>
         </div>
 
         <div class="panel">
           <div class="panelTitle">COLUMNS</div>
           <div class="gjRow">
-            <div class="gjCell"><div class="label">C1</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
-            <div class="gjCell"><div class="label">C2</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
-            <div class="gjCell"><div class="label">C3</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
-            <div class="gjCell"><div class="label">C4</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
-            <div class="gjCell"><div class="label">C5</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
+            <div class="gjCell"><div class="label">R1</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
+            <div class="gjCell"><div class="label">R2</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
+            <div class="gjCell"><div class="label">R3</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
+            <div class="gjCell"><div class="label">R4</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
+            <div class="gjCell"><div class="label">R5</div><select class="gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select></div>
           </div>
 
           <div class="gjMetrics">
-            <div class="metric"><div class="k">Total</div><div class="v" id="gjTotal">0</div></div>
-            <div class="metric"><div class="k"># of “2”</div><div class="v" id="gjTwos">0</div></div>
-            <div class="metric"><div class="k">Required</div><div class="v" id="gjReq">—</div></div>
+            <div class="metric"><div class="k">TOTAL</div><div class="v" id="gjTotal">0</div></div>
+            <div class="metric"><div class="k">Spin rules used</div><div class="v" id="gjRulesUsed">—</div></div>
+            <div class="metric"><div class="k">Status</div><div class="v" id="gjStatus">—</div></div>
           </div>
 
           <div style="margin-top:10px;">
@@ -563,8 +573,8 @@
             <div class="hint" id="gjDetail"></div>
 
             <div class="logic">
-              <b>AP logic:</b> Required total is derived from spin count with a small boost if any column is <span class="mono">2</span>.
-              (If you want the exact Patreon threshold table hard-coded, give me the required totals by spin.)
+              <b>AP logic:</b> “1x on reel X” means that reel’s count ≥ 1. “2x” means ≥ 2. If rule needs 1x and you have 2x, it satisfies.
+              Filled spins: 3 uses 4’s rules, 5 uses 6’s rules, 7 uses 8’s rules. Spin 9: reevaluate.
             </div>
           </div>
         </div>
@@ -612,7 +622,7 @@ function onChipActivate(e){
 chipsHost.addEventListener("click", onChipActivate, { passive:false });
 chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
 
-/* ====================== Frankenstein (EMPTY => 1) + FIXED SMALL TOTAL ====================== */
+/* ====================== Frankenstein (EMPTY => 1) + Small total ====================== */
 (function(){
   const fCells = Array.from(document.querySelectorAll("#fGrid .fCell"));
   const fInputs = Array.from(document.querySelectorAll("#fGrid .fIn"));
@@ -620,8 +630,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   const fMain = document.getElementById("fMain");
   const fAlt = document.getElementById("fAlt");
 
-  // Row weights by grid position (12 cells including top-left no-input cell)
-  // indices 0-2 row1, 3-5 row2, 6-8 row3, 9-11 row4
   function rowWeightByIndex(i){
     if (i <= 2) return 1.0;
     if (i <= 5) return 2.0;
@@ -629,8 +637,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
     return 0.65;
   }
 
-  // Baseline main total = sum of all multipliers (with default value = 1 everywhere)
-  // This should be 13.55 for the provided grid.
   const BASELINE_MAIN = fCells.reduce((acc, cell) => acc + Number(cell.dataset.mult || "0"), 0);
 
   function band(total){
@@ -642,13 +648,12 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
 
   function valOrOne(inp){
     const t = String(inp.value ?? "").trim();
-    if (t === "") return 1; // empty => 1
+    if (t === "") return 1;
     const n = Number(t);
     return Number.isFinite(n) ? n : 1;
   }
 
   function recalc(){
-    // MAIN total (uses cell multipliers)
     let mainTotal = 0;
     for (let i = 0; i < fCells.length; i++){
       const cell = fCells[i];
@@ -658,7 +663,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       mainTotal += v * mult;
     }
 
-    // SMALL total (FIXED): baseline + sum((value-1) * rowWeight) — NO multipliers
     let smallTotal = BASELINE_MAIN;
     for (let i = 0; i < fCells.length; i++){
       const inp = fCells[i].querySelector(".fIn");
@@ -668,7 +672,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       smallTotal += (v - 1) * rw;
     }
 
-    // Color based ONLY on main total
     fBar.classList.remove("r-white","r-red","r-orange","r-yellow","r-green");
     fBar.classList.add(band(mainTotal));
 
@@ -710,7 +713,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
     return (n && n > 0) ? n : null;
   }
 
-  // EMPTY => 0, "." => 38, number => number/bet
   function tfCellValue(raw, bet){
     const s = String(raw ?? "").trim();
     if (s === "") return 0;
@@ -812,7 +814,6 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       let rowSum = 0;
 
       if (!bet){
-        // no bet entered: only "." contributes (shows something helpful)
         for (const inp of inputs){
           const s = String(inp.value ?? "").trim();
           if (s === ".") rowSum += 38;
@@ -918,7 +919,7 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   recalc();
 })();
 
-/* ====================== Ascending Fortunes / Stack Up Pays (Minor MHB=150) ====================== */
+/* ====================== Ascending Fortunes / Stack Up Pays ====================== */
 (function(){
   const megaEl  = document.getElementById("asMega");
   const grandEl = document.getElementById("asGrand");
@@ -983,38 +984,124 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   recalc();
 })();
 
-/* ====================== Golden Jungle ====================== */
+/* ====================== Golden Jungle — UPDATED FULL LOGIC BY SPIN ====================== */
 (function(){
   const spinEl = document.getElementById("gjSpin");
   const colEls = Array.from(document.querySelectorAll(".gjCol"));
+
   const totalEl = document.getElementById("gjTotal");
-  const twosEl = document.getElementById("gjTwos");
-  const reqEl = document.getElementById("gjReq");
+  const rulesUsedEl = document.getElementById("gjRulesUsed");
+  const statusEl = document.getElementById("gjStatus");
   const out = document.getElementById("gjResult");
   const detail = document.getElementById("gjDetail");
 
-  // Placeholder thresholds (keep as-is from prior version)
-  const REQUIRED_BY_SPIN = [8,8,7,7,6,6,5,5,4,4];
+  function atLeastTwoOfR1R3_GE1(R1,R2,R3){
+    let c = 0;
+    if (R1 >= 1) c++;
+    if (R2 >= 1) c++;
+    if (R3 >= 1) c++;
+    return c >= 2;
+  }
+
+  function mapSpinRules(spin){
+    // Filled spins: 3 -> 4, 5 -> 6, 7 -> 8
+    if (spin === 3) return 4;
+    if (spin === 5) return 6;
+    if (spin === 7) return 8;
+    return spin;
+  }
 
   function recalc(){
-    const spin = Number(spinEl.value);
+    const spinRaw = Number(spinEl.value);
+    const spinUsed = mapSpinRules(spinRaw);
+
     const vals = colEls.map(s => Number(s.value));
-    const total = vals.reduce((a,b)=>a+b,0);
-    const twos = vals.filter(v=>v===2).length;
+    const [R1,R2,R3,R4,R5] = vals;
+    const TOTAL = R1 + R2 + R3 + R4 + R5;
 
-    const baseReq = REQUIRED_BY_SPIN[clamp(spin,0,9)];
-    const req = Math.max(0, baseReq - (twos >= 1 ? 1 : 0));
+    totalEl.textContent = String(TOTAL);
+    rulesUsedEl.textContent = (spinRaw === spinUsed) ? `Spin ${spinUsed}` : `Spin ${spinRaw} → ${spinUsed}`;
 
-    totalEl.textContent = String(total);
-    twosEl.textContent = String(twos);
-    reqEl.textContent = String(req);
+    // Spin 9: reevaluate
+    if (spinRaw === 9){
+      statusEl.textContent = "Reevaluate";
+      setResult(out, "Reevaluate", "r-orange");
+      detail.textContent = "Spin 9: reevaluate (do not play off this page).";
+      return;
+    }
 
-    if (total >= req){
-      setResult(out, "AP ✅", "r-green");
-      detail.textContent = `Total ${total} ≥ Required ${req} (spin ${spin}${twos?`, ${twos} two(s)`:``}).`;
+    let play = false;
+    let reason = "";
+
+    if (spinUsed === 1){
+      play = (R1>=1 || R2>=1 || R3>=1 || R4>=1);
+      reason = play ? "Spin 1: (R1≥1 OR R2≥1 OR R3≥1 OR R4≥1)" : "Spin 1 not met.";
+    }
+
+    else if (spinUsed === 2){
+      const c1 = (R1>=1 || R2>=1 || R3>=1);
+      const c2 = (R4>=2);
+      const c3 = (R4>=1 && R5>=2);
+      play = (c1 || c2 || c3);
+      if (play){
+        if (c1) reason = "Spin 2: 1x on 1–3 (R1≥1 OR R2≥1 OR R3≥1)";
+        else if (c2) reason = "Spin 2: 2x on 4 (R4≥2)";
+        else reason = "Spin 2: (R4≥1 AND R5≥2)";
+      } else reason = "Spin 2 not met.";
+    }
+
+    else if (spinUsed === 4){
+      const c1 = (TOTAL >= 3);
+      const c2 = (R1>=2 || R2>=2 || R3>=2 || R4>=2);
+      play = (c1 || c2);
+      if (play){
+        reason = c1 ? "Spin 4: TOTAL ≥ 3" : "Spin 4: 2x on 1–4 (R1≥2 OR R2≥2 OR R3≥2 OR R4≥2)";
+      } else reason = "Spin 4 not met.";
+    }
+
+    else if (spinUsed === 6){
+      const c1 = (TOTAL >= 4);
+      const c2 = ((R1+R2+R3) >= 3);
+      play = (c1 || c2);
+      if (play){
+        reason = c1 ? "Spin 6: TOTAL ≥ 4" : "Spin 6: (R1+R2+R3) ≥ 3";
+      } else reason = "Spin 6 not met.";
+    }
+
+    else if (spinUsed === 8){
+      const c1 = (TOTAL >= 3);
+      const c2 = ((R1>=2 || R2>=2 || R3>=2) && (R4>=1 || R5>=2));
+      const c3 = (atLeastTwoOfR1R3_GE1(R1,R2,R3) && (R4>=2));
+      const c4 = (atLeastTwoOfR1R3_GE1(R1,R2,R3) && (R4>=1) && (R5>=2));
+      const c5 = ((R1>=1 || R2>=1 || R3>=1) && (R4>=2) && (R5>=2));
+
+      play = (c1 || c2 || c3 || c4 || c5);
+
+      if (play){
+        if (c1) reason = "Spin 8: TOTAL ≥ 3";
+        else if (c2) reason = "Spin 8: (2x on 1–3) AND (1x on 4 OR 2x on 5)";
+        else if (c3) reason = "Spin 8: (two reels on 1–3 ≥1) AND (R4≥2)";
+        else if (c4) reason = "Spin 8: (two reels on 1–3 ≥1) AND (R4≥1) AND (R5≥2)";
+        else reason = "Spin 8: (1x on 1–3) AND (R4≥2) AND (R5≥2)";
+      } else reason = "Spin 8 not met.";
+    }
+
+    // If someone selects a spin that maps to itself but is not covered (shouldn't happen with 1-9)
+    else {
+      statusEl.textContent = "—";
+      setResult(out, "—", "r-white");
+      detail.textContent = "No rules for this spin selection.";
+      return;
+    }
+
+    if (play){
+      statusEl.textContent = "PLAY";
+      setResult(out, "PLAY ✅", "r-green");
+      detail.textContent = reason;
     } else {
-      setResult(out, "Not in range", "r-red");
-      detail.textContent = `Need ${req - total} more (Required ${req}, spin ${spin}${twos?`, ${twos} two(s)`:``}).`;
+      statusEl.textContent = "NO PLAY";
+      setResult(out, "NO PLAY", "r-red");
+      detail.textContent = reason;
     }
   }
 
