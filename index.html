@@ -403,7 +403,6 @@
         <div class="panel">
           <div class="panelTitle">TOTAL (tap to reset)</div>
 
-          <!-- TOTAL BAR ABOVE GRID + SECONDARY TOTAL IN CORNER -->
           <div id="fResult" class="result fBar r-white clickable" title="Tap to reset">
             <span id="fMain">0.00</span>
             <span id="fAlt" class="fAlt">0.00</span>
@@ -487,7 +486,7 @@
           <div class="vStack">
             <div class="colorRow"><div class="pill"><span class="dot yellow"></span> Yellow</div><input id="rrYellow" type="number" inputmode="numeric" step="1" /></div>
             <div class="colorRow"><div class="pill"><span class="dot green"></span> Green</div><input id="rrGreen" type="number" inputmode="numeric" step="1" /></div>
-            <div class="colorRow"><div class="pill"><span class="dot purple"></span> Purple</div><input id="rrPurple" type="number" inputmode="numeric" step="1" /></div>
+            <div class="colorRow"><div class="pill"><div class="dot purple"></div> Purple</div><input id="rrPurple" type="number" inputmode="numeric" step="1" /></div>
           </div>
           <div class="hint">Tap the result bar to reset.</div>
         </div>
@@ -550,25 +549,24 @@
             <div>
               <div class="label">Current spin</div>
               <select id="gjSpin" class="gjSelect" style="margin-top:6px;">
-                <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+                <option value="9">9</option>
               </select>
+              <div class="hint" style="margin-top:8px;">
+                Filled spins: 3→4 rules, 5→6 rules, 7→8 rules. Spin 9 = reevaluate.
+              </div>
             </div>
             <div>
               <div class="label">Columns (0/1/2)</div>
               <div class="hint" style="margin-top:6px;">Tap the result bar to reset.</div>
             </div>
           </div>
-
-          <div class="hint" style="margin-top:10px;">
-            Spin 9 is <b>reevaluate only</b>.
-          </div>
         </div>
 
         <div class="panel">
           <div class="panelTitle">COLUMNS</div>
 
-          <!-- Cleaner: no labels/boxes, just 5 readable selects -->
           <div class="gjCols">
             <select class="gjSelect gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
             <select class="gjSelect gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
@@ -578,8 +576,8 @@
           </div>
 
           <div class="gjMetrics">
-            <div class="metric"><div class="k">Total</div><div class="v" id="gjTotal">0</div></div>
-            <div class="metric"><div class="k"># of “2”</div><div class="v" id="gjTwos">0</div></div>
+            <div class="metric"><div class="k">TOTAL</div><div class="v" id="gjTotal">0</div></div>
+            <div class="metric"><div class="k">R1+R2+R3</div><div class="v" id="gjR123">0</div></div>
           </div>
 
           <div class="gjMetrics2">
@@ -588,28 +586,26 @@
           </div>
 
           <div style="margin-top:10px;">
-            <!-- Clickable result bar now resets -->
             <div id="gjResult" class="result r-white clickable" title="Tap to reset">—</div>
             <div class="hint" id="gjDetail"></div>
 
             <div class="logic">
-              <b>AP logic:</b> This page uses <span class="mono">PlayableAtSpin(spin, state)</span> (implemented below)
-              to determine playable/not playable for the current spin. Spin 9 is reevaluate-only.
+              <b>AP logic (by spin):</b>
+              <br><b>Interpretation:</b> “1x on reel X” means R(X)≥1; “2x” means R(X)≥2; 2x satisfies a 1x requirement.
+              <br><b>Filled spins:</b> 3 uses 4’s rules; 5 uses 6’s rules; 7 uses 8’s rules. <b>Spin 9:</b> Reevalu­ate only.
               <br><br>
-              <b>“GOOD UNTIL SPIN X” + “REEVALUATE ON SPIN Y”</b>
-              <br>
-              Inputs: <span class="mono">s0</span> (current spin), <span class="mono">state0</span> (columns), and <span class="mono">PlayableAtSpin(spin,state)</span>.
-              <br>
-              Output: <span class="mono">goodUntilSpin</span> (X), <span class="mono">reevaluateOnSpin</span> (Y).
+              <b>Spin 1:</b> PLAY if (R1≥1 OR R2≥1 OR R3≥1 OR R4≥1)
+              <br><b>Spin 2:</b> PLAY if (R1≥1 OR R2≥1 OR R3≥1) OR (R4≥2) OR (R4≥1 AND R5≥2)
+              <br><b>Spin 4 (and spin 3):</b> PLAY if (TOTAL≥3) OR (R1≥2 OR R2≥2 OR R3≥2 OR R4≥2)
+              <br><b>Spin 6 (and spin 5):</b> PLAY if (TOTAL≥4) OR (R1+R2+R3 ≥ 3)
+              <br><b>Spin 8 (and spin 7):</b> PLAY if ANY:
+              <br>&nbsp;&nbsp;1) TOTAL≥3
+              <br>&nbsp;&nbsp;2) (any of R1–R3 ≥2) AND (R4≥1 OR R5≥2)
+              <br>&nbsp;&nbsp;3) (at least two of R1–R3 ≥1) AND (R4≥2)
+              <br>&nbsp;&nbsp;4) (at least two of R1–R3 ≥1) AND (R4≥1) AND (R5≥2)
+              <br>&nbsp;&nbsp;5) (any of R1–R3 ≥1) AND (R4≥2) AND (R5≥2)
               <br><br>
-              Algorithm:
-              <br>1) s = s0
-              <br>2) loop:
-              <br>&nbsp;&nbsp;a) if s == 9: goodUntilSpin = 8; reevaluateOnSpin = 9; return
-              <br>&nbsp;&nbsp;b) if PlayableAtSpin(s, state0) == true: s = s + 1; continue
-              <br>&nbsp;&nbsp;c) else: goodUntilSpin = s - 1; reevaluateOnSpin = s; return
-              <br><br>
-              Notes: worst-case (state frozen). If not playable at s0, then goodUntilSpin = s0−1.
+              <b>GOOD UNTIL / REEVALUATE:</b> computed worst-case with state frozen; loop caps at 9 and forces reevaluate at 9.
             </div>
           </div>
         </div>
@@ -1042,43 +1038,86 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   recalc();
 })();
 
-/* ====================== Golden Jungle (PlayableAtSpin + GoodUntil/Reeval + result bar resets) ====================== */
+/* ====================== Golden Jungle (NEW full logic by spin + goodUntil/reeval) ====================== */
 (function(){
   const spinEl = document.getElementById("gjSpin");
   const colEls = Array.from(document.querySelectorAll(".gjCol"));
   const totalEl = document.getElementById("gjTotal");
-  const twosEl = document.getElementById("gjTwos");
+  const r123El = document.getElementById("gjR123");
   const out = document.getElementById("gjResult");
   const detail = document.getElementById("gjDetail");
   const goodUntilEl = document.getElementById("gjGoodUntil");
   const reevalEl = document.getElementById("gjReevalOn");
 
-  // Placeholder thresholds (same as prior version). Replace with your exact table if desired.
-  const REQUIRED_BY_SPIN = [8,8,7,7,6,6,5,5,4,4];
-
   function getState(){
     const spin = Number(spinEl.value);
     const cols = colEls.map(s => Number(s.value));
-    const total = cols.reduce((a,b)=>a+b,0);
-    const twos = cols.filter(v=>v===2).length;
-    return { spin, cols, total, twos };
+    const TOTAL = cols.reduce((a,b)=>a+b,0);
+    const R1 = cols[0], R2 = cols[1], R3 = cols[2], R4 = cols[3], R5 = cols[4];
+    const R123 = R1+R2+R3;
+    return { spin, cols, R1,R2,R3,R4,R5, TOTAL, R123 };
   }
 
-  function requiredAtSpin(spin, state){
-    const baseReq = REQUIRED_BY_SPIN[clamp(spin,0,9)];
-    const req = Math.max(0, baseReq - (state.twos >= 1 ? 1 : 0));
-    return req;
+  function atLeastTwoOf123_ge1(st){
+    let c = 0;
+    if (st.R1 >= 1) c++;
+    if (st.R2 >= 1) c++;
+    if (st.R3 >= 1) c++;
+    return c >= 2;
   }
 
-  // PROVIDED BY YOUR CODE (implemented here)
-  function PlayableAtSpin(spin, state){
-    // spin 9 is reevaluate-only (not "guaranteed playable")
-    if (spin === 9) return false;
-    const req = requiredAtSpin(spin, state);
-    return state.total >= req;
+  function anyOf123_ge1(st){ return (st.R1>=1 || st.R2>=1 || st.R3>=1); }
+  function anyOf123_ge2(st){ return (st.R1>=2 || st.R2>=2 || st.R3>=2); }
+  function anyOf14_ge1(st){ return (st.R1>=1 || st.R2>=1 || st.R3>=1 || st.R4>=1); }
+  function anyOf14_ge2(st){ return (st.R1>=2 || st.R2>=2 || st.R3>=2 || st.R4>=2); }
+
+  function effectiveSpin(s){
+    // Filled spins: 3->4, 5->6, 7->8
+    if (s === 3) return 4;
+    if (s === 5) return 6;
+    if (s === 7) return 8;
+    return s;
   }
 
-  // Your algorithm: GOOD UNTIL SPIN X / REEVALUATE ON SPIN Y
+  // Provided by our code: PlayableAtSpin(spin, state) -> boolean
+  function PlayableAtSpin(spin, st){
+    if (spin === 9) return false; // reevaluate only
+    const s = effectiveSpin(spin);
+
+    if (s === 1){
+      return anyOf14_ge1(st);
+    }
+
+    if (s === 2){
+      return (
+        (st.R1>=1 || st.R2>=1 || st.R3>=1) ||
+        (st.R4>=2) ||
+        (st.R4>=1 && st.R5>=2)
+      );
+    }
+
+    if (s === 4){
+      return (st.TOTAL >= 3) || anyOf14_ge2(st);
+    }
+
+    if (s === 6){
+      return (st.TOTAL >= 4) || (st.R123 >= 3);
+    }
+
+    if (s === 8){
+      const rule1 = (st.TOTAL >= 3);
+      const rule2 = (anyOf123_ge2(st) && (st.R4>=1 || st.R5>=2));
+      const rule3 = (atLeastTwoOf123_ge1(st) && (st.R4>=2));
+      const rule4 = (atLeastTwoOf123_ge1(st) && (st.R4>=1) && (st.R5>=2));
+      const rule5 = (anyOf123_ge1(st) && (st.R4>=2) && (st.R5>=2));
+      return rule1 || rule2 || rule3 || rule4 || rule5;
+    }
+
+    // Safety fallback: treat unknown as false.
+    return false;
+  }
+
+  // GOOD UNTIL SPIN X / REEVALUATE ON SPIN Y (worst-case, state frozen)
   function computeGoodUntilAndReeval(s0, state0){
     let s = s0;
     while (true){
@@ -1095,32 +1134,29 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
   }
 
   function recalc(){
-    const state = getState();
-    totalEl.textContent = String(state.total);
-    twosEl.textContent = String(state.twos);
+    const st = getState();
+    totalEl.textContent = String(st.TOTAL);
+    r123El.textContent = String(st.R123);
 
-    const reqNow = requiredAtSpin(state.spin, state);
-
-    // Display playability for current spin
-    if (state.spin === 9){
+    const sEff = effectiveSpin(st.spin);
+    if (st.spin === 9){
       setResult(out, "REEVALUATE (Spin 9)", "r-orange");
-      detail.textContent = `Spin 9 is reevaluate-only. (Current req display: ${reqNow})`;
-    } else if (PlayableAtSpin(state.spin, state)){
-      setResult(out, "AP ✅ (Playable now)", "r-green");
-      detail.textContent = `Spin ${state.spin}: Total ${state.total} ≥ Required ${reqNow}.`;
+      detail.textContent = "Spin 9 is reevaluate-only.";
+    } else if (PlayableAtSpin(st.spin, st)){
+      setResult(out, `AP ✅ (Spin ${st.spin} uses ${sEff} rules)`, "r-green");
+      detail.textContent = `Playable now.`;
     } else {
-      setResult(out, "Not AP", "r-red");
-      detail.textContent = `Spin ${state.spin}: Total ${state.total} < Required ${reqNow}.`;
+      setResult(out, `Not AP (Spin ${st.spin} uses ${sEff} rules)`, "r-red");
+      detail.textContent = `Not playable now.`;
     }
 
-    // Compute good-until / reevaluate-on (state frozen)
-    const gu = computeGoodUntilAndReeval(state.spin, state);
+    const gu = computeGoodUntilAndReeval(st.spin, st);
     goodUntilEl.textContent = String(gu.goodUntilSpin);
     reevalEl.textContent = String(gu.reevaluateOnSpin);
   }
 
   function reset(){
-    spinEl.value = "0";
+    spinEl.value = "1";
     colEls.forEach(el => el.value = "0");
     recalc();
     colEls[0]?.focus();
