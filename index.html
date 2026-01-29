@@ -2,789 +2,892 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Advantage Slot Quick Check</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>AP Slot Quick Check</title>
   <style>
     :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --line:rgba(0,0,0,.10);
+      --text:#0b0f19;
+      --muted:rgba(0,0,0,.60);
+
+      --ok:#67d36b;
+      --bad:#ff5a5a;
+      --warn:#ffb34d;
+      --mid:#ffe066;
+
+      --y:#ffe8a6;
+      --g:#d8f6dc;
+      --p:#e9ddff;
+      --b:#d9f2ff;
+
       font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial;
-      color-scheme: light;
-    }
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      background:#f6f7fb;
-      color:#0b0f18;
-      -webkit-tap-highlight-color: transparent;
     }
 
-    /* ===== Top compact game switcher (tap-safe) ===== */
-    .topbar{
-      position:sticky; top:0; z-index:9999;
-      background:rgba(246,247,251,.94);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom:1px solid rgba(0,0,0,.08);
-      padding:8px 10px 6px;
-      pointer-events:auto;
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
-    .chips{
+
+    /* Top compact game switcher (responsive + sticky) */
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(246,247,251,.92);
+      backdrop-filter:saturate(180%) blur(10px);
+      border-bottom:1px solid var(--line);
+      padding:8px 10px calc(8px + env(safe-area-inset-top));
+    }
+    .tabs{
       display:flex;
       flex-wrap:wrap;
       gap:6px;
       align-items:center;
       justify-content:flex-start;
-      max-width:980px;
-      margin:0 auto;
-      position:relative;
-      z-index:10000;
-      pointer-events:auto;
     }
-    .chip{
-      border:1px solid rgba(0,0,0,.12);
-      background:#ffffff;
+    .tab{
+      appearance:none;
+      border:1px solid var(--line);
+      background:var(--card);
+      color:var(--text);
+      padding:7px 10px;
       border-radius:999px;
-      padding:7px 11px;
-      font-weight:850;
+      font-weight:800;
       font-size:12px;
       line-height:1;
       cursor:pointer;
       user-select:none;
-      white-space:nowrap;
-      box-shadow:0 1px 0 rgba(0,0,0,.03);
-      touch-action: manipulation;
-      -webkit-user-select:none;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
     }
-    .chip:active{ transform: translateY(1px); }
-    .chip[aria-selected="true"]{
-      border-color: rgba(0,0,0,.22);
-      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+    .tab[aria-selected="true"]{
+      border-color:rgba(0,0,0,.20);
+      box-shadow:0 6px 16px rgba(0,0,0,.08);
     }
 
-    /* ===== Page container ===== */
+    /* Page container */
     .wrap{
       max-width:980px;
       margin:0 auto;
-      padding:10px;
-    }
-    .game{ display:none; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
-    .game.active{ display:block; }
-
-    /* ===== Light panels ===== */
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1.05fr;
-      gap:10px;
-      align-items:start;
-    }
-    @media (max-width: 720px){
-      .grid2{ grid-template-columns: 1fr; }
+      padding:10px 10px calc(18px + env(safe-area-inset-bottom));
     }
 
-    .panel{
-      border:1px solid rgba(0,0,0,.10);
-      background:#ffffff;
+    .page{ display:none; }
+    .page.active{ display:block; }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
       border-radius:14px;
       padding:10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.06);
-    }
-    .panelTitle{
-      font-weight:950;
-      letter-spacing:.4px;
-      font-size:11px;
-      opacity:.7;
-      margin:0 0 10px;
-      text-transform:uppercase;
+      box-shadow:0 10px 28px rgba(0,0,0,.06);
     }
 
-    /* ===== Inputs ===== */
-    .field{ display:flex; gap:8px; align-items:center; }
-    .label{ font-weight:900; font-size:13px; white-space:nowrap; }
-    .sub{ font-weight:800; font-size:11px; opacity:.65; }
-
-    input[type="number"], input[type="text"], select{
-      width:100%;
-      border:1px solid rgba(0,0,0,.14);
-      border-radius:12px;
-      padding:12px 12px;
-      font-size:16px;
-      font-weight:900;
-      background:#fff;
-      color:#0b0f18;
-      outline:none;
-    }
-    input::placeholder{ color: rgba(11,15,24,.35); font-weight:800; }
-
-    /* ===== Result bar ===== */
-    .result{
-      border:1px solid rgba(0,0,0,.10);
-      border-radius:14px;
-      padding:12px 12px;
-      font-weight:950;
-      font-size:18px;
-      text-align:center;
-      user-select:none;
-      background:#ffffff;
-      color:#0b0f18;
-    }
-    .result.clickable{ cursor:pointer; }
-    .result.clickable:active{ transform: translateY(1px); }
-
-    .r-white{ background:#ffffff; }
-    .r-red{ background:#ff5a5a; }
-    .r-orange{ background:#ffb34d; }
-    .r-yellow{ background:#ffe066; }
-    .r-green{ background:#67d36b; }
-
-    /* Frankenstein total bar with secondary total in bottom-right */
-    .fBar{
-      position:relative;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding-right:92px; /* space for corner number */
-      overflow:hidden;
-    }
-    .fAlt{
-      position:absolute;
-      right:10px;
-      bottom:8px;
-      font-size:12px;
-      font-weight:950;
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid rgba(0,0,0,.12);
-      background:rgba(255,255,255,.80);
-      color:#0b0f18;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* ===== Small helper buttons ===== */
-    .miniBtns{
+    .row{
       display:flex;
       gap:8px;
-      margin-top:10px;
       align-items:center;
       flex-wrap:wrap;
     }
-    .miniBtn{
-      border:1px solid rgba(0,0,0,.12);
+
+    .label{
+      font-weight:900;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    input[type="number"], input[type="text"], select{
+      width:100%;
+      border:1px solid rgba(0,0,0,.16);
+      border-radius:12px;
+      padding:10px 10px;
+      background:#fff;
+      color:var(--text);
+      font-weight:900;
+      font-size:16px;
+      outline:none;
+    }
+
+    /* Compact status bar that can reset (when required) */
+    .statusbar{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      user-select:none;
+    }
+    .statusbar.clickReset{ cursor:pointer; }
+    .statusLeft{
+      font-weight:1000;
+      font-size:16px;
+      line-height:1.1;
+    }
+    .statusRight{
+      font-weight:1000;
+      font-size:13px;
+      color:rgba(0,0,0,.70);
+      white-space:nowrap;
+    }
+    .s-ok{ background:rgba(103,211,107,.22); }
+    .s-bad{ background:rgba(255,90,90,.22); }
+    .s-warn{ background:rgba(255,179,77,.26); }
+    .s-mid{ background:rgba(255,224,102,.28); }
+    .s-white{ background:#fff; }
+
+    /* Logic block at bottom */
+    details.logic{
+      margin-top:10px;
+      background:#fff;
+      border:1px dashed rgba(0,0,0,.18);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    details.logic summary{
+      cursor:pointer;
+      font-weight:1000;
+      font-size:13px;
+      color:rgba(0,0,0,.75);
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .logic .txt{
+      margin-top:8px;
+      font-size:12px;
+      line-height:1.35;
+      color:rgba(0,0,0,.78);
+    }
+    .logic ul{ margin:6px 0 0 18px; padding:0; }
+    .logic li{ margin:4px 0; }
+
+    /* Frankenstein */
+    .frankGrid{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+    }
+    .cell{
+      position:relative;
+      border:1px solid var(--line);
+      border-radius:14px;
+      min-height:70px;
+      padding:26px 8px 8px;
+      background:var(--b);
+      display:flex;
+      align-items:flex-end;
+    }
+    .cell.r0{ background:#ffe1e1; }
+    .wtag{
+      position:absolute;
+      top:7px;
+      left:7px;
+      font-size:10px;
+      font-weight:1000;
+      padding:2px 7px;
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(0,0,0,.10);
+      color:#000;
+      pointer-events:none;
+    }
+    .cell input{
+      width:100%;
+      font-size:16px;
+      padding:8px 8px;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.16);
+      background:rgba(255,255,255,.92);
+      font-weight:1000;
+    }
+    .noInput{
+      opacity:.55;
+      filter:saturate(.9);
+    }
+
+    /* Temple Falls */
+    .tfTop{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .tfBetWrap{ flex:1 1 180px; min-width:170px; }
+    .tfBtn{
+      appearance:none;
+      border:1px solid rgba(0,0,0,.16);
       background:#fff;
       border-radius:12px;
       padding:10px 12px;
+      font-weight:1000;
       font-size:13px;
-      font-weight:950;
       cursor:pointer;
       user-select:none;
-      box-shadow: 0 6px 16px rgba(0,0,0,.06);
-      touch-action: manipulation;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
+      box-shadow:0 6px 16px rgba(0,0,0,.06);
     }
-    .miniBtn:active{ transform: translateY(1px); }
+    .tfBtn:active{ transform:translateY(1px); }
 
-    .hint{
-      margin-top:10px;
-      font-size:12px;
-      line-height:1.25;
-      opacity:.75;
+    .tfGrid{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
     }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-weight:900; }
-
-    /* ===== Per-game AP logic at bottom ===== */
-    .logic{
-      margin-top:12px;
-      border-top:1px dashed rgba(0,0,0,.15);
-      padding-top:10px;
-      font-size:12px;
-      line-height:1.25;
-      opacity:.78;
-    }
-    .logic b{ opacity:1; }
-
-    /* ===== Temple Falls grid (NO row totals) ===== */
-    .tfRows{ display:flex; flex-direction:column; gap:8px; }
     .tfRow{
       display:grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns:repeat(5,1fr);
       gap:6px;
-      align-items:stretch;
     }
     .tfCell{
-      border-radius:10px;
-      border:1px solid rgba(0,0,0,.10);
-      background:#d9f2ff;
-      padding:4px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:var(--b);
+      padding:4px; /* reduced */
+      min-height:48px;
       display:flex;
       align-items:flex-end;
-      min-height:50px;
-      transition: background 120ms ease;
+      transition:background 120ms ease;
     }
     .tfCell.rainbow{
-      background: linear-gradient(90deg,#ff5a5a,#ffb34d,#ffe066,#67d36b,#59c6ff,#9b6bff,#ff5ad9);
+      background:linear-gradient(90deg,#ff5a5a,#ffb34d,#ffe066,#67d36b,#59c6ff,#9b6bff,#ff5ad9);
     }
-    .tfIn{
+    .tfCell input{
       width:100%;
+      border-radius:10px;
       border:1px solid rgba(0,0,0,.14);
-      border-radius:9px;
-      padding:8px 5px;
-      font-size:7px;
-      font-weight:950;
-      background: rgba(255,255,255,.92);
-      text-align:right;
-      font-variant-numeric: tabular-nums;
+      background:rgba(255,255,255,.92);
+      padding:6px 6px;              /* reduced */
+      font-weight:1000;
+      font-size:11px;               /* smaller (2/3-ish) */
+      line-height:1;
+    }
+    .tfTotal{
+      margin-top:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+      text-align:center;
+      font-weight:1100;
+      font-size:20px;
+      line-height:1;
     }
 
-    /* Floating dot (Temple Falls) */
+    /* Floating dot helper for Temple Falls */
     .fab{
       position:fixed;
-      right: 14px;
-      bottom: calc(90px + env(safe-area-inset-bottom));
-      z-index: 99999;
-      pointer-events:auto;
+      right:12px;
+      bottom:calc(14px + env(safe-area-inset-bottom));
+      z-index:60;
+      display:flex;
+      gap:8px;
+      align-items:center;
     }
     .fab button{
-      border:1px solid rgba(0,0,0,.14);
+      appearance:none;
+      border:1px solid rgba(0,0,0,.16);
       background:#fff;
       border-radius:14px;
       padding:12px 14px;
       font-size:18px;
-      font-weight:950;
+      font-weight:1100;
       cursor:pointer;
-      box-shadow: 0 10px 26px rgba(0,0,0,.12);
-      touch-action: manipulation;
+      box-shadow:0 10px 24px rgba(0,0,0,.12);
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
     }
+    .fab button:active{ transform:translateY(1px); }
 
-    /* ===== Frankenstein grid ===== */
-    .fGrid{
+    /* Regal Riches */
+    .rrInputs{
       display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:8px;
-    }
-    .fCell{
-      position:relative;
-      border-radius:12px;
-      border:1px solid rgba(0,0,0,.10);
-      min-height:68px;
-      padding:28px 6px 6px;
-      display:flex;
-      align-items:flex-end;
-      background:#eef2ff;
-    }
-    .fRed{ background:#ffe3e3; }
-    .fBlue{ background:#e3f4ff; }
-    .w{
-      position:absolute;
-      top:6px; left:6px;
-      font-size:10px;
-      font-weight:950;
-      padding:2px 6px;
-      border-radius:999px;
-      background: rgba(255,255,255,.85);
-      border:1px solid rgba(0,0,0,.10);
-      pointer-events:none;
-    }
-    .fIn{
-      width:100%;
-      border:1px solid rgba(0,0,0,.14);
-      border-radius:10px;
-      padding:10px 10px;
-      font-size:16px;
-      font-weight:900;
-      background: rgba(255,255,255,.90);
-      text-align:right;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* ===== Simple 3-field colored list (Regal) ===== */
-    .vStack{ display:flex; flex-direction:column; gap:10px; }
-    .colorRow{
-      display:grid;
-      grid-template-columns: 1fr 1.3fr;
-      gap:10px;
-      align-items:center;
-      border:1px solid rgba(0,0,0,.10);
-      border-radius:14px;
-      padding:10px;
-      background:#fff;
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      font-weight:950;
-      font-size:14px;
-    }
-    .dot{
-      width:12px; height:12px; border-radius:999px;
-      border:1px solid rgba(0,0,0,.10);
-      display:inline-block;
-    }
-    .dot.yellow{ background:#ffe066; }
-    .dot.green{ background:#67d36b; }
-    .dot.purple{ background:#9b6bff; }
-
-    /* ===== Golden Jungle (cleaner selects) ===== */
-    .gjTopRow{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:8px;
-      align-items:center;
-    }
-    .gjCols{
-      display:grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap:8px;
-      align-items:stretch;
-    }
-    .gjSelect{
-      appearance:none;
-      -webkit-appearance:none;
-      font-size:18px;
-      font-weight:950;
-      text-align:center;
-      padding:14px 10px;
-      border-radius:14px;
-      border:1px solid rgba(0,0,0,.12);
-      background:#fff;
-      color:#0b0f18;
-      line-height:1;
-    }
-    .gjMetrics{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns:1fr;
       gap:8px;
       margin-top:10px;
     }
-    .metric{
-      border:1px solid rgba(0,0,0,.10);
+    .rrBox{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+      background:#fff;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .rrSwatch{
+      width:12px;height:34px;border-radius:999px;border:1px solid rgba(0,0,0,.12);
+      flex:0 0 12px;
+    }
+    .swY{ background:#ffd54d; }
+    .swG{ background:#67d36b; }
+    .swP{ background:#9b6bff; }
+    .rrBox input{ font-size:18px; padding:10px 10px; }
+
+    .rrSum{
+      margin-top:10px;
+      text-align:center;
+      font-weight:1100;
+      color:rgba(0,0,0,.72);
+      font-size:13px;
+    }
+
+    /* Ascending Fortunes */
+    .afGrid{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:8px;
+    }
+    .afRow{
+      border:1px solid var(--line);
       border-radius:14px;
       background:#fff;
       padding:10px;
-      text-align:center;
-    }
-    .metric .k{ font-size:11px; opacity:.65; font-weight:900; }
-    .metric .v{ font-size:18px; font-weight:950; margin-top:6px; font-variant-numeric: tabular-nums; }
-
-    .gjMetrics2{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns:1.1fr 1fr .9fr;
       gap:8px;
-      margin-top:8px;
+      align-items:center;
+    }
+    .afName{ font-weight:1100; }
+    .afMhb{ text-align:right; font-weight:1000; color:rgba(0,0,0,.55); font-size:13px; }
+
+    /* Golden Jungle */
+    .gjTop{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .gjSpin{ flex:0 0 140px; min-width:140px; }
+    .gjReels{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:repeat(5, 1fr);
+      gap:8px;
+    }
+    .gjReels select{
+      font-size:16px;
+      padding:10px 8px;
+      text-align:center;
+      font-weight:1100;
+    }
+    .gjMiniLine{
+      margin-top:10px;
+      font-size:13px;
+      font-weight:1000;
+      color:rgba(0,0,0,.70);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    @media (max-width:520px){
+      .wrap{ padding:10px 10px calc(18px + env(safe-area-inset-bottom)); }
+      .afRow{ grid-template-columns:1fr; }
+      .afMhb{ text-align:left; }
+      .gjSpin{ flex:1 1 140px; }
     }
   </style>
 </head>
 
 <body>
   <div class="topbar">
-    <div class="chips" id="chips" role="tablist" aria-label="Game switcher">
-      <button class="chip" type="button" role="tab" aria-selected="true"  data-game="frank">Frankenstein</button>
-      <button class="chip" type="button" role="tab" aria-selected="false" data-game="temple">Temple Falls</button>
-      <button class="chip" type="button" role="tab" aria-selected="false" data-game="regal">Regal Riches</button>
-      <button class="chip" type="button" role="tab" aria-selected="false" data-game="ascend">Ascending / Stack Up</button>
-      <button class="chip" type="button" role="tab" aria-selected="false" data-game="golden">Golden Jungle</button>
+    <div class="tabs" id="tabs">
+      <button class="tab" data-page="frankenstein" aria-selected="true">Frankenstein</button>
+      <button class="tab" data-page="templefalls" aria-selected="false">Temple Falls</button>
+      <button class="tab" data-page="regalriches" aria-selected="false">Regal Riches</button>
+      <button class="tab" data-page="ascending" aria-selected="false">Ascending / Stack Up</button>
+      <button class="tab" data-page="goldenjungle" aria-selected="false">Golden Jungle</button>
+      <button class="tab" data-page="rocket" aria-selected="false">Rocket Rumble</button>
     </div>
   </div>
 
   <div class="wrap">
 
-    <!-- ====================== Frankenstein ====================== -->
-    <section id="game-frank" class="game active" aria-label="Frankenstein">
-      <div class="grid2">
-        <div class="panel">
-          <div class="panelTitle">NOTES</div>
-          <div class="hint">
-            Defaults are <b>empty</b>, but each empty field is treated as <span class="mono">1</span> in both totals.
+    <!-- ========================= -->
+    <!-- Frankenstein -->
+    <!-- ========================= -->
+    <section class="page active" id="page-frankenstein">
+      <div class="card">
+        <!-- total/reset bar ABOVE grid -->
+        <div id="frBar" class="statusbar clickReset s-white" title="Tap to reset">
+          <div class="statusLeft" id="frBig">13.55</div>
+          <div class="statusRight"><span id="frSmall">13.55</span></div>
+        </div>
+
+        <div class="frankGrid" id="frGrid">
+          <!-- Row 1 -->
+          <div class="cell r0 noInput" data-mult="0" data-roww="1.0">
+            <div class="wtag">0</div>
           </div>
-          <div class="hint">Tap the total bar to reset.</div>
-          <div class="hint">
-            <b>Small total behavior:</b> starts at baseline <span class="mono">13.55</span>, then adds
-            <span class="mono">(value − 1) × rowWeight</span> per input. No multipliers used.
+          <div class="cell r0" data-mult="0.4" data-roww="1.0">
+            <div class="wtag">0.4</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" placeholder="" />
+          </div>
+          <div class="cell r0" data-mult="1.7" data-roww="1.0">
+            <div class="wtag">1.7</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" placeholder="" />
+          </div>
+
+          <!-- Row 2 -->
+          <div class="cell" data-mult="1.6" data-roww="2.0">
+            <div class="wtag">1.6</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" />
+          </div>
+          <div class="cell" data-mult="2.4" data-roww="2.0">
+            <div class="wtag">2.4</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" />
+          </div>
+          <div class="cell" data-mult="2.0" data-roww="2.0">
+            <div class="wtag">2.0</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" />
+          </div>
+
+          <!-- Row 3 -->
+          <div class="cell" data-mult="1.5" data-roww="1.2">
+            <div class="wtag">1.5</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" />
+          </div>
+          <div class="cell" data-mult="1.25" data-roww="1.2">
+            <div class="wtag">1.25</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" />
+          </div>
+          <div class="cell" data-mult="0.75" data-roww="1.2">
+            <div class="wtag">0.75</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" />
+          </div>
+
+          <!-- Row 4 -->
+          <div class="cell" data-mult="0.75" data-roww="0.65">
+            <div class="wtag">0.75</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" />
+          </div>
+          <div class="cell" data-mult="0.8" data-roww="0.65">
+            <div class="wtag">0.8</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" />
+          </div>
+          <div class="cell" data-mult="0.4" data-roww="0.65">
+            <div class="wtag">0.4</div>
+            <input class="frIn" type="number" inputmode="decimal" step="any" />
           </div>
         </div>
 
-        <div class="panel">
-          <div class="panelTitle">TOTAL (tap to reset)</div>
-
-          <div id="fResult" class="result fBar r-white clickable" title="Tap to reset">
-            <span id="fMain">0.00</span>
-            <span id="fAlt" class="fAlt">0.00</span>
+        <details class="logic">
+          <summary>Logic / Notes</summary>
+          <div class="txt">
+            <ul>
+              <li>Empty fields are treated as <b>1</b>.</li>
+              <li>Main total = Σ(value × shown multiplier).</li>
+              <li>Small total = <b>13.55</b> + Σ((value − 1) × row weight), with row weights:
+                Row1=1.0, Row2=2.0, Row3=1.2, Row4=0.65.</li>
+              <li>Color bands (main total only): &lt;17 red, &lt;17.5 orange, &lt;18 yellow, ≥18 green.</li>
+              <li>Tap the total bar to reset all fields.</li>
+            </ul>
           </div>
-
-          <div class="panelTitle" style="margin-top:10px;">GRID</div>
-          <div class="fGrid" id="fGrid">
-            <div class="fCell fRed" data-mult="0"><div class="w">0</div></div>
-
-            <div class="fCell fRed" data-mult="0.4"><div class="w">0.4</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-            <div class="fCell fRed" data-mult="1.7"><div class="w">1.7</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-
-            <div class="fCell fBlue" data-mult="1.6"><div class="w">1.6</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-            <div class="fCell fBlue" data-mult="2.4"><div class="w">2.4</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-            <div class="fCell fBlue" data-mult="2.0"><div class="w">2.0</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-
-            <div class="fCell fBlue" data-mult="1.5"><div class="w">1.5</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-            <div class="fCell fBlue" data-mult="1.25"><div class="w">1.25</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-            <div class="fCell fBlue" data-mult="0.75"><div class="w">0.75</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-
-            <div class="fCell fBlue" data-mult="0.75"><div class="w">0.75</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-            <div class="fCell fBlue" data-mult="0.8"><div class="w">0.8</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-            <div class="fCell fBlue" data-mult="0.4"><div class="w">0.4</div><input class="fIn" type="number" inputmode="decimal" step="any" /></div>
-          </div>
-
-          <div class="logic">
-            <b>AP logic:</b> Main total = Σ(value × shown multiplier). Bands: red &lt; 17, orange &lt; 17.5, yellow &lt; 18, green ≥ 18.
-            Empty fields are treated as <span class="mono">1</span>.
-            <br><br>
-            <b>Small total:</b> Baseline = <span class="mono">13.55</span>.
-            Small total = 13.55 + Σ((value − 1) × rowWeight).
-            Row weights: row1=1.0, row2=2.0, row3=1.2, row4=0.65.
-          </div>
-        </div>
+        </details>
       </div>
     </section>
 
-    <!-- ====================== Temple Falls ====================== -->
-    <section id="game-temple" class="game" aria-label="Temple Falls Jungle Adventure">
-      <div class="grid2">
-        <div class="panel">
-          <div class="panelTitle">SETUP</div>
-          <div class="field"><div class="label">Bet size <span class="sub">(required)</span></div></div>
-          <div style="margin-top:8px;"><input id="tfBet" type="number" inputmode="decimal" step="any" placeholder="e.g., 8.80" /></div>
-
-          <div class="miniBtns">
-            <button class="miniBtn" type="button" id="tfAddRow">+ Row (top)</button>
-            <button class="miniBtn" type="button" id="tfDot">Insert “.”</button>
+    <!-- ========================= -->
+    <!-- Temple Falls -->
+    <!-- ========================= -->
+    <section class="page" id="page-templefalls">
+      <div class="card">
+        <div class="tfTop">
+          <div class="tfBetWrap">
+            <div class="label">Bet size</div>
+            <input id="tfBet" type="number" inputmode="decimal" step="any" placeholder="e.g., 8.80" />
           </div>
-
-          <div class="hint">
-            Empty cell = <span class="mono">0</span>. “.” = <span class="mono">38</span>. Numbers = (number ÷ bet).
-            Top-added rows don’t count in the bottom total.
-          </div>
-          <div class="hint">Tap the total bar to reset.</div>
+          <button class="tfBtn" type="button" id="tfAddRow">+ Row (top)</button>
         </div>
 
-        <div class="panel">
-          <div class="panelTitle">GRID</div>
-          <div id="tfRows" class="tfRows"></div>
+        <div class="tfGrid" id="tfRows"></div>
 
-          <div style="margin-top:10px;">
-            <div id="tfResult" class="result r-white clickable" title="Tap to reset">0.00</div>
+        <div class="tfTotal s-white" id="tfTotal">0.00</div>
 
-            <div class="logic">
-              <b>AP logic:</b> Bottom total sums the 2 base rows only. Cell value: empty→0, “.”→38, number→(number ÷ bet).
-              Bands: red &lt; 50, orange &lt; 60, green ≥ 60.
+        <details class="logic">
+          <summary>Logic / Notes</summary>
+          <div class="txt">
+            <ul>
+              <li>Empty cells = <b>0</b>.</li>
+              <li>Each numeric cell contributes <b>(cell / bet)</b>.</li>
+              <li>A single <b>.</b> token represents a wheel and contributes <b>38</b>.</li>
+              <li>Rows you add at the top are <b>excluded</b> from the bottom total.</li>
+              <li>Total color bands: &lt;50 red, &lt;60 orange, ≥60 green.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+
+      <!-- Floating dot helper (Temple Falls only) -->
+      <div class="fab" id="tfFab" style="display:none;">
+        <button type="button" id="tfDotBtn">.</button>
+      </div>
+    </section>
+
+    <!-- ========================= -->
+    <!-- Regal Riches -->
+    <!-- ========================= -->
+    <section class="page" id="page-regalriches">
+      <div class="card">
+        <div id="rrStatus" class="statusbar clickReset s-white" title="Tap to reset">
+          <div class="statusLeft" id="rrStatusText">Not AP</div>
+          <div class="statusRight" id="rrStatusSub">Y+G+P: 0</div>
+        </div>
+
+        <div class="rrInputs">
+          <div class="rrBox">
+            <div class="rrSwatch swY"></div>
+            <div style="flex:1">
+              <div class="label">Yellow</div>
+              <input id="rrY" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="fab"><button type="button" id="tfDotFab">.</button></div>
-    </section>
-
-    <!-- ====================== Regal Riches ====================== -->
-    <section id="game-regal" class="game" aria-label="Regal Riches">
-      <div class="grid2">
-        <div class="panel">
-          <div class="panelTitle">INPUTS</div>
-          <div class="vStack">
-            <div class="colorRow"><div class="pill"><span class="dot yellow"></span> Yellow</div><input id="rrYellow" type="number" inputmode="numeric" step="1" /></div>
-            <div class="colorRow"><div class="pill"><span class="dot green"></span> Green</div><input id="rrGreen" type="number" inputmode="numeric" step="1" /></div>
-            <div class="colorRow"><div class="pill"><div class="dot purple"></div> Purple</div><input id="rrPurple" type="number" inputmode="numeric" step="1" /></div>
-          </div>
-          <div class="hint">Tap the result bar to reset.</div>
-        </div>
-
-        <div class="panel">
-          <div class="panelTitle">RESULT (tap to reset)</div>
-          <div id="rrResult" class="result r-white clickable" title="Tap to reset">Enter values</div>
-
-          <div class="logic">
-            <b>AP logic:</b>
-            AP if any of:
-            <span class="mono">(Y ≥ 115 AND G ≥ 85 AND P ≥ 60)</span>
-            OR <span class="mono">(Y+G+P ≥ 210)</span>
-            OR <span class="mono">at least 2</span> of:
-            <span class="mono">Y ≥ 106</span>, <span class="mono">G ≥ 81</span>, <span class="mono">P ≥ 56</span>.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================== Ascending Fortunes / Stack Up Pays ====================== -->
-    <section id="game-ascend" class="game" aria-label="Ascending Fortunes / Stack Up Pays">
-      <div class="grid2">
-        <div class="panel">
-          <div class="panelTitle">INPUTS</div>
-          <div class="vStack">
-            <div class="colorRow"><div class="pill">Mega <span class="sub">(MHB 350)</span></div><input id="asMega" type="number" inputmode="numeric" step="1" /></div>
-            <div class="colorRow"><div class="pill">Grand <span class="sub">(MHB 250)</span></div><input id="asGrand" type="number" inputmode="numeric" step="1" /></div>
-            <div class="colorRow"><div class="pill">Major <span class="sub">(MHB 200)</span></div><input id="asMajor" type="number" inputmode="numeric" step="1" /></div>
-            <div class="colorRow"><div class="pill">Minor <span class="sub">(MHB 150)</span></div><input id="asMinor" type="number" inputmode="numeric" step="1" /></div>
-          </div>
-
-          <div class="hint">
-            Logic: “away” = (MHB − current). Hard: Major≤8 OR Grand≤12 OR Mega≤20.
-            Soft: any 2 of Major≤10, Grand≤15, Mega≤26.
-          </div>
-          <div class="hint">Tap the result bar to reset.</div>
-        </div>
-
-        <div class="panel">
-          <div class="panelTitle">RESULT (tap to reset)</div>
-          <div id="asResult" class="result r-white clickable" title="Tap to reset">Enter values</div>
-          <div class="hint" id="asDetail"></div>
-
-          <div class="logic">
-            <b>AP logic:</b> away = (MHB − current). Hard if any: Major≤8, Grand≤12, Mega≤20.
-            Soft if at least 2 of: Major≤10, Grand≤15, Mega≤26.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================== Golden Jungle ====================== -->
-    <section id="game-golden" class="game" aria-label="Golden Jungle">
-      <div class="grid2">
-        <div class="panel">
-          <div class="panelTitle">INPUTS</div>
-
-          <div class="gjTopRow">
-            <div>
-              <div class="label">Current spin</div>
-              <select id="gjSpin" class="gjSelect" style="margin-top:6px;">
-                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
-                <option value="9">9</option>
-              </select>
-              <div class="hint" style="margin-top:8px;">
-                Filled spins: 3→4 rules, 5→6 rules, 7→8 rules. Spin 9 = reevaluate.
-              </div>
+          <div class="rrBox">
+            <div class="rrSwatch swG"></div>
+            <div style="flex:1">
+              <div class="label">Green</div>
+              <input id="rrG" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
-            <div>
-              <div class="label">Columns (0/1/2)</div>
-              <div class="hint" style="margin-top:6px;">Tap the result bar to reset.</div>
+          </div>
+
+          <div class="rrBox">
+            <div class="rrSwatch swP"></div>
+            <div style="flex:1">
+              <div class="label">Purple</div>
+              <input id="rrP" type="number" inputmode="decimal" step="any" placeholder="" />
             </div>
           </div>
         </div>
 
-        <div class="panel">
-          <div class="panelTitle">COLUMNS</div>
+        <div class="rrSum" id="rrDetail"></div>
 
-          <div class="gjCols">
-            <select class="gjSelect gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
-            <select class="gjSelect gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
-            <select class="gjSelect gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
-            <select class="gjSelect gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
-            <select class="gjSelect gjCol"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
+        <details class="logic">
+          <summary>Logic / Notes</summary>
+          <div class="txt">
+            <ul>
+              <li><b>AP</b> if: (Yellow ≥ 115 AND Green ≥ 85 AND Purple ≥ 60)</li>
+              <li><b>OR</b> if: (Yellow + Green + Purple ≥ 210)</li>
+              <li><b>OR</b> if at least <b>two</b> are met:
+                Yellow ≥ 106, Green ≥ 81, Purple ≥ 56</li>
+              <li>If exactly one of the “two-of-three” thresholds is met, status shows <b>Soft</b> (and which color).</li>
+              <li>Tap the status bar to reset.</li>
+            </ul>
           </div>
-
-          <div class="gjMetrics">
-            <div class="metric"><div class="k">TOTAL</div><div class="v" id="gjTotal">0</div></div>
-            <div class="metric"><div class="k">R1+R2+R3</div><div class="v" id="gjR123">0</div></div>
-          </div>
-
-          <div class="gjMetrics2">
-            <div class="metric"><div class="k">Good until spin</div><div class="v" id="gjGoodUntil">—</div></div>
-            <div class="metric"><div class="k">Reevaluate on spin</div><div class="v" id="gjReevalOn">—</div></div>
-          </div>
-
-          <div style="margin-top:10px;">
-            <div id="gjResult" class="result r-white clickable" title="Tap to reset">—</div>
-            <div class="hint" id="gjDetail"></div>
-
-            <div class="logic">
-              <b>AP logic (by spin):</b>
-              <br><b>Interpretation:</b> “1x on reel X” means R(X)≥1; “2x” means R(X)≥2; 2x satisfies a 1x requirement.
-              <br><b>Filled spins:</b> 3 uses 4’s rules; 5 uses 6’s rules; 7 uses 8’s rules. <b>Spin 9:</b> Reevalu­ate only.
-              <br><br>
-              <b>Spin 1:</b> PLAY if (R1≥1 OR R2≥1 OR R3≥1 OR R4≥1)
-              <br><b>Spin 2:</b> PLAY if (R1≥1 OR R2≥1 OR R3≥1) OR (R4≥2) OR (R4≥1 AND R5≥2)
-              <br><b>Spin 4 (and spin 3):</b> PLAY if (TOTAL≥3) OR (R1≥2 OR R2≥2 OR R3≥2 OR R4≥2)
-              <br><b>Spin 6 (and spin 5):</b> PLAY if (TOTAL≥4) OR (R1+R2+R3 ≥ 3)
-              <br><b>Spin 8 (and spin 7):</b> PLAY if ANY:
-              <br>&nbsp;&nbsp;1) TOTAL≥3
-              <br>&nbsp;&nbsp;2) (any of R1–R3 ≥2) AND (R4≥1 OR R5≥2)
-              <br>&nbsp;&nbsp;3) (at least two of R1–R3 ≥1) AND (R4≥2)
-              <br>&nbsp;&nbsp;4) (at least two of R1–R3 ≥1) AND (R4≥1) AND (R5≥2)
-              <br>&nbsp;&nbsp;5) (any of R1–R3 ≥1) AND (R4≥2) AND (R5≥2)
-              <br><br>
-              <b>GOOD UNTIL / REEVALUATE:</b> computed worst-case with state frozen; loop caps at 9 and forces reevaluate at 9.
-            </div>
-          </div>
-        </div>
+        </details>
       </div>
     </section>
 
-  </div><!-- /wrap -->
+    <!-- ========================= -->
+    <!-- Ascending Fortunes / Stack Up Pays -->
+    <!-- ========================= -->
+    <section class="page" id="page-ascending">
+      <div class="card">
+        <div id="afStatus" class="statusbar clickReset s-white" title="Tap to reset">
+          <div class="statusLeft" id="afStatusText">Not AP</div>
+          <div class="statusRight" id="afStatusSub">—</div>
+        </div>
+
+        <div class="afGrid">
+          <div class="afRow">
+            <div class="afName">Mega</div>
+            <input id="afMega" type="number" inputmode="decimal" step="any" placeholder="" />
+            <div class="afMhb">MHB 350</div>
+          </div>
+          <div class="afRow">
+            <div class="afName">Grand</div>
+            <input id="afGrand" type="number" inputmode="decimal" step="any" placeholder="" />
+            <div class="afMhb">MHB 250</div>
+          </div>
+          <div class="afRow">
+            <div class="afName">Major</div>
+            <input id="afMajor" type="number" inputmode="decimal" step="any" placeholder="" />
+            <div class="afMhb">MHB 200</div>
+          </div>
+          <div class="afRow">
+            <div class="afName">Minor</div>
+            <input id="afMinor" type="number" inputmode="decimal" step="any" placeholder="" />
+            <div class="afMhb">MHB <b>150</b></div>
+          </div>
+        </div>
+
+        <details class="logic">
+          <summary>Logic / Notes</summary>
+          <div class="txt">
+            <ul>
+              <li><b>Primary AP</b> if any one is within its “away” window:
+                Minor ≥ 146 (4 away), Major ≥ 192 (8 away), Grand ≥ 238 (12 away), Mega ≥ 330 (20 away).</li>
+              <li><b>Secondary AP</b> if at least two are within 1.3× “away” (floored):
+                Major ≥ 190 (10 away), Grand ≥ 235 (15 away), Mega ≥ 324 (26 away).</li>
+              <li>If exactly one of the secondary thresholds is met, status shows <b>Soft</b> (and which jackpot).</li>
+              <li>Tap the status bar to reset.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ========================= -->
+    <!-- Golden Jungle -->
+    <!-- ========================= -->
+    <section class="page" id="page-goldenjungle">
+      <div class="card">
+        <div id="gjStatus" class="statusbar clickReset s-white" title="Tap to reset">
+          <div class="statusLeft" id="gjStatusText">NO PLAY</div>
+          <div class="statusRight" id="gjStatusSub">Spin 1</div>
+        </div>
+
+        <div class="gjTop">
+          <div class="gjSpin">
+            <div class="label">Spin</div>
+            <select id="gjSpin">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="gjReels">
+          <select class="gjR" data-i="0">
+            <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+          </select>
+          <select class="gjR" data-i="1">
+            <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+          </select>
+          <select class="gjR" data-i="2">
+            <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+          </select>
+          <select class="gjR" data-i="3">
+            <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+          </select>
+          <select class="gjR" data-i="4">
+            <option value="0" selected>0</option><option value="1">1</option><option value="2">2</option>
+          </select>
+        </div>
+
+        <div class="gjMiniLine" id="gjUntilLine">
+          <div>Good until: <b id="gjGoodUntil">—</b></div>
+          <div>Reevaluate on: <b id="gjReevalOn">—</b></div>
+        </div>
+
+        <details class="logic">
+          <summary>Logic / Notes</summary>
+          <div class="txt">
+            <ul>
+              <li>Counts are [R1..R5] with values 0/1/2; TOTAL = sum.</li>
+              <li>Filled spins: Spin 3 uses Spin 4 rules; Spin 5 uses Spin 6 rules; Spin 7 uses Spin 8 rules.</li>
+              <li>Spin 9 is always <b>Reevaluate</b>.</li>
+              <li><b>Spin 1</b>: PLAY if (R1≥1 OR R2≥1 OR R3≥1 OR R4≥1).</li>
+              <li><b>Spin 2</b>: PLAY if (R1≥1 OR R2≥1 OR R3≥1) OR (R4≥2) OR (R4≥1 AND R5≥2).</li>
+              <li><b>Spin 4</b>: PLAY if (TOTAL≥3) OR (R1≥2 OR R2≥2 OR R3≥2 OR R4≥2).</li>
+              <li><b>Spin 6</b>: PLAY if (TOTAL≥4) OR (R1+R2+R3 ≥ 3).</li>
+              <li><b>Spin 8</b>: PLAY if any:
+                (TOTAL≥3) OR
+                ((R1≥2 OR R2≥2 OR R3≥2) AND (R4≥1 OR R5≥2)) OR
+                ((at least two of R1..R3 ≥1) AND (R4≥2)) OR
+                ((at least two of R1..R3 ≥1) AND (R4≥1) AND (R5≥2)) OR
+                ((R1≥1 OR R2≥1 OR R3≥1) AND (R4≥2) AND (R5≥2)).</li>
+              <li>Good-until / reevaluate:
+                starting at current spin s0 with frozen state, walk forward until the first failing spin or 9 (9 forces reevaluate).</li>
+              <li>Tap the status bar to reset (spin→1, all reels→0).</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ========================= -->
+    <!-- Rocket Rumble (minimal placeholder logic) -->
+    <!-- ========================= -->
+    <section class="page" id="page-rocket">
+      <div class="card">
+        <div id="rkStatus" class="statusbar s-white">
+          <div class="statusLeft" id="rkStatusText">—</div>
+          <div class="statusRight" id="rkStatusSub">—</div>
+        </div>
+
+        <div style="margin-top:10px; display:grid; grid-template-columns:1fr; gap:8px;">
+          <div class="rrBox">
+            <div class="rrSwatch" style="background:#59c6ff"></div>
+            <div style="flex:1">
+              <div class="label">Blue</div>
+              <input id="rkBlue" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+          </div>
+          <div class="rrBox">
+            <div class="rrSwatch" style="background:#67d36b"></div>
+            <div style="flex:1">
+              <div class="label">Green</div>
+              <input id="rkGreen" type="number" inputmode="decimal" step="any" placeholder="" />
+            </div>
+          </div>
+        </div>
+
+        <details class="logic">
+          <summary>Logic / Notes</summary>
+          <div class="txt">
+            <ul>
+              <li>Current implementation: PLAY if (Blue ≥ 13 AND Green ≥ 16). Adjust if your sheet differs.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+  </div>
 
 <script>
-/* ====================== Shared helpers ====================== */
-function nOrNull(v){
-  const t = String(v ?? "").trim();
-  if (t === "") return null;
-  const n = Number(t);
-  return Number.isFinite(n) ? n : null;
-}
-function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
-function setResult(el, text, cls){
-  el.textContent = text;
-  el.classList.remove("r-white","r-red","r-orange","r-yellow","r-green");
-  el.classList.add(cls);
-}
+  // =========================
+  // Utilities
+  // =========================
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-/* ====================== Game switching (tap-safe) ====================== */
-const chipsHost = document.getElementById("chips");
-const chipBtns = Array.from(document.querySelectorAll(".chip"));
-const games = {
-  frank: document.getElementById("game-frank"),
-  temple: document.getElementById("game-temple"),
-  regal: document.getElementById("game-regal"),
-  ascend: document.getElementById("game-ascend"),
-  golden: document.getElementById("game-golden"),
-};
-function showGame(key){
-  for (const k in games) games[k].classList.toggle("active", k === key);
-  for (const c of chipBtns) c.setAttribute("aria-selected", c.dataset.game === key ? "true" : "false");
-  window.scrollTo({ top: 0, behavior: "instant" });
-}
-function onChipActivate(e){
-  const btn = e.target.closest(".chip");
-  if (!btn) return;
-  e.preventDefault?.();
-  showGame(btn.dataset.game);
-}
-chipsHost.addEventListener("click", onChipActivate, { passive:false });
-chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
-
-/* ====================== Frankenstein (EMPTY => 1) + small total ====================== */
-(function(){
-  const fCells = Array.from(document.querySelectorAll("#fGrid .fCell"));
-  const fInputs = Array.from(document.querySelectorAll("#fGrid .fIn"));
-  const fBar = document.getElementById("fResult");
-  const fMain = document.getElementById("fMain");
-  const fAlt = document.getElementById("fAlt");
-
-  function rowWeightByIndex(i){
-    if (i <= 2) return 1.0;
-    if (i <= 5) return 2.0;
-    if (i <= 8) return 1.2;
-    return 0.65;
-  }
-
-  const BASELINE_MAIN = fCells.reduce((acc, cell) => acc + Number(cell.dataset.mult || "0"), 0); // 13.55
-
-  function band(total){
-    if (total < 17) return "r-red";
-    if (total < 17.5) return "r-orange";
-    if (total < 18) return "r-yellow";
-    return "r-green";
-  }
-
-  function valOrOne(inp){
-    const t = String(inp.value ?? "").trim();
-    if (t === "") return 1;
+  function numOr(v, fallback){
+    const t = String(v ?? "").trim();
+    if (t === "") return fallback;
     const n = Number(t);
-    return Number.isFinite(n) ? n : 1;
+    return Number.isFinite(n) ? n : fallback;
   }
 
-  function recalc(){
-    let mainTotal = 0;
-    for (let i = 0; i < fCells.length; i++){
-      const cell = fCells[i];
-      const mult = Number(cell.dataset.mult || "0");
-      const inp = cell.querySelector(".fIn");
-      const v = inp ? valOrOne(inp) : 0;
-      mainTotal += v * mult;
-    }
+  function setStatusBar(el, cls){
+    el.classList.remove("s-ok","s-bad","s-warn","s-mid","s-white");
+    el.classList.add(cls);
+  }
 
-    let smallTotal = BASELINE_MAIN;
-    for (let i = 0; i < fCells.length; i++){
-      const inp = fCells[i].querySelector(".fIn");
+  // =========================
+  // Page switching (responsive + reliable)
+  // =========================
+  const tabs = $("#tabs");
+  const pages = {
+    frankenstein: $("#page-frankenstein"),
+    templefalls: $("#page-templefalls"),
+    regalriches: $("#page-regalriches"),
+    ascending: $("#page-ascending"),
+    goldenjungle: $("#page-goldenjungle"),
+    rocket: $("#page-rocket"),
+  };
+
+  function showPage(key){
+    for (const k in pages) pages[k].classList.toggle("active", k === key);
+    $$(".tab", tabs).forEach(b => b.setAttribute("aria-selected", String(b.dataset.page === key)));
+    // Temple Falls dot helper only when that page is active
+    $("#tfFab").style.display = (key === "templefalls") ? "flex" : "none";
+    // Recalc on show (so it never looks stale)
+    if (key === "frankenstein") frRecalc();
+    if (key === "templefalls") tfRecalc();
+    if (key === "regalriches") rrRecalc();
+    if (key === "ascending") afRecalc();
+    if (key === "goldenjungle") gjRecalc();
+    if (key === "rocket") rkRecalc();
+  }
+
+  // event delegation (fixes “buttons aren’t responsive”)
+  tabs.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tab");
+    if (!btn) return;
+    const key = btn.dataset.page;
+    if (!pages[key]) return;
+    showPage(key);
+  }, { passive:true });
+
+  // =========================
+  // Frankenstein
+  // =========================
+  const frBar = $("#frBar");
+  const frBig = $("#frBig");
+  const frSmall = $("#frSmall");
+  const frCells = $$(".cell", $("#frGrid"));
+
+  function frBandClass(total){
+    if (total < 17) return "s-bad";
+    if (total < 17.5) return "s-warn";
+    if (total < 18) return "s-mid";
+    return "s-ok";
+  }
+
+  function frBaseline(){
+    // baseline is “all inputs = 1” => sum of multipliers for all input cells
+    let base = 0;
+    for (const cell of frCells) {
+      const inp = cell.querySelector("input");
       if (!inp) continue;
-      const v = valOrOne(inp);
-      smallTotal += (v - 1) * rowWeightByIndex(i);
+      base += Number(cell.dataset.mult || "0");
+    }
+    return base;
+  }
+
+  const FR_BASE = frBaseline(); // should be 13.55
+
+  function frRecalc(){
+    let big = 0;
+    let small = FR_BASE;
+
+    for (const cell of frCells) {
+      const mult = Number(cell.dataset.mult || "0");
+      const roww = Number(cell.dataset.roww || "0");
+      const inp = cell.querySelector("input");
+      if (!inp) continue;
+
+      const v = numOr(inp.value, 1); // EMPTY => 1
+      big += v * mult;
+      small += (v - 1) * roww;       // row-weight delta only (no per-cell mult)
     }
 
-    fBar.classList.remove("r-white","r-red","r-orange","r-yellow","r-green");
-    fBar.classList.add(band(mainTotal));
-    fMain.textContent = mainTotal.toFixed(2);
-    fAlt.textContent = smallTotal.toFixed(2);
+    frBig.textContent = big.toFixed(2);
+    frSmall.textContent = small.toFixed(2);
+    setStatusBar(frBar, frBandClass(big));
   }
 
-  function reset(){
-    for (const inp of fInputs) inp.value = "";
-    recalc();
-    fInputs[0]?.focus();
+  function frReset(){
+    $$(".frIn").forEach(i => i.value = "");
+    frRecalc();
+    $(".frIn")?.focus();
   }
 
-  fInputs.forEach(inp => {
-    inp.addEventListener("input", recalc);
-    inp.addEventListener("focus", ()=> setTimeout(()=> inp.select?.(), 0));
+  frBar.addEventListener("click", frReset);
+
+  $$(".frIn").forEach(inp => {
+    inp.addEventListener("input", frRecalc);
+    inp.addEventListener("focus", () => setTimeout(() => inp.select?.(), 0));
   });
 
-  fBar.addEventListener("click", reset);
-  fBar.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
+  frRecalc();
 
-  recalc();
-})();
+  // =========================
+  // Temple Falls
+  // =========================
+  const tfBet = $("#tfBet");
+  const tfRowsHost = $("#tfRows");
+  const tfTotal = $("#tfTotal");
+  const tfAddRow = $("#tfAddRow");
+  const tfDotBtn = $("#tfDotBtn");
+  let tfLastFocused = null;
+  const TF_BASE_ROWS = 2;
 
-/* ====================== Temple Falls (Bet + EMPTY => 0) ====================== */
-(function(){
-  const tfBet = document.getElementById("tfBet");
-  const tfRows = document.getElementById("tfRows");
-  const tfResult = document.getElementById("tfResult");
-  const tfAddRow = document.getElementById("tfAddRow");
-  const tfDot = document.getElementById("tfDot");
-  const tfDotFab = document.getElementById("tfDotFab");
-
-  const BASE_ROWS = 2;
-  let lastFocused = null;
-
-  function parseBet(){
-    const n = nOrNull(tfBet.value);
-    return (n && n > 0) ? n : null;
-  }
-
-  function tfCellValue(raw, bet){
-    const s = String(raw ?? "").trim();
-    if (s === "") return 0;
-    if (s === ".") return 38;
-    const n = Number(s);
-    if (!Number.isFinite(n)) return 0;
-    return n / bet;
-  }
-
-  function setCellColor(inp){
-    const cell = inp.closest(".tfCell");
-    const s = String(inp.value ?? "").trim();
-
-    if (s === "") {
-      cell.classList.remove("rainbow");
-      cell.style.background = "#d9f2ff";
-      return;
-    }
-    if (s.includes(".")) {
-      cell.classList.add("rainbow");
-      cell.style.background = "";
-      return;
-    }
-    const n = Number(s);
-    if (!Number.isFinite(n)) {
-      cell.classList.remove("rainbow");
-      cell.style.background = "#d9f2ff";
-      return;
-    }
-    cell.classList.remove("rainbow");
-    const v = clamp(n, 1, 200);
-    const t = (v - 1) / 199;
-    const light = 92 - t * 22;
-    cell.style.background = `hsl(45 90% ${light}%)`;
-  }
-
-  function band(total){
-    if (total < 50) return "r-red";
-    if (total < 60) return "r-orange";
-    return "r-green";
-  }
-
-  function makeRow(included){
+  function tfMakeRow({ included }){
     const row = document.createElement("div");
     row.className = "tfRow";
     row.dataset.included = included ? "true" : "false";
@@ -794,382 +897,417 @@ chipsHost.addEventListener("touchstart", onChipActivate, { passive:false });
       cell.className = "tfCell";
 
       const inp = document.createElement("input");
-      inp.className = "tfIn";
       inp.type = "text";
       inp.setAttribute("inputmode","decimal");
       inp.setAttribute("pattern","[0-9.]*");
-      inp.autocorrect = "off";
-      inp.spellcheck = false;
+      inp.setAttribute("autocorrect","off");
+      inp.setAttribute("spellcheck","false");
+      inp.className = "tfIn";
 
       cell.appendChild(inp);
       row.appendChild(cell);
 
-      cell.addEventListener("click", (e)=>{ if (e.target!==inp) inp.focus(); });
-      inp.addEventListener("focus", ()=>{ lastFocused = inp; setTimeout(()=> inp.select?.(), 0); });
-      inp.addEventListener("input", recalc);
-      inp.addEventListener("keydown", (e)=>{
-        if (e.key === "Enter"){ e.preventDefault(); focusNext(inp); }
-      });
+      cell.addEventListener("click", (e)=>{ if (e.target !== inp) inp.focus(); });
+      inp.addEventListener("focus", ()=>{ tfLastFocused = inp; });
+      inp.addEventListener("input", tfRecalc);
     }
 
     return row;
   }
 
-  function allRows(){ return Array.from(tfRows.querySelectorAll(".tfRow")); }
-  function allInputs(){ return Array.from(tfRows.querySelectorAll(".tfIn")); }
-
-  function focusNext(inp){
-    const ins = allInputs();
-    const idx = ins.indexOf(inp);
-    if (idx >= 0 && idx < ins.length - 1) ins[idx+1].focus();
-    else inp.blur();
+  function tfInit(){
+    tfRowsHost.innerHTML = "";
+    for (let r=0;r<TF_BASE_ROWS;r++){
+      tfRowsHost.appendChild(tfMakeRow({ included:true }));
+    }
+    tfRecalc();
   }
 
-  function init(){
-    tfRows.innerHTML = "";
-    for (let r=0;r<BASE_ROWS;r++) tfRows.appendChild(makeRow(true));
-    recalc();
+  function tfParseBet(){
+    const n = Number(String(tfBet.value ?? "").trim());
+    return Number.isFinite(n) && n > 0 ? n : null;
   }
 
-  function recalc(){
-    const bet = parseBet();
-    const rows = allRows();
-    let bottomTotal = 0;
+  function tfCellValue(raw, bet){
+    const s = String(raw ?? "").trim();
+    if (s === "") return 0;          // EMPTY => 0
+    if (s === ".") return 38;        // wheel token
+    const n = Number(s);
+    if (!Number.isFinite(n)) return 0;
+    return n / bet;
+  }
 
-    for (const row of rows){
-      const inputs = Array.from(row.querySelectorAll(".tfIn"));
-      inputs.forEach(setCellColor);
+  function tfSetCellColor(inp){
+    const cell = inp.closest(".tfCell");
+    const s = String(inp.value ?? "").trim();
 
-      let rowSum = 0;
-
-      if (!bet){
-        for (const inp of inputs){
-          const s = String(inp.value ?? "").trim();
-          if (s === ".") rowSum += 38;
-        }
-      } else {
-        for (const inp of inputs) rowSum += tfCellValue(inp.value, bet);
-      }
-
-      if (row.dataset.included === "true") bottomTotal += rowSum;
+    if (s === ""){
+      cell.classList.remove("rainbow");
+      cell.style.background = "";
+      cell.style.backgroundColor = "var(--b)";
+      return;
     }
 
-    if (!bet && allInputs().every(i => String(i.value ?? "").trim() === "")){
-      setResult(tfResult, "0.00", "r-white");
+    if (s.includes(".")){
+      cell.classList.add("rainbow");
+      cell.style.backgroundColor = "";
       return;
+    }
+
+    const n = Number(s);
+    cell.classList.remove("rainbow");
+    if (!Number.isFinite(n)){
+      cell.style.backgroundColor = "var(--b)";
+      return;
+    }
+
+    // gold-ish scale by raw number (1..200)
+    const v = Math.max(1, Math.min(200, n));
+    const t = (v - 1) / 199;
+    const light = 94 - t * 22;
+    cell.style.backgroundColor = `hsl(45 90% ${light}%)`;
+  }
+
+  function tfBandClass(total){
+    if (total < 50) return "s-bad";
+    if (total < 60) return "s-warn";
+    return "s-ok";
+  }
+
+  function tfRecalc(){
+    const bet = tfParseBet();
+    let bottomTotal = 0;
+
+    const rows = $$(".tfRow", tfRowsHost);
+    for (const row of rows){
+      const ins = $$(".tfIn", row);
+      ins.forEach(tfSetCellColor);
+
+      if (bet && row.dataset.included === "true"){
+        for (const inp of ins){
+          bottomTotal += tfCellValue(inp.value, bet);
+        }
+      }
     }
 
     if (!bet){
-      setResult(tfResult, bottomTotal.toFixed(2), "r-white");
+      tfTotal.textContent = "0.00";
+      setStatusBar(tfTotal, "s-white");
       return;
     }
 
-    setResult(tfResult, bottomTotal.toFixed(2), band(bottomTotal));
+    tfTotal.textContent = bottomTotal.toFixed(2);
+    setStatusBar(tfTotal, tfBandClass(bottomTotal));
   }
 
-  function reset(){
-    tfBet.value = "";
-    init();
-    tfBet.focus();
-  }
-
-  tfBet.addEventListener("input", recalc);
-
-  tfAddRow.addEventListener("click", ()=>{
-    const row = makeRow(false);
-    tfRows.prepend(row);
-    row.querySelector(".tfIn")?.focus();
-    recalc();
+  tfAddRow.addEventListener("click", () => {
+    const r = tfMakeRow({ included:false });
+    tfRowsHost.prepend(r);
+    r.querySelector(".tfIn")?.focus();
+    tfRecalc();
   });
 
-  function insertDot(){
-    const ins = allInputs();
-    if (!ins.length) return;
-    let idx = lastFocused ? ins.indexOf(lastFocused) : -1;
+  tfBet.addEventListener("input", tfRecalc);
+
+  tfDotBtn.addEventListener("click", () => {
+    const inputs = $$(".tfIn", tfRowsHost);
+    if (!inputs.length) return;
+    let idx = tfLastFocused ? inputs.indexOf(tfLastFocused) : -1;
     if (idx < 0) idx = 0;
-    ins[idx].value = ".";
-    recalc();
-    focusNext(ins[idx]);
+    inputs[idx].value = ".";
+    tfRecalc();
+    if (idx < inputs.length - 1) inputs[idx+1].focus();
+    else inputs[idx].blur();
+  });
+
+  tfInit();
+
+  // =========================
+  // Regal Riches
+  // =========================
+  const rrStatus = $("#rrStatus");
+  const rrStatusText = $("#rrStatusText");
+  const rrStatusSub = $("#rrStatusSub");
+  const rrDetail = $("#rrDetail");
+  const rrY = $("#rrY"), rrG = $("#rrG"), rrP = $("#rrP");
+
+  function rrReset(){
+    rrY.value = ""; rrG.value = ""; rrP.value = "";
+    rrRecalc();
+    rrY.focus();
   }
 
-  tfDot.addEventListener("click", insertDot);
-  tfDotFab.addEventListener("click", insertDot);
+  function rrRecalc(){
+    const Y = numOr(rrY.value, 0);
+    const G = numOr(rrG.value, 0);
+    const P = numOr(rrP.value, 0);
+    const sum = Y + G + P;
 
-  tfResult.addEventListener("click", reset);
-  tfResult.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
+    const hard1 = (Y >= 115 && G >= 85 && P >= 60);
+    const hard2 = (sum >= 210);
 
-  init();
-})();
+    const sY = (Y >= 106);
+    const sG = (G >= 81);
+    const sP = (P >= 56);
+    const softCount = (sY?1:0) + (sG?1:0) + (sP?1:0);
 
-/* ====================== Regal Riches (result bar resets) ====================== */
-(function(){
-  const yEl = document.getElementById("rrYellow");
-  const gEl = document.getElementById("rrGreen");
-  const pEl = document.getElementById("rrPurple");
-  const out = document.getElementById("rrResult");
+    const isAP = hard1 || hard2 || (softCount >= 2);
 
-  function recalc(){
-    const Y = nOrNull(yEl.value);
-    const G = nOrNull(gEl.value);
-    const P = nOrNull(pEl.value);
-
-    if (!Number.isFinite(Y) && !Number.isFinite(G) && !Number.isFinite(P)){
-      setResult(out, "Enter values", "r-white");
-      return;
+    if (isAP){
+      rrStatusText.textContent = "AP";
+      rrStatusSub.textContent = "Y+G+P: " + sum.toFixed(0);
+      setStatusBar(rrStatus, "s-ok");
+    } else if (softCount === 1){
+      const which = sY ? "Yellow" : (sG ? "Green" : "Purple");
+      rrStatusText.textContent = "Soft: " + which;
+      rrStatusSub.textContent = "Y+G+P: " + sum.toFixed(0);
+      setStatusBar(rrStatus, "s-warn");
+    } else {
+      rrStatusText.textContent = "Not AP";
+      rrStatusSub.textContent = "Y+G+P: " + sum.toFixed(0);
+      setStatusBar(rrStatus, "s-bad");
     }
 
-    const y = Number.isFinite(Y) ? Y : 0;
-    const g = Number.isFinite(G) ? G : 0;
-    const p = Number.isFinite(P) ? P : 0;
-
-    const allHard = (y >= 115 && g >= 85 && p >= 60);
-    const sumHard = (y + g + p >= 210);
-
-    const softCount =
-      (y >= 106 ? 1 : 0) +
-      (g >= 81  ? 1 : 0) +
-      (p >= 56  ? 1 : 0);
-
-    const softTwo = (softCount >= 2);
-
-    if (allHard || sumHard || softTwo){
-      let msg = "AP ✅";
-      if (allHard) msg = "AP ✅ (All hard met)";
-      else if (sumHard) msg = "AP ✅ (Sum ≥ 210)";
-      else msg = "AP ✅ (2 soft met)";
-      setResult(out, msg, "r-green");
-      return;
-    }
-
-    setResult(out, "Not AP", "r-red");
+    const metSoft = [];
+    if (sY) metSoft.push("Y≥106");
+    if (sG) metSoft.push("G≥81");
+    if (sP) metSoft.push("P≥56");
+    rrDetail.textContent =
+      "Met: " + (hard1 ? "115/85/60 " : "") +
+      (hard2 ? "SUM≥210 " : "") +
+      (metSoft.length ? ("Soft(" + metSoft.join(", ") + ")") : "—");
   }
 
-  function reset(){
-    yEl.value = "";
-    gEl.value = "";
-    pEl.value = "";
-    recalc();
-    yEl.focus();
+  rrStatus.addEventListener("click", rrReset);
+  [rrY, rrG, rrP].forEach(el => el.addEventListener("input", rrRecalc));
+  rrRecalc();
+
+  // =========================
+  // Ascending Fortunes / Stack Up Pays
+  // =========================
+  const afStatus = $("#afStatus");
+  const afStatusText = $("#afStatusText");
+  const afStatusSub = $("#afStatusSub");
+  const afMega = $("#afMega"), afGrand = $("#afGrand"), afMajor = $("#afMajor"), afMinor = $("#afMinor");
+
+  const AF_MHB = { mega:350, grand:250, major:200, minor:150 };
+  const AF_AWAY = { mega:20, grand:12, major:8, minor:4 };
+  const AF_SOFT_AWAY = { mega:26, grand:15, major:10 }; // floor(away*1.3)
+
+  function afReset(){
+    afMega.value = ""; afGrand.value = ""; afMajor.value = ""; afMinor.value = "";
+    afRecalc();
+    afMega.focus();
   }
 
-  [yEl,gEl,pEl].forEach(el => el.addEventListener("input", recalc));
+  function afRecalc(){
+    const mega = numOr(afMega.value, 0);
+    const grand = numOr(afGrand.value, 0);
+    const major = numOr(afMajor.value, 0);
+    const minor = numOr(afMinor.value, 0);
 
-  out.addEventListener("click", reset);
-  out.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
-
-  recalc();
-})();
-
-/* ====================== Ascending Fortunes / Stack Up Pays (result bar resets) ====================== */
-(function(){
-  const megaEl  = document.getElementById("asMega");
-  const grandEl = document.getElementById("asGrand");
-  const majorEl = document.getElementById("asMajor");
-  const minorEl = document.getElementById("asMinor");
-
-  const out = document.getElementById("asResult");
-  const detail = document.getElementById("asDetail");
-
-  const MHB = { Mega: 350, Grand: 250, Major: 200, Minor: 150 };
-  const HARD_AWAY = { Mega: 20, Grand: 12, Major: 8, Minor: 4 };
-  const SOFT_AWAY = { Mega: 26, Grand: 15, Major: 10, Minor: 5 };
-
-  function away(name, val){
-    if (!Number.isFinite(val)) return null;
-    return MHB[name] - val;
-  }
-
-  function recalc(){
-    const v = {
-      Mega:  nOrNull(megaEl.value),
-      Grand: nOrNull(grandEl.value),
-      Major: nOrNull(majorEl.value),
-      Minor: nOrNull(minorEl.value),
+    const thr = {
+      mega: AF_MHB.mega - AF_AWAY.mega,   // 330
+      grand: AF_MHB.grand - AF_AWAY.grand,// 238
+      major: AF_MHB.major - AF_AWAY.major,// 192
+      minor: AF_MHB.minor - AF_AWAY.minor // 146
     };
 
-    const any = Object.values(v).some(n => Number.isFinite(n));
-    if (!any){
-      setResult(out, "Enter values", "r-white");
-      detail.textContent = "";
-      return;
-    }
-
-    const a = {
-      Mega:  away("Mega", v.Mega),
-      Grand: away("Grand", v.Grand),
-      Major: away("Major", v.Major),
-      Minor: away("Minor", v.Minor),
+    const softThr = {
+      mega: AF_MHB.mega - AF_SOFT_AWAY.mega,   // 324
+      grand: AF_MHB.grand - AF_SOFT_AWAY.grand,// 235
+      major: AF_MHB.major - AF_SOFT_AWAY.major // 190
     };
 
-    const hardList = ["Major","Grand","Mega"].filter(k => a[k] != null && a[k] <= HARD_AWAY[k]);
-    if (hardList.length){
-      const k = hardList[0];
-      setResult(out, `AP ✅ (${k} ${a[k]} away)`, "r-green");
-      detail.textContent = `Hard: Major≤8, Grand≤12, Mega≤20.`;
-      return;
+    const prim = {
+      mega: mega >= thr.mega,
+      grand: grand >= thr.grand,
+      major: major >= thr.major,
+      minor: minor >= thr.minor
+    };
+
+    const soft = {
+      mega: mega >= softThr.mega,
+      grand: grand >= softThr.grand,
+      major: major >= softThr.major
+    };
+
+    const primaryAP = prim.mega || prim.grand || prim.major || prim.minor;
+
+    const softCount = (soft.mega?1:0) + (soft.grand?1:0) + (soft.major?1:0);
+    const secondaryAP = (!primaryAP && softCount >= 2);
+
+    const isAP = primaryAP || secondaryAP;
+
+    const met = [];
+    if (prim.minor) met.push("Minor≥146");
+    if (prim.major) met.push("Major≥192");
+    if (prim.grand) met.push("Grand≥238");
+    if (prim.mega)  met.push("Mega≥330");
+
+    if (isAP){
+      afStatusText.textContent = "AP";
+      setStatusBar(afStatus, "s-ok");
+      afStatusSub.textContent = met.length ? met.join(" • ") : "2-of-3 close";
+      if (!met.length){
+        const s = [];
+        if (soft.major) s.push("Major≥190");
+        if (soft.grand) s.push("Grand≥235");
+        if (soft.mega) s.push("Mega≥324");
+        afStatusSub.textContent = s.join(" • ");
+      }
+    } else if (softCount === 1){
+      const which = soft.major ? "Major" : (soft.grand ? "Grand" : "Mega");
+      afStatusText.textContent = "Soft: " + which;
+      setStatusBar(afStatus, "s-warn");
+      afStatusSub.textContent =
+        (which === "Major" ? "≥190" : which === "Grand" ? "≥235" : "≥324");
+    } else {
+      afStatusText.textContent = "Not AP";
+      setStatusBar(afStatus, "s-bad");
+      afStatusSub.textContent = "—";
     }
-
-    const softEligible = ["Major","Grand","Mega"].filter(k => a[k] != null && a[k] <= SOFT_AWAY[k]);
-    if (softEligible.length >= 2){
-      setResult(out, `Soft ✅ (${softEligible.slice(0,2).join(" + ")})`, "r-orange");
-      detail.textContent = `Soft: Major≤10, Grand≤15, Mega≤26.`;
-      return;
-    }
-
-    setResult(out, "Not in range", "r-red");
-    const parts = ["Major","Grand","Mega"].map(k => (a[k]==null) ? `${k}: —` : `${k}: ${a[k]} away`);
-    detail.textContent = parts.join(" • ");
   }
 
-  function reset(){
-    megaEl.value = "";
-    grandEl.value = "";
-    majorEl.value = "";
-    minorEl.value = "";
-    recalc();
-    megaEl.focus();
+  afStatus.addEventListener("click", afReset);
+  [afMega, afGrand, afMajor, afMinor].forEach(el => el.addEventListener("input", afRecalc));
+  afRecalc();
+
+  // =========================
+  // Golden Jungle
+  // =========================
+  const gjStatus = $("#gjStatus");
+  const gjStatusText = $("#gjStatusText");
+  const gjStatusSub = $("#gjStatusSub");
+  const gjSpin = $("#gjSpin");
+  const gjReels = $$(".gjR");
+  const gjGoodUntil = $("#gjGoodUntil");
+  const gjReevalOn = $("#gjReevalOn");
+
+  function gjCounts(){
+    return gjReels.map(s => Number(s.value || "0"));
   }
 
-  [megaEl,grandEl,majorEl,minorEl].forEach(el => el.addEventListener("input", recalc));
-
-  out.addEventListener("click", reset);
-  out.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
-
-  recalc();
-})();
-
-/* ====================== Golden Jungle (NEW full logic by spin + goodUntil/reeval) ====================== */
-(function(){
-  const spinEl = document.getElementById("gjSpin");
-  const colEls = Array.from(document.querySelectorAll(".gjCol"));
-  const totalEl = document.getElementById("gjTotal");
-  const r123El = document.getElementById("gjR123");
-  const out = document.getElementById("gjResult");
-  const detail = document.getElementById("gjDetail");
-  const goodUntilEl = document.getElementById("gjGoodUntil");
-  const reevalEl = document.getElementById("gjReevalOn");
-
-  function getState(){
-    const spin = Number(spinEl.value);
-    const cols = colEls.map(s => Number(s.value));
-    const TOTAL = cols.reduce((a,b)=>a+b,0);
-    const R1 = cols[0], R2 = cols[1], R3 = cols[2], R4 = cols[3], R5 = cols[4];
-    const R123 = R1+R2+R3;
-    return { spin, cols, R1,R2,R3,R4,R5, TOTAL, R123 };
-  }
-
-  function atLeastTwoOf123_ge1(st){
+  function atLeastTwoOfFirst3GE1(R1,R2,R3){
     let c = 0;
-    if (st.R1 >= 1) c++;
-    if (st.R2 >= 1) c++;
-    if (st.R3 >= 1) c++;
+    if (R1>=1) c++;
+    if (R2>=1) c++;
+    if (R3>=1) c++;
     return c >= 2;
   }
 
-  function anyOf123_ge1(st){ return (st.R1>=1 || st.R2>=1 || st.R3>=1); }
-  function anyOf123_ge2(st){ return (st.R1>=2 || st.R2>=2 || st.R3>=2); }
-  function anyOf14_ge1(st){ return (st.R1>=1 || st.R2>=1 || st.R3>=1 || st.R4>=1); }
-  function anyOf14_ge2(st){ return (st.R1>=2 || st.R2>=2 || st.R3>=2 || st.R4>=2); }
+  function gjPlayableAtSpin(spin, state){
+    const [R1,R2,R3,R4,R5] = state;
+    const TOTAL = R1+R2+R3+R4+R5;
 
-  function effectiveSpin(s){
-    // Filled spins: 3->4, 5->6, 7->8
-    if (s === 3) return 4;
-    if (s === 5) return 6;
-    if (s === 7) return 8;
-    return s;
-  }
+    if (spin === 9) return false; // spin 9 is reevaluate-only
 
-  // Provided by our code: PlayableAtSpin(spin, state) -> boolean
-  function PlayableAtSpin(spin, st){
-    if (spin === 9) return false; // reevaluate only
-    const s = effectiveSpin(spin);
+    // Filled spins mapping: 3->4, 5->6, 7->8
+    let s = spin;
+    if (s === 3) s = 4;
+    if (s === 5) s = 6;
+    if (s === 7) s = 8;
 
     if (s === 1){
-      return anyOf14_ge1(st);
+      return (R1>=1 || R2>=1 || R3>=1 || R4>=1);
     }
 
     if (s === 2){
-      return (
-        (st.R1>=1 || st.R2>=1 || st.R3>=1) ||
-        (st.R4>=2) ||
-        (st.R4>=1 && st.R5>=2)
-      );
+      return (R1>=1 || R2>=1 || R3>=1) || (R4>=2) || (R4>=1 && R5>=2);
     }
 
     if (s === 4){
-      return (st.TOTAL >= 3) || anyOf14_ge2(st);
+      return (TOTAL >= 3) || (R1>=2 || R2>=2 || R3>=2 || R4>=2);
     }
 
     if (s === 6){
-      return (st.TOTAL >= 4) || (st.R123 >= 3);
+      return (TOTAL >= 4) || ((R1+R2+R3) >= 3);
     }
 
-    if (s === 8){
-      const rule1 = (st.TOTAL >= 3);
-      const rule2 = (anyOf123_ge2(st) && (st.R4>=1 || st.R5>=2));
-      const rule3 = (atLeastTwoOf123_ge1(st) && (st.R4>=2));
-      const rule4 = (atLeastTwoOf123_ge1(st) && (st.R4>=1) && (st.R5>=2));
-      const rule5 = (anyOf123_ge1(st) && (st.R4>=2) && (st.R5>=2));
-      return rule1 || rule2 || rule3 || rule4 || rule5;
-    }
-
-    // Safety fallback: treat unknown as false.
-    return false;
+    // s === 8 (and thus spin 7 uses this too)
+    const cond1 = (TOTAL >= 3);
+    const cond2 = ((R1>=2 || R2>=2 || R3>=2) && (R4>=1 || R5>=2));
+    const cond3 = (atLeastTwoOfFirst3GE1(R1,R2,R3) && (R4>=2));
+    const cond4 = (atLeastTwoOfFirst3GE1(R1,R2,R3) && (R4>=1) && (R5>=2));
+    const cond5 = ((R1>=1 || R2>=1 || R3>=1) && (R4>=2) && (R5>=2));
+    return (cond1 || cond2 || cond3 || cond4 || cond5);
   }
 
-  // GOOD UNTIL SPIN X / REEVALUATE ON SPIN Y (worst-case, state frozen)
-  function computeGoodUntilAndReeval(s0, state0){
+  function gjGoodUntilAndReeval(s0, state0){
     let s = s0;
     while (true){
       if (s === 9){
-        return { goodUntilSpin: 8, reevaluateOnSpin: 9 };
+        return { goodUntil:8, reevaluateOn:9 };
       }
-      if (PlayableAtSpin(s, state0) === true){
+      if (gjPlayableAtSpin(s, state0)){
         s = s + 1;
         continue;
-      } else {
-        return { goodUntilSpin: s - 1, reevaluateOnSpin: s };
       }
+      return { goodUntil:s-1, reevaluateOn:s };
     }
   }
 
-  function recalc(){
-    const st = getState();
-    totalEl.textContent = String(st.TOTAL);
-    r123El.textContent = String(st.R123);
+  function gjReset(){
+    gjSpin.value = "1";
+    gjReels.forEach(s => s.value = "0");
+    gjRecalc();
+  }
 
-    const sEff = effectiveSpin(st.spin);
-    if (st.spin === 9){
-      setResult(out, "REEVALUATE (Spin 9)", "r-orange");
-      detail.textContent = "Spin 9 is reevaluate-only.";
-    } else if (PlayableAtSpin(st.spin, st)){
-      setResult(out, `AP ✅ (Spin ${st.spin} uses ${sEff} rules)`, "r-green");
-      detail.textContent = `Playable now.`;
+  function gjRecalc(){
+    const s0 = Number(gjSpin.value || "1");
+    const state0 = gjCounts();
+
+    if (s0 === 9){
+      gjStatusText.textContent = "REEVALUATE";
+      gjStatusSub.textContent = "Spin 9";
+      setStatusBar(gjStatus, "s-white");
+      gjGoodUntil.textContent = "8";
+      gjReevalOn.textContent = "9";
+      return;
+    }
+
+    const playableNow = gjPlayableAtSpin(s0, state0);
+    const { goodUntil, reevaluateOn } = gjGoodUntilAndReeval(s0, state0);
+
+    gjGoodUntil.textContent = String(goodUntil);
+    gjReevalOn.textContent = String(reevaluateOn);
+
+    if (playableNow){
+      gjStatusText.textContent = "PLAY";
+      setStatusBar(gjStatus, "s-ok");
     } else {
-      setResult(out, `Not AP (Spin ${st.spin} uses ${sEff} rules)`, "r-red");
-      detail.textContent = `Not playable now.`;
+      gjStatusText.textContent = "NO PLAY";
+      setStatusBar(gjStatus, "s-bad");
     }
-
-    const gu = computeGoodUntilAndReeval(st.spin, st);
-    goodUntilEl.textContent = String(gu.goodUntilSpin);
-    reevalEl.textContent = String(gu.reevaluateOnSpin);
+    gjStatusSub.textContent = "Spin " + s0;
   }
 
-  function reset(){
-    spinEl.value = "1";
-    colEls.forEach(el => el.value = "0");
-    recalc();
-    colEls[0]?.focus();
+  gjStatus.addEventListener("click", gjReset);
+  gjSpin.addEventListener("change", gjRecalc);
+  gjReels.forEach(s => s.addEventListener("change", gjRecalc));
+  gjRecalc();
+
+  // =========================
+  // Rocket Rumble (minimal)
+  // =========================
+  const rkBlue = $("#rkBlue"), rkGreen = $("#rkGreen");
+  const rkStatusText = $("#rkStatusText"), rkStatusSub = $("#rkStatusSub");
+  const rkStatus = $("#rkStatus");
+
+  function rkRecalc(){
+    const b = numOr(rkBlue.value, 0);
+    const g = numOr(rkGreen.value, 0);
+    const play = (b >= 13 && g >= 16);
+
+    rkStatusText.textContent = play ? "PLAY" : "NO PLAY";
+    rkStatusSub.textContent = "Blue " + b.toFixed(0) + " • Green " + g.toFixed(0);
+    setStatusBar(rkStatus, play ? "s-ok" : "s-bad");
   }
+  [rkBlue, rkGreen].forEach(el => el.addEventListener("input", rkRecalc));
+  rkRecalc();
 
-  spinEl.addEventListener("change", recalc);
-  colEls.forEach(el => el.addEventListener("change", recalc));
-
-  out.addEventListener("click", reset);
-  out.addEventListener("touchstart", (e)=>{ e.preventDefault(); reset(); }, { passive:false });
-
-  recalc();
-})();
+  // Default show first page
+  showPage("frankenstein");
 </script>
 </body>
 </html>
