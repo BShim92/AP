@@ -523,7 +523,7 @@
               <li>Empty fields are treated as <b>1</b>.</li>
               <li>Main total = Σ(value × shown multiplier).</li>
               <li>Small total = <b>13.55</b> + Σ((value − 1) × row weight), weights: Row1=1.0, Row2=2.0, Row3=1.2, Row4=0.65.</li>
-              <li>Color bands (main total only): &lt;17 red, &lt;17.5 orange, &lt;18 yellow, ≥18 green.</li>
+              <li>Color bands (main total only): &lt;17.5 red, &lt;18 orange, ≥18 green.</li>
               <li>Tap the total bar to reset this page.</li>
             </ul>
           </div>
@@ -852,9 +852,8 @@
   const frCells = $$(".cell", $("#frGrid"));
 
   function frBandClass(total){
-    if (total < 17) return "s-bad";
-    if (total < 17.5) return "s-warn";
-    if (total < 18) return "s-mid";
+    if (total < 17.5) return "s-bad";
+    if (total < 18) return "s-warn";
     return "s-ok";
   }
 
