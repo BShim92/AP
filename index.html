@@ -109,6 +109,7 @@
 
     /* Clickable status bars */
     .statusbar{
+      position:relative;
       border:1px solid var(--line);
       border-radius:14px;
       padding:10px 12px;
@@ -124,13 +125,35 @@
       font-weight:1100;
       font-size:16px;
       line-height:1.1;
+      position:relative;
+      z-index:1;
     }
     .statusRight{
       font-weight:1100;
       font-size:13px;
       color:rgba(0,0,0,.70);
       white-space:nowrap;
+      position:relative;
+      z-index:1;
     }
+    .statusMid{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      font-weight:1100;
+      font-size:13px;
+      color:rgba(0,0,0,.78);
+      white-space:nowrap;
+      text-align:center;
+      pointer-events:none;
+      opacity:0;
+      max-width:56%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .statusMid.show{ opacity:1; }
+
     .s-ok{ background:rgba(103,211,107,.22); }
     .s-bad{ background:rgba(255,90,90,.22); }
     .s-warn{ background:rgba(255,179,77,.26); }
@@ -397,6 +420,10 @@
     @media (max-width:520px){
       .afRow{ grid-template-columns:1fr; }
       .gjSpin{ flex:1 1 140px; }
+      .statusMid{
+        max-width:48%;
+        font-size:11px;
+      }
     }
   </style>
 </head>
@@ -422,6 +449,7 @@
       <div class="card">
         <div id="frBar" class="statusbar clickReset s-white" title="Tap to reset">
           <div class="statusLeft" id="frBig">13.55</div>
+          <div class="statusMid" id="frMid">CHEN THIS, CHEN THAT!</div>
           <div class="statusRight"><span id="frSmall">13.55</span></div>
         </div>
 
@@ -480,6 +508,12 @@
             <div class="wtag">0.4</div>
             <input class="frIn" type="number" inputmode="decimal" step="any" />
           </div>
+        </div>
+
+        <div id="frBarBottom" class="statusbar clickReset s-white" title="Tap to reset" style="margin-top:10px;">
+          <div class="statusLeft" id="frBigBottom">13.55</div>
+          <div class="statusMid" id="frMidBottom">CHEN THIS, CHEN THAT!</div>
+          <div class="statusRight"><span id="frSmallBottom">13.55</span></div>
         </div>
 
         <details class="logic" open>
@@ -807,7 +841,14 @@
   // =========================
   const frBar = $("#frBar");
   const frBig = $("#frBig");
+  const frMid = $("#frMid");
   const frSmall = $("#frSmall");
+
+  const frBarBottom = $("#frBarBottom");
+  const frBigBottom = $("#frBigBottom");
+  const frMidBottom = $("#frMidBottom");
+  const frSmallBottom = $("#frSmallBottom");
+
   const frCells = $$(".cell", $("#frGrid"));
 
   function frBandClass(total){
@@ -828,6 +869,16 @@
   }
   const FR_BASE = frBaseline(); // 13.55
 
+  function frPaintBar(bar, bigEl, midEl, smallEl, big, small){
+    const cls = frBandClass(big);
+    const isGreen = cls === "s-ok";
+
+    bigEl.textContent = big.toFixed(2);
+    smallEl.textContent = small.toFixed(2);
+    midEl.classList.toggle("show", isGreen);
+    setStatusBar(bar, cls);
+  }
+
   function frRecalc(){
     let big = 0;
     let small = FR_BASE;
@@ -843,9 +894,8 @@
       small += (v - 1) * roww;
     }
 
-    frBig.textContent = big.toFixed(2);
-    frSmall.textContent = small.toFixed(2);
-    setStatusBar(frBar, frBandClass(big));
+    frPaintBar(frBar, frBig, frMid, frSmall, big, small);
+    frPaintBar(frBarBottom, frBigBottom, frMidBottom, frSmallBottom, big, small);
   }
 
   function frReset(){
@@ -855,6 +905,8 @@
   }
 
   frBar.addEventListener("click", frReset);
+  frBarBottom.addEventListener("click", frReset);
+
   $$(".frIn").forEach(inp => {
     inp.addEventListener("input", frRecalc);
     inp.addEventListener("focus", () => setTimeout(() => inp.select?.(), 0));
