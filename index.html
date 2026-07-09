@@ -449,8 +449,7 @@
       <div class="card">
         <div id="frBar" class="statusbar clickReset s-white" title="Tap to reset">
           <div class="statusLeft" id="frBig">13.40</div>
-          <div class="statusMid" id="frMid">CHEN THIS, CHEN THAT!</div>
-          <div class="statusRight"><span id="frSmall">13.40</span></div>
+          <div class="statusMid" id="frMid"></div>
         </div>
 
         <div class="frankGrid" id="frGrid">
@@ -512,8 +511,7 @@
 
         <div id="frBarBottom" class="statusbar clickReset s-white" title="Tap to reset" style="margin-top:10px;">
           <div class="statusLeft" id="frBigBottom">13.40</div>
-          <div class="statusMid" id="frMidBottom">CHEN THIS, CHEN THAT!</div>
-          <div class="statusRight"><span id="frSmallBottom">13.40</span></div>
+          <div class="statusMid" id="frMidBottom"></div>
         </div>
 
         <details class="logic" open>
@@ -522,8 +520,7 @@
             <ul>
               <li>Empty fields are treated as <b>1</b>.</li>
               <li>Main total = <b>13.40</b> + Σ((value − 1) × shown multiplier).</li>
-              <li>Small total = <b>13.40</b> + Σ((value − 1) × row weight), weights: Row1=1.0, Row2=2.0, Row3=1.2, Row4=0.65.</li>
-              <li>Color bands (main total only): &lt;17.5 red, &lt;18 orange, ≥18 green.</li>
+              <li>Color bands: &lt;17 red, 17 to &lt;17.5 orange and says <b>Play for fun/points</b>, ≥17.5 green and says <b>Frankenstein</b>, &gt;20 says <b>Frankenstein Returns</b>.</li>
               <li>Tap the total bar to reset this page.</li>
             </ul>
           </div>
@@ -842,59 +839,52 @@
   const frBar = $("#frBar");
   const frBig = $("#frBig");
   const frMid = $("#frMid");
-  const frSmall = $("#frSmall");
 
   const frBarBottom = $("#frBarBottom");
   const frBigBottom = $("#frBigBottom");
   const frMidBottom = $("#frMidBottom");
-  const frSmallBottom = $("#frSmallBottom");
 
   const frCells = $$(".cell", $("#frGrid"));
 
   function frBandClass(total){
-    if (total < 17.5) return "s-bad";
-    if (total < 18) return "s-warn";
+    if (total < 17) return "s-bad";
+    if (total < 17.5) return "s-warn";
     return "s-ok";
   }
 
-  function frBaseline(){
-    let base = 0;
-    for (const cell of frCells) {
-      const inp = cell.querySelector("input");
-      if (!inp) continue;
-      base += Number(cell.dataset.mult || "0");
-    }
-    return base;
+  function frStatusText(total){
+    if (total > 20) return "Frankenstein Returns";
+    if (total >= 17.5) return "Frankenstein";
+    if (total >= 17) return "Play for fun/points";
+    return "";
   }
+
   const FR_BASE = 13.40;
 
-  function frPaintBar(bar, bigEl, midEl, smallEl, big, small){
+  function frPaintBar(bar, bigEl, midEl, big){
     const cls = frBandClass(big);
-    const isGreen = cls === "s-ok";
+    const label = frStatusText(big);
 
     bigEl.textContent = big.toFixed(2);
-    smallEl.textContent = small.toFixed(2);
-    midEl.classList.toggle("show", isGreen);
+    midEl.textContent = label;
+    midEl.classList.toggle("show", label !== "");
     setStatusBar(bar, cls);
   }
 
   function frRecalc(){
     let big = FR_BASE;
-    let small = FR_BASE;
 
     for (const cell of frCells) {
       const mult = Number(cell.dataset.mult || "0");
-      const roww = Number(cell.dataset.roww || "0");
       const inp = cell.querySelector("input");
       if (!inp) continue;
 
       const v = numOr(inp.value, 1); // EMPTY => 1
       big += (v - 1) * mult;
-      small += (v - 1) * roww;
     }
 
-    frPaintBar(frBar, frBig, frMid, frSmall, big, small);
-    frPaintBar(frBarBottom, frBigBottom, frMidBottom, frSmallBottom, big, small);
+    frPaintBar(frBar, frBig, frMid, big);
+    frPaintBar(frBarBottom, frBigBottom, frMidBottom, big);
   }
 
   function frReset(){
