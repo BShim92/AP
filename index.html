@@ -448,9 +448,9 @@
     <section class="page active" id="page-frankenstein">
       <div class="card">
         <div id="frBar" class="statusbar clickReset s-white" title="Tap to reset">
-          <div class="statusLeft" id="frBig">13.55</div>
+          <div class="statusLeft" id="frBig">13.40</div>
           <div class="statusMid" id="frMid">CHEN THIS, CHEN THAT!</div>
-          <div class="statusRight"><span id="frSmall">13.55</span></div>
+          <div class="statusRight"><span id="frSmall">13.40</span></div>
         </div>
 
         <div class="frankGrid" id="frGrid">
@@ -511,9 +511,9 @@
         </div>
 
         <div id="frBarBottom" class="statusbar clickReset s-white" title="Tap to reset" style="margin-top:10px;">
-          <div class="statusLeft" id="frBigBottom">13.55</div>
+          <div class="statusLeft" id="frBigBottom">13.40</div>
           <div class="statusMid" id="frMidBottom">CHEN THIS, CHEN THAT!</div>
-          <div class="statusRight"><span id="frSmallBottom">13.55</span></div>
+          <div class="statusRight"><span id="frSmallBottom">13.40</span></div>
         </div>
 
         <details class="logic" open>
@@ -521,8 +521,8 @@
           <div class="txt">
             <ul>
               <li>Empty fields are treated as <b>1</b>.</li>
-              <li>Main total = Σ(value × shown multiplier).</li>
-              <li>Small total = <b>13.55</b> + Σ((value − 1) × row weight), weights: Row1=1.0, Row2=2.0, Row3=1.2, Row4=0.65.</li>
+              <li>Main total = <b>13.40</b> + Σ((value − 1) × shown multiplier).</li>
+              <li>Small total = <b>13.40</b> + Σ((value − 1) × row weight), weights: Row1=1.0, Row2=2.0, Row3=1.2, Row4=0.65.</li>
               <li>Color bands (main total only): &lt;17.5 red, &lt;18 orange, ≥18 green.</li>
               <li>Tap the total bar to reset this page.</li>
             </ul>
@@ -866,7 +866,7 @@
     }
     return base;
   }
-  const FR_BASE = frBaseline(); // 13.55
+  const FR_BASE = 13.40;
 
   function frPaintBar(bar, bigEl, midEl, smallEl, big, small){
     const cls = frBandClass(big);
@@ -879,7 +879,7 @@
   }
 
   function frRecalc(){
-    let big = 0;
+    let big = FR_BASE;
     let small = FR_BASE;
 
     for (const cell of frCells) {
@@ -889,7 +889,7 @@
       if (!inp) continue;
 
       const v = numOr(inp.value, 1); // EMPTY => 1
-      big += v * mult;
+      big += (v - 1) * mult;
       small += (v - 1) * roww;
     }
 
