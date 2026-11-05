@@ -308,6 +308,39 @@
     }
     .logic ul{ margin:6px 0 0 18px; padding:0; }
     .logic li{ margin:4px 0; }
+    .archiveChoices{ display:flex; flex-wrap:wrap; gap:6px; }
+
+    .ruleList{
+      display:grid;
+      gap:6px;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+    .ruleList li{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px 10px;
+      background:var(--panel);
+      font-size:14px;
+      line-height:1.4;
+    }
+    .ruleList strong{ display:block; margin-bottom:2px; }
+    .cutoffTable{
+      width:100%;
+      margin-top:8px;
+      border-collapse:collapse;
+      font-size:14px;
+      font-variant-numeric:tabular-nums;
+    }
+    .cutoffTable :is(th, td){
+      border-bottom:1px solid var(--line);
+      padding:8px 10px;
+      text-align:start;
+    }
+    .cutoffTable tr > :last-child{ text-align:end; }
+    .cutoffTable thead{ color:var(--muted); }
+    .cutoffTable td{ font-weight:800; }
 
     /* Frankenstein */
     .frankGrid{
@@ -513,7 +546,6 @@
       gap:8px;
     }
     .guideFields .wide{ grid-column:1/-1; }
-    .reviewField{ margin-top:12px; }
     .scopeNote{ margin:9px 0 0; }
     .checkOption{
       display:flex;
@@ -601,16 +633,21 @@
             <option value="regalriches" data-hint="Copy the current yellow (gold), green, purple, and blue counts.">Regal Riches</option>
             <option value="ascending" data-hint="Copy the current meter values. The small numbers next to the names are the must-hit-by limits.">Ascending / Stack Up</option>
             <option value="goldenjungle" data-hint="Choose the spin shown on the machine. Tap each reel to set its gold symbol count: 0, 1, or 2.">Golden Jungle</option>
-            <option value="rocket" data-hint="Check green and purple first. Blue can also qualify together with green.">Rocket Rumble</option>
           </optgroup>
-          <optgroup label="Transcript guides">
+          <optgroup label="Transcript guides" data-check-type="Transcript guide">
             <option value="goldenegypt" data-hint="At the bet you’re checking, tap each reel with a coin or mark an active wild column.">Golden Egypt</option>
             <option value="scarab" data-hint="Choose the displayed spin. Count the frames on reels 1–3 together and reel 4 separately.">Scarab / Diamond Mania</option>
-            <option value="kitty" data-hint="Enter the number of empty frames in the largest connected group on the screen.">Lucha Kitty / Sumo Kitty</option>
           </optgroup>
           <optgroup label="Quick checks">
             <option value="goldendrums" data-hint="On Dancing Drums Golden Drums, read the multiplier at the bet level you’re checking.">Golden Drums</option>
-            <option value="ultrarushgold" data-hint="Count the gold symbols in the 3×2 progress grid on the bet bar.">Ultra Rush Gold</option>
+            <option value="grandbuddha" data-hint="Tap the active symbols. Also covers Lucky Buddha and Lucky Wealth Cat.">Grand Buddha Link</option>
+            <option value="magictreasuresgold" data-hint="On the three-pot version, enter the green and purple Money Balls counts at the same bet.">Magic Treasures Gold</option>
+          </optgroup>
+          <optgroup label="Rule cards" data-check-type="Rule card">
+            <option value="luckyhaul" data-hint="Also covers March of the Zombies. Check the five spots on the bet button.">Lucky Haul / Zombies</option>
+            <option value="goldenegyptjackpots" data-hint="At the bet you’re checking, look for a filled jackpot spot and read the spin counter.">Golden Egypt Jackpots</option>
+            <option value="magictreasuresdt" data-title="Magic Treasures Dragon / Tiger" data-hint="For the original Dragon and Tiger versions with one numbered Money Balls pot.">Magic Treasures D/T</option>
+            <option value="phoenixlink" data-hint="Read the top-right Phoenix counter at the bet and denomination you’re checking.">Phoenix Link</option>
           </optgroup>
         </select>
       </div>
@@ -621,7 +658,7 @@
     <header class="intro">
       <div>
         <div class="eyebrow" id="checkType">Machine check</div>
-        <h1 id="gameTitle">Frankenstein</h1>
+        <h1 id="gameTitle" tabindex="-1">Frankenstein</h1>
         <p class="hint" id="gameHint">Copy each prize multiplier into the matching square. Leave prizes without a multiplier blank.</p>
       </div>
       <button type="button" class="action reset" id="resetGame" aria-label="Clear current check">Clear</button>
@@ -735,12 +772,6 @@
 
         <p class="hint tfTarget" id="tfTarget"></p>
         <div class="tfGrid" id="tfRows"></div>
-        <div class="reviewField">
-          <label class="label" for="tfRedBall">Red ball to review (optional)</label>
-          <select id="tfRedBall">
-            <option value="">None selected</option>
-          </select>
-        </div>
         <p class="nextStep" id="tfReview" role="status" hidden></p>
 
         <details class="logic">
@@ -751,7 +782,9 @@
               <li>Only the bottom two rows count. A wheel appears as a dot and adds <b data-rule="wheel"></b> when it’s in one of those rows. Use <b>+ Row</b> to record a row above them.</li>
               <li data-rule="bands"></li>
               <li data-rule="review"></li>
-              <li>Use <b>Red ball to review</b> for the separate placement checks. Enter its displayed coin value in the grid if it’s in a counted row.</li>
+              <li><b>100× symbol.</b> Judge the full board. The guide mentions the fifth position or higher as a rough reference.</li>
+              <li><b>200× symbol.</b> The guide usually considers this enough on its own. Review the layout if the board is very weak and the symbol is in row 6 or 7, counting from the bottom.</li>
+              <li>For either symbol in the bottom two rows, enter its displayed value in the grid like any other coin.</li>
             </ul>
           </div>
         </details>
@@ -1077,7 +1110,151 @@
         </details>
       </div>
     </section>
+    <section class="page" id="page-luckyhaul">
+      <div class="card">
+        <div class="statusbar">
+          <div class="statusLeft">Wild in positions 2–5</div>
+          <div class="statusRight">Count from the left</div>
+        </div>
+        <p class="hint scopeNote">A stored wild in any of those spots qualifies. Each spin moves it one spot left. A wild already in the far-left spot disappears on the next spin.</p>
+      </div>
+    </section>
+
+    <section class="page" id="page-goldenegyptjackpots">
+      <div class="card">
+        <ul class="ruleList" role="list">
+          <li><strong>Minor, Maxi, Major or Grand</strong> One filled spot qualifies on spins 1 through 9.</li>
+          <li><strong>Mini</strong> One filled spot qualifies with four or fewer spins left. Look for <b>6–9 out of 10</b> on the display. Earlier, also look for a strong wild layout.</li>
+          <li><strong>10 out of 10</strong> The next spin starts a fresh cycle.</li>
+        </ul>
+        <details class="logic">
+          <summary>What counts as a strong wild layout?</summary>
+          <div class="txt">
+            <p>Look for existing wild spots that already form multiple three-of-a-kind ways or several four-of-a-kind ways or better. Read the reels from left to right and give less weight to layouts with a gap of two empty reels.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="page" id="page-grandbuddha">
+      <div class="card">
+        <div class="statusbar" id="gbStatus" role="status">
+          <div class="statusLeft">Mark active symbols</div>
+          <div class="statusRight"></div>
+        </div>
+        <fieldset class="reelControls" id="gbLeft">
+          <legend class="label">Left side</legend>
+          <div class="quickChoices">
+            <button class="reelToggle" type="button" aria-pressed="false">1 · Buddha</button>
+            <button class="reelToggle" type="button" aria-pressed="false">2 · Turtle</button>
+            <button class="reelToggle" type="button" aria-pressed="false">3 · Cat</button>
+          </div>
+        </fieldset>
+        <fieldset class="reelControls" id="gbRight">
+          <legend class="label">Right side</legend>
+          <div class="quickChoices">
+            <button class="reelToggle" type="button" aria-pressed="false">4 · A</button>
+            <button class="reelToggle" type="button" aria-pressed="false">5 · K</button>
+            <button class="reelToggle" type="button" aria-pressed="false">6 · Q</button>
+          </div>
+        </fieldset>
+        <p class="hint scopeNote">Match the positions on the banner. A symbol is active when it has games remaining.</p>
+        <details class="logic">
+          <summary>Check rules</summary>
+          <div class="txt">
+            <ul>
+              <li data-rule="tight"></li>
+              <li data-rule="standard"></li>
+              <li data-rule="thin"></li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="page" id="page-magictreasuresdt">
+      <div class="card">
+        <div class="statusbar">
+          <div class="statusLeft">12+ green Money Balls</div>
+          <div class="statusRight">Guide cutoff</div>
+        </div>
+        <p class="hint scopeNote">Read the green count at the bet you’re checking. The guide treats 12 as thin and prefers 14–15.</p>
+      </div>
+    </section>
+
+    <section class="page" id="page-magictreasuresgold">
+      <div class="card">
+        <div class="statusbar" id="mtgStatus" role="status">
+          <div class="statusLeft">Enter both pot counts</div>
+          <div class="statusRight"></div>
+        </div>
+        <div class="rrInputs">
+          <div class="rrBox">
+            <div class="rrSwatch swG"></div>
+            <div style="flex:1">
+              <label class="label" for="mtgGreen">Green</label>
+              <input id="mtgGreen" type="number" inputmode="numeric" min="0" step="1" />
+            </div>
+          </div>
+          <div class="rrBox">
+            <div class="rrSwatch swP"></div>
+            <div style="flex:1">
+              <label class="label" for="mtgPurple">Purple</label>
+              <input id="mtgPurple" type="number" inputmode="numeric" min="0" step="1" />
+            </div>
+          </div>
+        </div>
+        <details class="logic">
+          <summary>Check rule</summary>
+          <div class="txt">
+            <p data-rule="formula"></p>
+            <p>The formula approximates the cutoff. The gold pot is omitted from the score.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="page" id="page-phoenixlink">
+      <div class="card">
+        <div class="statusbar">
+          <div class="statusLeft">1,888 must-hit-by</div>
+          <div class="statusRight">Phoenix counter</div>
+        </div>
+        <table class="cutoffTable" aria-label="Phoenix Link guide cutoffs">
+          <thead>
+            <tr><th scope="col">Bet level</th><th scope="col">Counter at least</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">1×</th><td>1,630</td></tr>
+            <tr><th scope="row">2×</th><td>1,620</td></tr>
+            <tr><th scope="row">3×</th><td>1,610</td></tr>
+            <tr><th scope="row">5×</th><td>1,580</td></tr>
+            <tr><th scope="row">10×</th><td>1,550</td></tr>
+          </tbody>
+        </table>
+        <p class="hint scopeNote">These are the guide’s estimates for a middle-return setup. The three middle bet levels were extrapolated.</p>
+        <details class="logic">
+          <summary>Reading the bet level</summary>
+          <div class="txt">
+            <p>Use the multiplier on the bet button. For example, if the 1× button is 50 credits, the 150-credit button is 3×. A bet button can start a spin when the machine has enough credits.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <details class="logic" id="gameArchive">
+      <summary>Archived games</summary>
+      <div class="txt archiveChoices"></div>
+    </details>
   </main>
+
+<template id="archivedGameOptions">
+  <optgroup label="Archived games" data-check-type="Archived game">
+    <option value="ultrarushgold" data-hint="Count the gold symbols in the 3×2 progress grid on the bet bar.">Ultra Rush Gold</option>
+    <option value="kitty" data-hint="Enter the number of empty frames in the largest connected group on the screen.">Lucha Kitty / Sumo Kitty</option>
+    <option value="rocket" data-hint="Check green and purple first. Blue can also qualify together with green.">Rocket Rumble</option>
+  </optgroup>
+</template>
 
 <script id="check-rules">
   // Regal Riches: name, standalone cutoff, optional two-meter cutoff.
@@ -1136,6 +1313,23 @@
 
   const GD_MIN = 4;
   const URG_MIN = 2;
+
+  const GB_CUTOFFS = { tight:5, allLeft:3, each:2, thinRight:3 };
+
+  function gbCheck(left, right, firstLeftActive){
+    if (left + right >= GB_CUTOFFS.tight) return "tight";
+    if (left >= GB_CUTOFFS.allLeft || (left >= GB_CUTOFFS.each && right >= GB_CUTOFFS.each)) return "standard";
+    if (left === 1 && right === GB_CUTOFFS.thinRight && !firstLeftActive) return "thin";
+    return "below";
+  }
+
+  const MTG_PURPLE_OFFSET = 5;
+  const MTG_PURPLE_SCALE = 3.7;
+  const MTG_MIN_SCORE = 24;
+
+  function mtGoldScore(green, purple){
+    return green + (purple - MTG_PURPLE_OFFSET) / MTG_PURPLE_SCALE;
+  }
 </script>
 
 <script>
@@ -1192,8 +1386,14 @@
   // Game navigation
   // =========================
   const gamePicker = $("#game");
+  const gameTitle = $("#gameTitle");
+  const gamePages = $$(".page");
+  const resetGame = $("#resetGame");
+  const gameArchive = $("#gameArchive");
+  const archiveChoices = $(".archiveChoices", gameArchive);
+  const archivedGames = $("optgroup", $("#archivedGameOptions").content);
   const themeToggle = $("#themeToggle");
-  const pages = {
+  const calculators = {
     frankenstein: { recalc: frRecalc, reset: frReset },
     templefalls: { recalc: tfRecalc, reset: tfReset },
     regalriches: { recalc: rrRecalc, reset: rrReset },
@@ -1205,6 +1405,8 @@
     kitty: { recalc: kittyRecalc, reset: kittyReset },
     goldendrums: { recalc: gdRecalc, reset: gdReset },
     ultrarushgold: { recalc: urgRecalc, reset: urgReset },
+    grandbuddha: { recalc: gbRecalc, reset: gbReset },
+    magictreasuresgold: { recalc: mtgRecalc, reset: mtgReset },
   };
 
   function refreshTheme(){
@@ -1223,21 +1425,40 @@
   function showPage(){
     const option = gamePicker.selectedOptions[0];
     const key = option.value;
-    for (const name of Object.keys(pages)) {
-      $("#page-" + name).classList.toggle("active", name === key);
-    }
-    $("#gameTitle").textContent = option.textContent;
+    const calculator = calculators[key];
+    gamePages.forEach(page => page.classList.toggle("active", page.id === "page-" + key));
+    gameTitle.textContent = option.dataset.title || option.textContent;
     $("#gameHint").textContent = option.dataset.hint;
-    $("#checkType").textContent = option.parentElement.label === "Transcript guides" ? "Transcript guide" : "Machine check";
-    pages[key].recalc();
+    $("#checkType").textContent = option.parentElement.dataset.checkType || "Machine check";
+    resetGame.hidden = !calculator;
+    calculator?.recalc();
   }
 
-  gamePicker.addEventListener("change", () => {
+  function changeGame(){
+    if (gamePicker.selectedOptions[0].parentElement !== archivedGames) {
+      archivedGames.remove();
+      savePreference("ap-game", gamePicker.value);
+    }
     showPage();
-    savePreference("ap-game", gamePicker.value);
     window.scrollTo(0, 0);
+  }
+
+  $$("option", archivedGames).forEach(option => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "action";
+    button.textContent = option.textContent;
+    button.addEventListener("click", () => {
+      gamePicker.append(archivedGames);
+      gamePicker.value = option.value;
+      gameArchive.open = false;
+      changeGame();
+      gameTitle.focus({ preventScroll:true });
+    });
+    archiveChoices.append(button);
   });
-  $("#resetGame").addEventListener("click", () => pages[gamePicker.value].reset());
+  gamePicker.addEventListener("change", changeGame);
+  resetGame.addEventListener("click", () => calculators[gamePicker.value]?.reset());
 
   // =========================
   // Frankenstein
@@ -1334,18 +1555,12 @@
   const tfAddRow = $("#tfAddRow");
   const tfDotBtn = $("#tfDotBtn");
   const tfTarget = $("#tfTarget");
-  const tfRedBall = $("#tfRedBall");
   const tfReview = $("#tfReview");
   let tfWheelInput = null;
   const TF_BASE_ROWS = 2;
   const TF_WHEEL = 38;
   const TF_REVIEW = 50;
   const TF_AP = 60;
-  const tfRedBallNotes = {
-    100: "The guide uses the fifth position as a rough reference and leaves the decision to the board layout.",
-    200: "The guide usually qualifies it at any position. Review it separately if the board is weak and the ball is in row 6 or 7.",
-  };
-  Object.keys(tfRedBallNotes).forEach(value => tfRedBall.add(new Option(`${value}× red ball`, value)));
   writeRules("templefalls", {
     wheel: `${TF_WHEEL} bets`,
     bands: `Below ${TF_REVIEW} bets shows Below AP threshold. From ${TF_REVIEW} to under ${TF_AP}, the result is Near AP threshold. At ${TF_AP} or more, it’s Meets AP threshold.`,
@@ -1484,14 +1699,9 @@
     }
 
     const band = tfBandClass(bottomTotal);
-    const review = [];
-    if (hasIncludedValue && band === "s-warn") {
-      review.push("Review rows 3 and 4 for strong values that could support the bottom-two-row total.");
-    }
-    if (tfRedBall.value) {
-      review.push(`Review the ${tfRedBall.value}× red ball. ${tfRedBallNotes[tfRedBall.value]}`);
-    }
-    writeNextStep(tfReview, review.join(" "));
+    writeNextStep(tfReview, hasIncludedValue && band === "s-warn"
+      ? "Review rows 3 and 4 for strong values that could support the bottom-two-row total."
+      : "");
 
     if (!bet){
       writeResult(tfTotal, "s-white", "Enter bet size");
@@ -1508,7 +1718,6 @@
 
   function tfReset(){
     tfBet.value = "";
-    tfRedBall.value = "";
     tfInit(); // rebuilds only base rows (clears added rows)
   }
 
@@ -1520,7 +1729,6 @@
   });
 
   tfBet.addEventListener("input", tfRecalc);
-  tfRedBall.addEventListener("change", tfRecalc);
 
   tfDotBtn.addEventListener("click", () => {
     if (!tfWheelInput) return;
@@ -1992,9 +2200,79 @@
     urgRecalc();
   }
 
+  // Grand Buddha Link
+  const gbStatus = $("#gbStatus");
+  const gbLeftSymbols = $$(".reelToggle", $("#gbLeft"));
+  const gbRightSymbols = $$(".reelToggle", $("#gbRight"));
+  const gbSymbols = [...gbLeftSymbols, ...gbRightSymbols];
+  const gbActive = symbol => symbol.getAttribute("aria-pressed") === "true";
+  const gbResults = {
+    tight: ["s-ok", "Meets tighter check"],
+    standard: ["s-ok", "Meets guide rule"],
+    thin: ["s-warn", "Meets guide rule · thin"],
+    below: ["s-bad", "Below guide rule"],
+  };
+  writeRules("grandbuddha", {
+    tight: `Any mix of ${GB_CUTOFFS.tight} or more active symbols meets the tighter check.`,
+    standard: `All ${GB_CUTOFFS.allLeft} left symbols qualify. So do at least ${GB_CUTOFFS.each} active symbols on each side.`,
+    thin: `One left symbol plus ${GB_CUTOFFS.thinRight} right symbols is a thin match if the left symbol is in position 2 or 3. With only the first symbol active on the left, this combination falls below the guide rule.`,
+  });
+
+  function gbRecalc(){
+    const left = gbLeftSymbols.filter(gbActive).length;
+    const right = gbRightSymbols.filter(gbActive).length;
+    if (left + right === 0) {
+      writeResult(gbStatus, "s-white", "Mark active symbols");
+      return;
+    }
+    const tier = gbCheck(left, right, gbActive(gbLeftSymbols[0]));
+    const [statusClass, title] = gbResults[tier];
+    writeResult(gbStatus, statusClass, title, `${left} left · ${right} right`);
+  }
+
+  function gbReset(){
+    gbSymbols.forEach(symbol => symbol.setAttribute("aria-pressed", "false"));
+    gbRecalc();
+  }
+
+  gbSymbols.forEach(symbol => symbol.addEventListener("click", () => {
+    symbol.setAttribute("aria-pressed", String(!gbActive(symbol)));
+    gbRecalc();
+  }));
+
+  // Magic Treasures Gold
+  const mtgStatus = $("#mtgStatus");
+  const mtgGreen = $("#mtgGreen"), mtgPurple = $("#mtgPurple");
+  const mtgInputs = [mtgGreen, mtgPurple];
+  writeRules("magictreasuresgold", {
+    formula: `The guide cutoff is ${MTG_MIN_SCORE}. The score is Green + (Purple − ${MTG_PURPLE_OFFSET}) ÷ ${MTG_PURPLE_SCALE}.`,
+  });
+
+  function mtgRecalc(){
+    if (mtgInputs.some(input => !input.validity.valid)) {
+      writeResult(mtgStatus, "s-warn", "Check pot counts", "Use whole numbers of zero or higher");
+      return;
+    }
+    if (mtgInputs.some(input => input.value === "")) {
+      writeResult(mtgStatus, "s-white", "Enter both pot counts");
+      return;
+    }
+    const score = mtGoldScore(mtgGreen.valueAsNumber, mtgPurple.valueAsNumber);
+    const qualifies = score >= MTG_MIN_SCORE;
+    writeResult(mtgStatus, qualifies ? "s-ok" : "s-bad",
+      qualifies ? "Meets guide cutoff" : "Below guide cutoff", `Score ${score.toFixed(2)} / ${MTG_MIN_SCORE}`);
+  }
+
+  function mtgReset(){
+    mtgInputs.forEach(input => input.value = "");
+    mtgRecalc();
+  }
+
+  mtgInputs.forEach(input => input.addEventListener("input", mtgRecalc));
+
   const savedGame = readPreference("ap-game");
-  gamePicker.value = Object.hasOwn(pages, savedGame) ? savedGame : "frankenstein";
-  Object.values(pages).forEach(page => page.reset());
+  gamePicker.value = $$("option", gamePicker).some(option => option.value === savedGame) ? savedGame : "frankenstein";
+  Object.values(calculators).forEach(calculator => calculator.reset());
   showPage();
 </script>
 </body>

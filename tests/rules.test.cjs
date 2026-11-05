@@ -7,7 +7,9 @@ const { runInNewContext } = require("node:vm");
 const html = readFileSync(join(__dirname, "..", "index.html"), "utf8");
 const script = html.match(/<script id="check-rules">([\s\S]*?)<\/script>/);
 assert.ok(script, "The standalone page contains the rules script");
-const { rrCheck, gjPlayableAtSpin } = runInNewContext(script[1] + "\n({ rrCheck, gjPlayableAtSpin })");
+const { rrCheck, gjPlayableAtSpin, gbCheck, mtGoldScore, MTG_MIN_SCORE } = runInNewContext(
+  script[1] + "\n({ rrCheck, gjPlayableAtSpin, gbCheck, mtGoldScore, MTG_MIN_SCORE })"
+);
 
 function regal(values){
   return rrCheck({ Yellow: 0, Green: 0, Purple: 0, Blue: 0, ...values });
@@ -61,4 +63,22 @@ test("Golden Jungle estimates use the next chart rule and spin 9 calls for reeva
   assert.equal(gjPlayableAtSpin(7, counts), false);
   assert.equal(gjPlayableAtSpin(7, [0, 0, 2, 1, 0]), true);
   assert.equal(gjPlayableAtSpin(9, [2, 2, 2, 2, 2]), false);
+});
+
+test("Grand Buddha Link applies the first-symbol exception only to the thin split", () => {
+  assert.equal(gbCheck(1, 3, true), "below");
+  assert.equal(gbCheck(1, 3, false), "thin");
+  assert.equal(gbCheck(2, 1, false), "below");
+  assert.equal(gbCheck(2, 2, true), "standard");
+  assert.equal(gbCheck(3, 0, true), "standard");
+  assert.equal(gbCheck(3, 1, true), "standard");
+  assert.equal(gbCheck(2, 3, true), "tight");
+});
+
+test("Magic Treasures Gold includes the exact combined score of 24", () => {
+  assert.equal(MTG_MIN_SCORE, 24);
+  assert.equal(mtGoldScore(24, 5), 24);
+  assert.equal(mtGoldScore(14, 42), 24);
+  assert.ok(mtGoldScore(14, 41) < MTG_MIN_SCORE);
+  assert.ok(mtGoldScore(14, 43) > MTG_MIN_SCORE);
 });
