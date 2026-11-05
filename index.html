@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#142820" />
   <title>AP Slot Quick Check</title>
+  <script>
+    function readPreference(key){
+      try { return localStorage.getItem(key); }
+      catch { return null; }
+    }
+
+    function savePreference(key, value){
+      try { localStorage.setItem(key, value); }
+      catch { /* Preferences are optional when storage is unavailable. */ }
+    }
+
+    const themePreference = matchMedia("(prefers-color-scheme: dark)");
+    let chosenTheme = readPreference("ap-theme");
+    function applyTheme(){
+      const dark = chosenTheme === "dark" || (chosenTheme !== "light" && themePreference.matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    }
+    applyTheme();
+  </script>
   <style>
     :root{
       --bg:#edf1eb;
@@ -15,12 +34,80 @@
       --accent:#cdf28a;
       --ink:#142820;
       --b:#e5eee6;
+      --eyebrow:#38624b;
+      --panel:#f6f8f4;
+      --field:#f9fbf8;
+      --field-line:#adbfaf;
+      --grid-field:#fffffff0;
+      --tag:#394b3f;
+      --fr-first:#ffe1e1;
+      --action:#edf4e9;
+      --action-line:#a9bdab;
+      --focus:#24654a;
+      --status:#f0f5ef;
+      --status-line:#cbd8cc;
+      --status-edge:#849b89;
+      --ok-bg:#e4f3dd;
+      --ok-edge:#3e8153;
+      --ok-text:#194729;
+      --bad-bg:#f9e9e5;
+      --bad-edge:#aa5145;
+      --bad-text:#742e25;
+      --warn-bg:#fff0d6;
+      --warn-edge:#9f6619;
+      --warn-text:#70440c;
+      --selected:#dcecc8;
+      --selected-text:#274624;
+      --selected-line:#527847;
+      --one-bg:#e5f0da;
+      --one-line:#7d9b6e;
+      --two-bg:#cce6bb;
+      --coin-lightness:94%;
       --content:680px;
+      color-scheme:light;
       font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+    :root[data-theme="dark"]{
+      color-scheme:dark;
+      --bg:#101813;
+      --card:#19261e;
+      --line:#34483b;
+      --text:#ebf4ec;
+      --muted:#b4c6b9;
+      --b:#293a2e;
+      --eyebrow:#a6ceab;
+      --panel:#202e25;
+      --field:#152019;
+      --field-line:#657c6a;
+      --grid-field:#152019;
+      --tag:#c9dfcc;
+      --fr-first:#462d2b;
+      --action:#283d2e;
+      --action-line:#718a76;
+      --focus:#b3e784;
+      --status:#23342a;
+      --status-line:#455e4c;
+      --status-edge:#8ba392;
+      --ok-bg:#203d2a;
+      --ok-edge:#82c194;
+      --ok-text:#c5efce;
+      --bad-bg:#462b27;
+      --bad-edge:#e38c7c;
+      --bad-text:#ffd2c8;
+      --warn-bg:#43321f;
+      --warn-edge:#edb866;
+      --warn-text:#ffe2ab;
+      --selected:#344e2c;
+      --selected-text:#e4f6d8;
+      --selected-line:#9bc681;
+      --one-bg:#2b432c;
+      --one-line:#86a978;
+      --two-bg:#3d5733;
+      --coin-lightness:45%;
     }
 
     *{ box-sizing:border-box; }
-    html{ scroll-padding-top:calc(115px + env(safe-area-inset-top)); }
+    html{ scroll-padding-top:calc(120px + env(safe-area-inset-top)); }
     body{
       margin:0;
       background:var(--bg);
@@ -42,6 +129,12 @@
       max-width:var(--content);
       margin:auto;
       display:grid;
+      gap:8px;
+    }
+    .topbarHeading{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
       gap:8px;
     }
     .brand{
@@ -81,6 +174,14 @@
       cursor:pointer;
     }
     .topbar .gamePicker select:focus-visible{ outline-color:var(--accent); }
+    .topbar #themeToggle{
+      background:#233c30;
+      border-color:#5b7767;
+      color:#fff;
+      white-space:nowrap;
+    }
+    .topbar #themeToggle[aria-pressed="true"]{ border-color:var(--accent); }
+    .topbar #themeToggle:focus-visible{ outline-color:var(--accent); }
 
     .intro{
       display:grid;
@@ -90,7 +191,7 @@
       margin:0 0 14px;
     }
     .eyebrow{
-      color:#38624b;
+      color:var(--eyebrow);
       font-size:11px;
       font-weight:800;
       letter-spacing:.12em;
@@ -128,10 +229,10 @@
       width:100%;
       min-width:0;
       min-height:44px;
-      border:1px solid #adbfaf;
+      border:1px solid var(--field-line);
       border-radius:10px;
       padding:8px 9px;
-      background:#f9fbf8;
+      background:var(--field);
       color:var(--text);
       font-family:inherit;
       font-weight:700;
@@ -140,17 +241,17 @@
     }
     button{ font-family:inherit; touch-action:manipulation; }
     :is(button, summary){ -webkit-tap-highlight-color:transparent; }
-    :is(button, input, select, summary):focus-visible{ outline:2px solid #24654a; outline-offset:2px; }
+    :is(button, input, select, summary):focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
 
     /* Clickable status bars */
     .statusbar{
       position:relative;
       min-height:54px;
-      border:1px solid #cbd8cc;
-      border-inline-start:4px solid #849b89;
+      border:1px solid var(--status-line);
+      border-inline-start:4px solid var(--status-edge);
       border-radius:13px;
       padding:9px 11px;
-      background:#f0f5ef;
+      background:var(--status);
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -174,13 +275,13 @@
       font-size:12px;
     }
 
-    .s-ok{ background:#e4f3dd; border-inline-start-color:#3e8153; color:#194729; }
-    .s-bad{ background:#f9e9e5; border-inline-start-color:#aa5145; color:#742e25; }
-    .s-warn,.s-mid{ background:#fff0d6; border-inline-start-color:#9f6619; color:#70440c; }
+    .s-ok{ background:var(--ok-bg); border-inline-start-color:var(--ok-edge); color:var(--ok-text); }
+    .s-bad{ background:var(--bad-bg); border-inline-start-color:var(--bad-edge); color:var(--bad-text); }
+    .s-warn,.s-mid{ background:var(--warn-bg); border-inline-start-color:var(--warn-edge); color:var(--warn-text); }
 
     details.logic{
       margin-top:12px;
-      background:#f6f8f4;
+      background:var(--panel);
       border:1px solid var(--line);
       border-radius:12px;
       padding:0 10px;
@@ -196,7 +297,7 @@
       list-style:none;
     }
     details.logic summary::-webkit-details-marker{ display:none; }
-    details.logic summary:active{ color:#24654a; }
+    details.logic summary:active{ color:var(--focus); }
     details.logic summary::after{ content:"+"; font-size:18px; }
     details.logic[open] summary::after{ content:"−"; }
     .logic .txt{
@@ -225,14 +326,14 @@
       display:flex;
       align-items:flex-end;
     }
-    .cell.r0{ background:#ffe1e1; }
+    .cell.r0{ background:var(--fr-first); }
     .wtag{
       position:absolute;
       top:3px;
       left:7px;
       font-size:10px;
       font-weight:1100;
-      color:#394b3f;
+      color:var(--tag);
       pointer-events:none;
     }
     .cell input{
@@ -240,8 +341,8 @@
       font-size:16px;
       padding:8px 8px;
       border-radius:12px;
-      border:1px solid rgba(0,0,0,.16);
-      background:rgba(255,255,255,.92);
+      border:1px solid var(--field-line);
+      background:var(--grid-field);
       font-weight:750;
       text-align:center;
     }
@@ -260,9 +361,9 @@
     .tfActions{ display:flex; gap:6px; }
     .action{
       min-height:44px;
-      border:1px solid #a9bdab;
-      background:#edf4e9;
-      color:var(--ink);
+      border:1px solid var(--action-line);
+      background:var(--action);
+      color:var(--text);
       border-radius:10px;
       padding:7px 10px;
       font-weight:750;
@@ -270,7 +371,7 @@
       cursor:pointer;
     }
     .action:active,.reelToggle:active{ transform:translateY(1px); filter:brightness(.94); }
-    .action:disabled{ color:var(--muted); background:#f3f5f1; cursor:default; }
+    .action:disabled{ color:var(--muted); background:var(--panel); cursor:default; }
     .reset{ background:var(--card); }
 
     .tfGrid{
@@ -306,15 +407,15 @@
     .tfCell input{
       width:100%;
       border-radius:7px;
-      border:1px solid rgba(0,0,0,.14);
-      background:rgba(255,255,255,.92);
+      border:1px solid var(--field-line);
+      background:var(--grid-field);
       padding:4px 2px;
       font-weight:700;
       text-align:center;
     }
     .tfCell.wheelTarget{
-      border-color:#27754f;
-      box-shadow:0 0 0 2px #27754f;
+      border-color:var(--focus);
+      box-shadow:0 0 0 2px var(--focus);
     }
     .tfCell.wheelTarget input:focus-visible{ outline:none; }
     .tfTarget{ margin:0 0 9px; }
@@ -335,7 +436,7 @@
       border:1px solid var(--line);
       border-radius:14px;
       padding:10px;
-      background:#f6f8f4;
+      background:var(--panel);
       display:flex;
       gap:10px;
       align-items:center;
@@ -351,8 +452,8 @@
       margin:8px 0 0;
       padding:8px 10px;
       border-radius:9px;
-      background:#f1f5ef;
-      color:#395447;
+      background:var(--status);
+      color:var(--muted);
       font-size:13px;
       font-weight:650;
       line-height:1.4;
@@ -368,7 +469,7 @@
     .afRow{
       border:1px solid var(--line);
       border-radius:14px;
-      background:#f6f8f4;
+      background:var(--panel);
       padding:6px 8px;
       display:grid;
       grid-template-columns:1fr 1fr; /* label (name+mhb) + input */
@@ -392,11 +493,12 @@
     .gjTop{
       display:flex;
       gap:8px;
-      align-items:center;
+      align-items:end;
       flex-wrap:wrap;
       margin-top:10px;
     }
     .gjSpin{ flex:1 1 140px; max-width:180px; }
+    #gjNext{ flex:1 0 auto; max-width:130px; }
     .gjReels{
       margin-top:10px;
       display:grid;
@@ -422,28 +524,53 @@
       padding:6px 9px;
       border:1px solid var(--line);
       border-radius:10px;
-      background:#f6f8f4;
+      background:var(--panel);
       font-size:13px;
       font-weight:750;
       cursor:pointer;
     }
-    .checkOption input{ width:19px; height:19px; margin:0; accent-color:#24654a; }
+    .checkOption input{ width:19px; height:19px; margin:0; accent-color:var(--focus); }
     .reelControls{ margin:12px 0 0; padding:0; border:0; min-inline-size:0; }
     .reelControls legend{ padding:0; }
     .reelToggle{
       min-height:56px;
-      border:1px solid #a9bdab;
+      border:1px solid var(--action-line);
       border-radius:10px;
-      background:#f6f8f4;
+      background:var(--panel);
       color:var(--text);
       font-size:12px;
       font-weight:750;
       cursor:pointer;
     }
     .reelToggle span{ display:block; font-size:17px; line-height:1.15; }
-    .reelToggle[aria-pressed="true"]{ background:#dcecc8; border-color:#527847; color:#274624; }
-    .gjR[data-count="1"]{ background:#e5f0da; border-color:#7d9b6e; }
-    .gjR[data-count="2"]{ background:#cce6bb; border-color:#527847; }
+    .reelToggle[aria-pressed="true"]{ background:var(--selected); border-color:var(--selected-line); color:var(--selected-text); }
+    .gjR[data-count="1"]{ background:var(--one-bg); border-color:var(--one-line); }
+    .gjR[data-count="2"]{ background:var(--two-bg); border-color:var(--selected-line); }
+    .quickChoices{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:6px;
+    }
+    .quickChoices label{ position:relative; }
+    .quickChoices input{
+      position:absolute;
+      width:1px;
+      height:1px;
+      opacity:0;
+    }
+    .quickChoices span{
+      display:grid;
+      place-items:center;
+      padding:6px 4px;
+      font-size:14px;
+      text-align:center;
+    }
+    .quickChoices input:checked + span{
+      background:var(--selected);
+      border-color:var(--selected-line);
+      color:var(--selected-text);
+    }
+    .quickChoices input:focus-visible + span{ outline:2px solid var(--focus); outline-offset:2px; }
     @media (min-width:360px) and (max-width:579px){
       #page-rocket .rrInputs{ grid-template-columns:repeat(3,minmax(0,1fr)); }
       #page-rocket .rrBox{ display:block; position:relative; padding:8px; }
@@ -461,7 +588,10 @@
 <body>
   <header class="topbar">
     <div class="topbarInner">
-      <div class="brand"><span class="brandMark" aria-hidden="true">AP</span> Slot Quick Check</div>
+      <div class="topbarHeading">
+        <div class="brand"><span class="brandMark" aria-hidden="true">AP</span> Slot Quick Check</div>
+        <button type="button" class="action" id="themeToggle" aria-pressed="false">Dark mode</button>
+      </div>
       <div class="gamePicker">
         <label for="game">Game</label>
         <select id="game">
@@ -477,6 +607,10 @@
             <option value="goldenegypt" data-hint="At the bet you’re checking, tap each reel with a coin or mark an active wild column.">Golden Egypt</option>
             <option value="scarab" data-hint="Choose the displayed spin. Count the frames on reels 1–3 together and reel 4 separately.">Scarab / Diamond Mania</option>
             <option value="kitty" data-hint="Enter the number of empty frames in the largest connected group on the screen.">Lucha Kitty / Sumo Kitty</option>
+          </optgroup>
+          <optgroup label="Quick checks">
+            <option value="goldendrums" data-hint="On Dancing Drums Golden Drums, read the multiplier at the bet level you’re checking.">Golden Drums</option>
+            <option value="ultrarushgold" data-hint="Count the gold symbols in the 3×2 progress grid on the bet bar.">Ultra Rush Gold</option>
           </optgroup>
         </select>
       </div>
@@ -499,7 +633,7 @@
     <section class="page active" id="page-frankenstein">
       <div class="card">
         <div id="frBar" class="statusbar s-white" role="status">
-          <div class="statusLeft" id="frBig">13.40</div>
+          <div class="statusLeft" id="frBig"></div>
           <div class="statusMid" id="frMid"></div>
         </div>
 
@@ -561,7 +695,7 @@
         </div>
 
         <div id="frBarBottom" class="statusbar s-white" style="margin-top:10px;">
-          <div class="statusLeft" id="frBigBottom">13.40</div>
+          <div class="statusLeft" id="frBigBottom"></div>
           <div class="statusMid" id="frMidBottom"></div>
         </div>
 
@@ -570,9 +704,9 @@
           <div class="txt">
             <ul>
               <li>If a prize shows <b>3×</b>, enter <b>3</b>. A blank counts as <b>1×</b>. Skip the top-left square.</li>
-              <li>The small numbers in the corners are score weights. Starting at <b>13.40</b>, the check adds each entered multiplier minus 1, times that square’s weight.</li>
-              <li>Below 17 shows <b>Below AP threshold</b>. From 17 to under 17.5, the result is <b>Play for fun/points</b>.</li>
-              <li>From 17.5 through 20, the result is <b>Frankenstein</b>. Above 20, it’s <b>Frankenstein Returns</b>.</li>
+              <li>The small numbers in the corners are score weights. Starting at <b data-rule="base"></b>, the check adds each entered multiplier minus 1, times that square’s weight.</li>
+              <li data-rule="lowerBands"></li>
+              <li data-rule="upperBands"></li>
             </ul>
           </div>
         </details>
@@ -605,8 +739,6 @@
           <label class="label" for="tfRedBall">Red ball to review (optional)</label>
           <select id="tfRedBall">
             <option value="">None selected</option>
-            <option value="100">100× red ball</option>
-            <option value="200">200× red ball</option>
           </select>
         </div>
         <p class="nextStep" id="tfReview" role="status" hidden></p>
@@ -616,9 +748,10 @@
           <div class="txt">
             <ul>
               <li>Use the same units for the bet and coin values. For example, a 1.60 coin on a 0.80 bet counts as 2 bets. Empty cells count as zero.</li>
-              <li>Only the bottom two rows count. A wheel appears as a dot and adds <b>38 bets</b> when it’s in one of those rows. Use <b>+ Row</b> to record a row above them.</li>
-              <li>Below 50 bets shows <b>Below AP threshold</b>. From 50 to under 60, the result is <b>Near AP threshold</b>. At 60 or more, it’s <b>Meets AP threshold</b>.</li>
-              <li>At 50 to under 60 bets, review the third and fourth rows for strong values. Use <b>Red ball to review</b> for the separate 100× or 200× placement checks. Enter its displayed coin value in the grid if it’s in a counted row.</li>
+              <li>Only the bottom two rows count. A wheel appears as a dot and adds <b data-rule="wheel"></b> when it’s in one of those rows. Use <b>+ Row</b> to record a row above them.</li>
+              <li data-rule="bands"></li>
+              <li data-rule="review"></li>
+              <li>Use <b>Red ball to review</b> for the separate placement checks. Enter its displayed coin value in the grid if it’s in a counted row.</li>
             </ul>
           </div>
         </details>
@@ -673,9 +806,9 @@
           <summary>Check rules</summary>
           <div class="txt">
             <ul>
-              <li>Any one of these qualifies for <b>AP</b>: Yellow 115, Green 85, Purple 60, or Blue 8.</li>
-              <li>Yellow, green, and purple also qualify if they total <b>210</b> or if two reach their lower cutoffs: Yellow 106, Green 81, Purple 56. Blue is a separate check.</li>
-              <li><b>Soft</b> means one lower cutoff is met without an AP result. Enter all four counts for a full check. A blank counts as zero.</li>
+              <li data-rule="singles"></li>
+              <li data-rule="combos"></li>
+              <li><b>Soft</b> means one lower cutoff is met without an AP result. Leave any meter you want to skip blank. A blank counts as zero.</li>
             </ul>
           </div>
         </details>
@@ -693,19 +826,19 @@
         </div>
         <div class="afGrid">
           <div class="afRow">
-            <label class="afNameLine" for="afMega">Mega <span class="afMhbInline">350</span></label>
+            <label class="afNameLine" for="afMega">Mega <span class="afMhbInline" data-rule="Mega"></span></label>
             <input id="afMega" type="number" inputmode="decimal" step="any" />
           </div>
           <div class="afRow">
-            <label class="afNameLine" for="afGrand">Grand <span class="afMhbInline">250</span></label>
+            <label class="afNameLine" for="afGrand">Grand <span class="afMhbInline" data-rule="Grand"></span></label>
             <input id="afGrand" type="number" inputmode="decimal" step="any" />
           </div>
           <div class="afRow">
-            <label class="afNameLine" for="afMajor">Major <span class="afMhbInline">200</span></label>
+            <label class="afNameLine" for="afMajor">Major <span class="afMhbInline" data-rule="Major"></span></label>
             <input id="afMajor" type="number" inputmode="decimal" step="any" />
           </div>
           <div class="afRow">
-            <label class="afNameLine" for="afMinor">Minor <span class="afMhbInline">150</span></label>
+            <label class="afNameLine" for="afMinor">Minor <span class="afMhbInline" data-rule="Minor"></span></label>
             <input id="afMinor" type="number" inputmode="decimal" step="any" />
           </div>
         </div>
@@ -716,9 +849,9 @@
           <div class="txt">
             <ul>
               <li>Use these rules for Ascending Fortunes and the original Stack Up Pays. Double Stack Up Pays uses different rules.</li>
-              <li>Enter Mega, Grand, Major, and Minor. Skip the blue Mini. A blank counts as zero.</li>
-              <li>One meter qualifies for <b>AP</b> on its own at these cutoffs: Mega 330, Grand 238, Major 192, Minor 146.</li>
-              <li>Two meters also qualify together at these lower cutoffs: Mega 324, Grand 235, Major 190. The check shows <b>Soft</b> when just one lower cutoff is met and there’s no AP result.</li>
+              <li>Skip the blue Mini. Leave any meter you want to skip blank. A blank counts as zero.</li>
+              <li data-rule="singles"></li>
+              <li data-rule="combos"></li>
             </ul>
           </div>
         </details>
@@ -732,23 +865,14 @@
       <div class="card">
         <div id="gjStatus" class="statusbar s-white" role="status">
           <div class="statusLeft">Enter reel counts</div>
-          <div class="statusRight">Spin 1</div>
+          <div class="statusRight"></div>
         </div>
         <div class="gjTop">
           <div class="gjSpin">
             <label class="label" for="gjSpin">Displayed spin</label>
-            <select id="gjSpin">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3 (estimate)</option>
-              <option value="4">4</option>
-              <option value="5">5 (estimate)</option>
-              <option value="6">6</option>
-              <option value="7">7 (estimate)</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-            </select>
+            <select id="gjSpin"></select>
           </div>
+          <button class="action" type="button" id="gjNext">Next Spin</button>
         </div>
 
         <div class="gjReels" role="group" aria-label="Gold symbols per reel">
@@ -763,21 +887,10 @@
         <details class="logic">
           <summary>Check rules</summary>
           <div class="txt">
-            <ul>
+            <ul id="gjRules">
               <li>Number the reels from left to right. If the machine shows 8 out of 10, choose <b>8</b>.</li>
-              <li><b>Spin 1:</b> At least one gold symbol on reels 1–4.</li>
-              <li><b>Spin 2:</b> At least one on reels 1–3, two on reel 4, or one on reel 4 plus two on reel 5.</li>
-              <li><b>Spin 4:</b> At least three total, or a stack on any reel from 1–4. A stack is two symbols on the same reel.</li>
-              <li><b>Spin 6:</b> At least four total, or at least three on reels 1–3 combined.</li>
-              <li><b>Spin 8:</b> Three or more on reels 1–3, or one of these patterns:
-                <ul>
-                  <li>A stack on reels 1–3 plus a symbol on reel 4 or a stack on reel 5.</li>
-                  <li>Two on reels 1–3 plus a stack on reel 4, or plus one on reel 4 and a stack on reel 5.</li>
-                  <li>One on reels 1–3 plus stacks on both reels 4 and 5.</li>
-                </ul>
-              </li>
-              <li>The app estimates spins 3, 5, and 7 using the next listed rule. At spin 9, the check shows <b>Reevaluate</b>.</li>
-              <li><b>Good through</b> uses the current counts, including those estimates. Update the counts and check again when the symbols change.</li>
+              <li data-rule="estimates"></li>
+              <li><b>Good through</b> uses the current counts. Tap <b>Next Spin</b> when the machine advances, then update any reels that changed.</li>
             </ul>
           </div>
         </details>
@@ -822,7 +935,7 @@
         <details class="logic">
           <summary>Check rules</summary>
           <div class="txt">
-            <p><b>PLAY</b> if Green is 17 or higher, Purple is 32 or higher, or Green is at least 16 with Blue at least 13.</p>
+            <p data-rule="thresholds"></p>
             <p>The guide treats Blue 13–14 on its own as optional and Red around 98 as tentative. Review those separately if you use them.</p>
           </div>
         </details>
@@ -849,7 +962,8 @@
         <details class="logic">
           <summary>Guide rule</summary>
           <div class="txt">
-            <p>Any active wild column meets the guide rule. Otherwise, look for at least three reels with a coin, including at least two of reels 1–3. Number the reels from left to right and tap a reel again to undo.</p>
+            <p data-rule="thresholds"></p>
+            <p>Number the reels from left to right and tap a reel again to undo.</p>
             <p>Use this check for base Golden Egypt. Golden Egypt Jackpots has different rules.</p>
           </div>
         </details>
@@ -887,8 +1001,8 @@
           <div class="txt">
             <ul>
               <li>If the machine shows 8 out of 10, choose <b>8</b>. Count reels from left to right and skip reel 5.</li>
-              <li><b>Guide rule:</b> At spins 1–4, look for at least 2 frames on reels 1–3 combined. At spins 5–9, look for those 2 plus one more on any of reels 1–4.</li>
-              <li><b>Optional tighter check:</b> On reels 1–3 combined, look for at least 2 frames at spin 1, 3 at spin 2, or 4 at spins 3–9.</li>
+              <li data-rule="standard"></li>
+              <li data-rule="tighter"></li>
               <li>The five-row, exploding-scarab, jackpot, and non-guaranteed-wild versions use different rules.</li>
               <li>One blank count is treated as zero. If both counts are zero, enter 0 in either field.</li>
             </ul>
@@ -913,12 +1027,116 @@
           <summary>Guide rule</summary>
           <div class="txt">
             <p>Count each group separately. If you see one group of 5 and another of 3, enter <b>5</b>.</p>
-            <p>Six or more touching empty frames meets the guide cutoff. At five, review the layout for a second group of five or a lot of nearby empty frames that could connect.</p>
+            <p data-rule="thresholds"></p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="page" id="page-goldendrums">
+      <div class="card">
+        <div class="statusbar" id="gdStatus" role="status">
+          <div class="statusLeft">Select the multiplier</div>
+          <div class="statusRight"></div>
+        </div>
+        <fieldset class="reelControls">
+          <legend class="label">Golden Drums multiplier</legend>
+          <div class="quickChoices">
+            <label><input type="radio" name="gdMultiplier" value="below" /><span class="reelToggle" data-rule="below"></span></label>
+            <label><input type="radio" name="gdMultiplier" value="at" /><span class="reelToggle" data-rule="at"></span></label>
+            <label><input type="radio" name="gdMultiplier" value="above" /><span class="reelToggle" data-rule="above"></span></label>
+          </div>
+        </fieldset>
+        <details class="logic">
+          <summary>Check rule</summary>
+          <div class="txt">
+            <p data-rule="threshold"></p>
+            <p>Recheck the multiplier whenever you switch bet levels.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="page" id="page-ultrarushgold">
+      <div class="card">
+        <div class="statusbar" id="urgStatus" role="status">
+          <div class="statusLeft">Select the gold count</div>
+          <div class="statusRight"></div>
+        </div>
+        <fieldset class="reelControls">
+          <legend class="label">Gold symbols</legend>
+          <div class="quickChoices" id="urgChoices"></div>
+        </fieldset>
+        <p class="hint scopeNote">The single-row Hold N Gold version uses a separate check.</p>
+        <details class="logic">
+          <summary>Check rule</summary>
+          <div class="txt">
+            <p data-rule="threshold"></p>
+            <p>Check each bet and denomination separately on the bet bar. Skip silver symbols.</p>
           </div>
         </details>
       </div>
     </section>
   </main>
+
+<script id="check-rules">
+  // Regal Riches: name, standalone cutoff, optional two-meter cutoff.
+  const RR_METERS = [
+    ["Yellow", 115, 106],
+    ["Green", 85, 81],
+    ["Purple", 60, 56],
+    ["Blue", 8],
+  ];
+  const RR_TOTAL = 210;
+  const RR_COMBO = 2;
+  const RR_COMBINED = RR_METERS.filter(([, , cutoff]) => cutoff !== undefined);
+
+  function rrCheck(values){
+    const single = RR_METERS.find(([name, cutoff]) => values[name] >= cutoff);
+    const sum = RR_COMBINED.reduce((total, [name]) => total + values[name], 0);
+    const lower = RR_COMBINED.filter(([name, , cutoff]) => values[name] >= cutoff);
+    return { single, lower, sum, qualifies: Boolean(single) || sum >= RR_TOTAL || lower.length >= RR_COMBO };
+  }
+
+  // Golden Jungle: any one pattern for a spin qualifies. Counts are minimums.
+  const GJ_STACK = 2;
+  const GJ_REEVALUATE = 9;
+  const GJ_CHART = {
+    1: [{ firstFour: 1 }],
+    2: [{ left: 1 }, { reel4: GJ_STACK }, { reel4: 1, reel5: GJ_STACK }],
+    4: [{ total: 3 }, { firstFourStack: GJ_STACK }],
+    6: [{ total: 4 }, { left: 3 }],
+    8: [
+      { left: 3 },
+      { leftStack: GJ_STACK, reel4: 1 },
+      { leftStack: GJ_STACK, reel5: GJ_STACK },
+      { left: 2, reel4: GJ_STACK },
+      { left: 2, reel4: 1, reel5: GJ_STACK },
+      { left: 1, reel4: GJ_STACK, reel5: GJ_STACK },
+    ],
+  };
+  const GJ_CHART_SPINS = Object.keys(GJ_CHART).map(Number);
+
+  function gjPlayableAtSpin(spin, counts){
+    const chartSpin = GJ_CHART_SPINS.find(listedSpin => listedSpin >= spin);
+    if (chartSpin === undefined) return false;
+
+    const [r1, r2, r3, reel4, reel5] = counts;
+    const left = r1 + r2 + r3;
+    const firstFour = left + reel4;
+    const board = {
+      left, firstFour, reel4, reel5, total: firstFour + reel5,
+      leftStack: Math.max(r1, r2, r3),
+      firstFourStack: Math.max(r1, r2, r3, reel4),
+    };
+    return GJ_CHART[chartSpin].some(pattern =>
+      Object.entries(pattern).every(([location, minimum]) => board[location] >= minimum)
+    );
+  }
+
+  const GD_MIN = 4;
+  const URG_MIN = 2;
+</script>
 
 <script>
   // =========================
@@ -950,6 +1168,12 @@
     el.hidden = !text;
   }
 
+  function writeRules(game, rules){
+    $$("[data-rule]", $("#page-" + game)).forEach(el => {
+      el.textContent = rules[el.dataset.rule];
+    });
+  }
+
   const meterFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 });
 
   function closestMeterGap(candidates){
@@ -968,6 +1192,7 @@
   // Game navigation
   // =========================
   const gamePicker = $("#game");
+  const themeToggle = $("#themeToggle");
   const pages = {
     frankenstein: { recalc: frRecalc, reset: frReset },
     templefalls: { recalc: tfRecalc, reset: tfReset },
@@ -978,7 +1203,22 @@
     goldenegypt: { recalc: geRecalc, reset: geReset },
     scarab: { recalc: scarabRecalc, reset: scarabReset },
     kitty: { recalc: kittyRecalc, reset: kittyReset },
+    goldendrums: { recalc: gdRecalc, reset: gdReset },
+    ultrarushgold: { recalc: urgRecalc, reset: urgReset },
   };
+
+  function refreshTheme(){
+    applyTheme();
+    themeToggle.setAttribute("aria-pressed", String(document.documentElement.dataset.theme === "dark"));
+  }
+
+  themeToggle.addEventListener("click", () => {
+    chosenTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    savePreference("ap-theme", chosenTheme);
+    refreshTheme();
+  });
+  themePreference.addEventListener("change", refreshTheme);
+  refreshTheme();
 
   function showPage(){
     const option = gamePicker.selectedOptions[0];
@@ -994,6 +1234,7 @@
 
   gamePicker.addEventListener("change", () => {
     showPage();
+    savePreference("ap-game", gamePicker.value);
     window.scrollTo(0, 0);
   });
   $("#resetGame").addEventListener("click", () => pages[gamePicker.value].reset());
@@ -1020,20 +1261,28 @@
     }
   });
 
+  const FR_BASE = 13.40;
+  const FR_FUN = 17;
+  const FR_AP = 17.5;
+  const FR_RETURNS = 20;
+  writeRules("frankenstein", {
+    base: FR_BASE.toFixed(2),
+    lowerBands: `Below ${FR_FUN} shows Below AP threshold. From ${FR_FUN} to under ${FR_AP}, the result is Play for fun/points.`,
+    upperBands: `From ${FR_AP} through ${FR_RETURNS}, the result is Frankenstein. Above ${FR_RETURNS}, it’s Frankenstein Returns.`,
+  });
+
   function frBandClass(total){
-    if (total < 17) return "s-bad";
-    if (total < 17.5) return "s-warn";
+    if (total < FR_FUN) return "s-bad";
+    if (total < FR_AP) return "s-warn";
     return "s-ok";
   }
 
   function frStatusText(total){
-    if (total > 20) return "Frankenstein Returns";
-    if (total >= 17.5) return "Frankenstein";
-    if (total >= 17) return "Play for fun/points";
+    if (total > FR_RETURNS) return "Frankenstein Returns";
+    if (total >= FR_AP) return "Frankenstein";
+    if (total >= FR_FUN) return "Play for fun/points";
     return "Below AP threshold";
   }
-
-  const FR_BASE = 13.40;
 
   function frPaintBar(bar, bigEl, midEl, big, hasEntry){
     bigEl.textContent = big.toFixed(2);
@@ -1076,8 +1325,6 @@
       else inp.blur();
     });
   });
-  frRecalc();
-
   // =========================
   // Temple Falls
   // =========================
@@ -1091,6 +1338,19 @@
   const tfReview = $("#tfReview");
   let tfWheelInput = null;
   const TF_BASE_ROWS = 2;
+  const TF_WHEEL = 38;
+  const TF_REVIEW = 50;
+  const TF_AP = 60;
+  const tfRedBallNotes = {
+    100: "The guide uses the fifth position as a rough reference and leaves the decision to the board layout.",
+    200: "The guide usually qualifies it at any position. Review it separately if the board is weak and the ball is in row 6 or 7.",
+  };
+  Object.keys(tfRedBallNotes).forEach(value => tfRedBall.add(new Option(`${value}× red ball`, value)));
+  writeRules("templefalls", {
+    wheel: `${TF_WHEEL} bets`,
+    bands: `Below ${TF_REVIEW} bets shows Below AP threshold. From ${TF_REVIEW} to under ${TF_AP}, the result is Near AP threshold. At ${TF_AP} or more, it’s Meets AP threshold.`,
+    review: `At ${TF_REVIEW} to under ${TF_AP} bets, review the third and fourth rows for strong values.`,
+  });
 
   function tfMakeRow({ included }){
     const row = document.createElement("div");
@@ -1162,7 +1422,7 @@
   function tfCellValue(raw, bet){
     const s = String(raw ?? "").trim();
     if (s === "") return 0;      // EMPTY => 0
-    if (s === ".") return 38;    // wheel token
+    if (s === ".") return TF_WHEEL;
     const n = Number(s);
     if (!Number.isFinite(n)) return 0;
     return n / bet;
@@ -1193,13 +1453,12 @@
 
     const v = Math.max(1, Math.min(200, n));
     const t = (v - 1) / 199;
-    const light = 94 - t * 22;
-    cell.style.backgroundColor = `hsl(45 90% ${light}%)`;
+    cell.style.backgroundColor = `hsl(45 90% calc(var(--coin-lightness) - ${t * 22}%))`;
   }
 
   function tfBandClass(total){
-    if (total < 50) return "s-bad";
-    if (total < 60) return "s-warn";
+    if (total < TF_REVIEW) return "s-bad";
+    if (total < TF_AP) return "s-warn";
     return "s-ok";
   }
 
@@ -1224,14 +1483,13 @@
       }
     }
 
+    const band = tfBandClass(bottomTotal);
     const review = [];
-    if (hasIncludedValue && bottomTotal >= 50 && bottomTotal < 60) {
+    if (hasIncludedValue && band === "s-warn") {
       review.push("Review rows 3 and 4 for strong values that could support the bottom-two-row total.");
     }
-    if (tfRedBall.value === "100") {
-      review.push("Review the 100× red ball. The guide uses the fifth position as a rough reference and leaves the decision to the board layout.");
-    } else if (tfRedBall.value === "200") {
-      review.push("The guide usually qualifies a 200× red ball at any position. Review it separately if the board is weak and the ball is in row 6 or 7.");
+    if (tfRedBall.value) {
+      review.push(`Review the ${tfRedBall.value}× red ball. ${tfRedBallNotes[tfRedBall.value]}`);
     }
     writeNextStep(tfReview, review.join(" "));
 
@@ -1244,7 +1502,6 @@
       return;
     }
 
-    const band = tfBandClass(bottomTotal);
     const label = band === "s-ok" ? "Meets AP threshold" : band === "s-warn" ? "Near AP threshold" : "Below AP threshold";
     writeResult(tfTotal, band, bottomTotal.toFixed(2), label);
   }
@@ -1275,140 +1532,96 @@
     else tfSetWheelTarget(null);
   });
 
-  tfInit();
-
   // =========================
   // Regal Riches
   // =========================
   const rrStatus = $("#rrStatus");
   const rrDetail = $("#rrDetail");
-  const rrY = $("#rrY"), rrG = $("#rrG"), rrP = $("#rrP"), rrB = $("#rrB");
-  const rrMeters = [["Yellow", rrY, 106], ["Green", rrG, 81], ["Purple", rrP, 56]];
-  const rrSingles = [["Yellow", rrY, 115], ["Green", rrG, 85], ["Purple", rrP, 60], ["Blue", rrB, 8]];
+  const rrInputs = Object.fromEntries(RR_METERS.map(([name]) => [name, $("#rr" + name[0])]));
+  writeRules("regalriches", {
+    singles: `Any single meter qualifies at its cutoff (${RR_METERS.map(([name, cutoff]) => `${name} ≥ ${cutoff}`).join(", ")}).`,
+    combos: `Yellow, green, and purple also qualify if they total at least ${RR_TOTAL} or if ${RR_COMBO} reach their lower cutoffs (${RR_COMBINED.map(([name, , cutoff]) => `${name} ≥ ${cutoff}`).join(", ")}). Blue is a separate check.`,
+  });
 
   function rrReset(){
-    rrSingles.forEach(([, input]) => input.value = "");
+    Object.values(rrInputs).forEach(input => input.value = "");
     rrRecalc();
   }
 
   function rrRecalc(){
     writeNextStep(rrDetail);
-    if (rrSingles.every(([, input]) => input.value === "")) {
+    if (Object.values(rrInputs).every(input => input.value === "")) {
       writeResult(rrStatus, "s-white", "Enter values");
       return;
     }
 
-    const Y = numOr(rrY.value, 0);
-    const G = numOr(rrG.value, 0);
-    const P = numOr(rrP.value, 0);
-    const sum = Y + G + P;
-
-    const single = rrSingles.find(([, input, target]) => input.valueAsNumber >= target);
-
-    const soft = rrMeters.filter(([, input, target]) => input.valueAsNumber >= target);
-    const total = "Total " + meterFormat.format(sum) + " / 210";
+    const values = Object.fromEntries(Object.entries(rrInputs).map(([name, input]) => [name, numOr(input.value, 0)]));
+    const { single, lower, sum, qualifies } = rrCheck(values);
+    const total = `Total ${meterFormat.format(sum)} / ${RR_TOTAL}`;
 
     if (single){
-      writeResult(rrStatus, "s-ok", "AP", `${single[0]} ≥ ${single[2]}`);
-    } else if (sum >= 210 || soft.length >= 2){
+      writeResult(rrStatus, "s-ok", "AP", `${single[0]} ≥ ${single[1]}`);
+    } else if (qualifies){
       writeResult(rrStatus, "s-ok", "AP", total);
-    } else if (soft.length === 1){
-      writeResult(rrStatus, "s-warn", "Soft: " + soft[0][0], total);
-      const gap = closestMeterGap(rrMeters.map(meter => [...meter, "the second cutoff"]));
+    } else if (lower.length === 1){
+      writeResult(rrStatus, "s-warn", "Soft: " + lower[0][0], total);
+      const gap = closestMeterGap(RR_COMBINED.map(([name, , cutoff]) => [
+        name, rrInputs[name], cutoff, "the second cutoff",
+      ]));
       writeNextStep(rrDetail, gap || "Enter another meter to check the second cutoff.");
     } else {
       writeResult(rrStatus, "s-bad", "Not AP", total);
     }
   }
 
-  rrSingles.forEach(([, input]) => input.addEventListener("input", rrRecalc));
-  rrRecalc();
+  Object.values(rrInputs).forEach(input => input.addEventListener("input", rrRecalc));
 
   // =========================
   // Ascending / Stack Up
   // =========================
   const afStatus = $("#afStatus");
   const afDetail = $("#afDetail");
-  const afMega = $("#afMega"), afGrand = $("#afGrand"), afMajor = $("#afMajor"), afMinor = $("#afMinor");
-
-  const AF_MHB = { mega:350, grand:250, major:200, minor:150 };
-  const AF_AWAY = { mega:20, grand:12, major:8, minor:4 };
-  const AF_SOFT_AWAY = { mega:26, grand:15, major:10 }; // floor(away*1.3)
+  const AF_COMBO = 2;
+  // Name, must-hit-by, distance for AP, and optional distance for the lower cutoff.
+  const afMeters = [
+    ["Mega", 350, 20, 26],
+    ["Grand", 250, 12, 15],
+    ["Major", 200, 8, 10],
+    ["Minor", 150, 4],
+  ];
+  const afPrimary = afMeters.map(([name, limit, away]) => [name, $("#af" + name), limit - away]);
+  const afLower = afMeters.filter(([, , , away]) => away !== undefined)
+    .map(([name, limit, , away]) => [name, $("#af" + name), limit - away]);
+  const afCutoffs = meters => meters.map(([name, , cutoff]) => `${name} ≥ ${cutoff}`);
+  writeRules("ascending", {
+    ...Object.fromEntries(afMeters.map(([name, limit]) => [name, limit])),
+    singles: `One meter qualifies on its own at its cutoff (${afCutoffs(afPrimary).join(", ")}).`,
+    combos: `${AF_COMBO} meters also qualify together at their lower cutoffs (${afCutoffs(afLower).join(", ")}). Soft means one lower cutoff is met without an AP result.`,
+  });
 
   function afReset(){
-    afMega.value = ""; afGrand.value = ""; afMajor.value = ""; afMinor.value = "";
+    afPrimary.forEach(([, input]) => input.value = "");
     afRecalc();
   }
 
   function afRecalc(){
     writeNextStep(afDetail);
-    if ([afMega, afGrand, afMajor, afMinor].every(input => input.value === "")) {
+    if (afPrimary.every(([, input]) => input.value === "")) {
       writeResult(afStatus, "s-white", "Enter values");
       return;
     }
-    const mega = numOr(afMega.value, 0);
-    const grand = numOr(afGrand.value, 0);
-    const major = numOr(afMajor.value, 0);
-    const minor = numOr(afMinor.value, 0);
+    const meetsCutoff = ([, input, cutoff]) => numOr(input.value, 0) >= cutoff;
+    const primary = afPrimary.filter(meetsCutoff);
+    const lower = afLower.filter(meetsCutoff);
 
-    const thr = {
-      mega: AF_MHB.mega - AF_AWAY.mega,     // 330
-      grand: AF_MHB.grand - AF_AWAY.grand,  // 238
-      major: AF_MHB.major - AF_AWAY.major,  // 192
-      minor: AF_MHB.minor - AF_AWAY.minor   // 146
-    };
-
-    const softThr = {
-      mega: AF_MHB.mega - AF_SOFT_AWAY.mega,     // 324
-      grand: AF_MHB.grand - AF_SOFT_AWAY.grand,  // 235
-      major: AF_MHB.major - AF_SOFT_AWAY.major   // 190
-    };
-
-    const prim = {
-      mega: mega >= thr.mega,
-      grand: grand >= thr.grand,
-      major: major >= thr.major,
-      minor: minor >= thr.minor
-    };
-
-    const soft = {
-      mega: mega >= softThr.mega,
-      grand: grand >= softThr.grand,
-      major: major >= softThr.major
-    };
-
-    const primaryAP = prim.mega || prim.grand || prim.major || prim.minor;
-    const softCount = (soft.mega?1:0) + (soft.grand?1:0) + (soft.major?1:0);
-    const secondaryAP = (!primaryAP && softCount >= 2);
-    const isAP = primaryAP || secondaryAP;
-
-    const met = [];
-    if (prim.minor) met.push("Minor≥146");
-    if (prim.major) met.push("Major≥192");
-    if (prim.grand) met.push("Grand≥238");
-    if (prim.mega)  met.push("Mega≥330");
-
-    if (isAP){
-      if (met.length){
-        writeResult(afStatus, "s-ok", "AP", met.join(" • "));
-      } else {
-        const s = [];
-        if (soft.major) s.push("Major≥190");
-        if (soft.grand) s.push("Grand≥235");
-        if (soft.mega)  s.push("Mega≥324");
-        writeResult(afStatus, "s-ok", "AP", s.join(" • "));
-      }
-    } else if (softCount === 1){
-      const which = soft.major ? "Major" : (soft.grand ? "Grand" : "Mega");
-      writeResult(afStatus, "s-warn", "Soft: " + which, "One cutoff met");
+    if (primary.length || lower.length >= AF_COMBO){
+      const met = primary.length ? primary : lower;
+      writeResult(afStatus, "s-ok", "AP", afCutoffs(met.reverse()).join(" • "));
+    } else if (lower.length === 1){
+      writeResult(afStatus, "s-warn", "Soft: " + lower[0][0], "One cutoff met");
       const gap = closestMeterGap([
-        ["Mega", afMega, thr.mega, "primary AP"],
-        ["Grand", afGrand, thr.grand, "primary AP"],
-        ["Major", afMajor, thr.major, "primary AP"],
-        ["Minor", afMinor, thr.minor, "primary AP"],
-        ["Mega", afMega, softThr.mega, "the second cutoff"],
-        ["Grand", afGrand, softThr.grand, "the second cutoff"],
-        ["Major", afMajor, softThr.major, "the second cutoff"],
+        ...afPrimary.map(meter => [...meter, "primary AP"]),
+        ...afLower.map(meter => [...meter, "the second cutoff"]),
       ]);
       writeNextStep(afDetail, gap);
     } else {
@@ -1416,17 +1629,59 @@
     }
   }
 
-  [afMega, afGrand, afMajor, afMinor].forEach(el => el.addEventListener("input", afRecalc));
-  afRecalc();
+  afPrimary.forEach(([, input]) => input.addEventListener("input", afRecalc));
 
   // =========================
   // Golden Jungle
   // =========================
   const gjStatus = $("#gjStatus");
   const gjSpin = $("#gjSpin");
+  const gjNext = $("#gjNext");
   const gjReels = $$(".gjR");
   const gjRange = $("#gjRange");
   let gjStarted = false;
+
+  const gjSpins = Array.from({ length: GJ_REEVALUATE }, (_, index) => index + 1);
+  const gjEstimates = gjSpins.filter(spin => spin < GJ_REEVALUATE && !GJ_CHART[spin]);
+  gjSpins.forEach(spin => {
+    const text = `${spin}${gjEstimates.includes(spin) ? " (estimate)" : ""}`;
+    gjSpin.add(new Option(text, spin));
+  });
+  writeRules("goldenjungle", {
+    estimates: `Spins ${gjEstimates.join(", ")} use the next listed rule as an estimate. At spin ${GJ_REEVALUATE}, the check shows Reevaluate.`,
+  });
+  const gjRuleLabels = {
+    firstFour: "on reels 1–4",
+    left: "on reels 1–3 combined",
+    reel4: "on reel 4",
+    reel5: "on reel 5",
+    total: "total",
+    leftStack: "on a single reel from 1–3",
+    firstFourStack: "on a single reel from 1–4",
+  };
+  const gjRuleList = $("#gjRules");
+  const gjRuleStart = $("[data-rule='estimates']", gjRuleList);
+  GJ_CHART_SPINS.forEach(spin => {
+    const patterns = GJ_CHART[spin].map(pattern => Object.entries(pattern)
+      .map(([location, minimum]) => `${minimum} ${gjRuleLabels[location]}`).join(" plus "));
+    const row = document.createElement("li");
+    const heading = document.createElement("b");
+    heading.textContent = `Spin ${spin}. `;
+    row.append(heading);
+    if (patterns.length <= 3) {
+      row.append(`At least ${patterns.join(" or ")}.`);
+    } else {
+      row.append("Meet the minimums in any one of these patterns.");
+      const list = document.createElement("ul");
+      patterns.forEach(pattern => {
+        const item = document.createElement("li");
+        item.textContent = pattern;
+        list.append(item);
+      });
+      row.append(list);
+    }
+    gjRuleList.insertBefore(row, gjRuleStart);
+  });
 
   function gjCounts(){
     return gjReels.map(reel => Number(reel.dataset.count));
@@ -1435,57 +1690,13 @@
   function gjSetCount(reel, count){
     reel.dataset.count = String(count);
     $("span", reel).textContent = String(count);
-    reel.setAttribute("aria-label", `Reel ${reel.dataset.reel}: ${count}. Activate to change count.`);
+    reel.setAttribute("aria-label", `Reel ${reel.dataset.reel}, ${count}. Activate to change count.`);
   }
 
-  function gjPlayableAtSpin(spin, state){
-    const [R1,R2,R3,R4,R5] = state;
-    const leftTotal = R1 + R2 + R3;
-    const total = leftTotal + R4 + R5;
-
-    if (spin === 9) return false; // spin 9 = reevaluate-only
-
-    let s = spin;
-    if (s === 3) s = 4;
-    if (s === 5) s = 6;
-    if (s === 7) s = 8;
-
-    if (s === 1){
-      return (R1>=1 || R2>=1 || R3>=1 || R4>=1);
-    }
-
-    if (s === 2){
-      return (R1>=1 || R2>=1 || R3>=1) || (R4>=2) || (R4>=1 && R5>=2);
-    }
-
-    if (s === 4){
-      return (total >= 3) || (R1>=2 || R2>=2 || R3>=2 || R4>=2);
-    }
-
-    if (s === 6){
-      return total >= 4 || leftTotal >= 3;
-    }
-
-    // Displayed spin 8 (also used as the estimate for spin 7).
-    const leftStack = R1 >= 2 || R2 >= 2 || R3 >= 2;
-    return leftTotal >= 3
-      || (leftStack && (R4 >= 1 || R5 >= 2))
-      || (leftTotal >= 2 && (R4 >= 2 || (R4 >= 1 && R5 >= 2)))
-      || (leftTotal >= 1 && R4 >= 2 && R5 >= 2);
-  }
-
-  function gjGoodUntilAndReeval(s0, state0){
-    let s = s0;
-    while (true){
-      if (s === 9){
-        return { goodUntil:8, reevaluateOn:9 };
-      }
-      if (gjPlayableAtSpin(s, state0)){
-        s = s + 1;
-        continue;
-      }
-      return { goodUntil:s-1, reevaluateOn:s };
-    }
+  function gjGoodUntilAndReeval(start, counts){
+    let spin = start;
+    while (gjPlayableAtSpin(spin, counts)) spin++;
+    return { goodUntil: spin - 1, reevaluateOn: spin };
   }
 
   function gjReset(){
@@ -1498,8 +1709,9 @@
   function gjRecalc(){
     const s0 = Number(gjSpin.value || "1");
     const state0 = gjCounts();
-    const isEstimate = [3, 5, 7].includes(s0);
+    const isEstimate = gjEstimates.includes(s0);
     const spinLabel = `Spin ${s0}${isEstimate ? " · estimate" : ""}`;
+    gjNext.disabled = s0 === GJ_REEVALUATE;
 
     if (!gjStarted){
       writeResult(gjStatus, "s-white", "Enter reel counts", spinLabel);
@@ -1507,7 +1719,7 @@
       return;
     }
 
-    if (s0 === 9){
+    if (s0 === GJ_REEVALUATE){
       writeResult(gjStatus, "s-white", "REEVALUATE", spinLabel);
       writeNextStep(gjRange);
       return;
@@ -1524,16 +1736,21 @@
     writeNextStep(gjRange, `Good through spin ${goodUntil} · Reevaluate on spin ${reevaluateOn}`);
   }
 
-  gjSpin.addEventListener("change", () => {
+  function gjChangeSpin(){
     gjStarted = true;
     gjRecalc();
+  }
+
+  gjSpin.addEventListener("change", gjChangeSpin);
+  gjNext.addEventListener("click", () => {
+    gjSpin.selectedIndex++;
+    gjChangeSpin();
   });
   gjReels.forEach(reel => reel.addEventListener("click", () => {
     gjStarted = true;
-    gjSetCount(reel, (Number(reel.dataset.count) + 1) % 3);
+    gjSetCount(reel, (Number(reel.dataset.count) + 1) % (GJ_STACK + 1));
     gjRecalc();
   }));
-  gjReset();
 
   // =========================
   // Rocket Rumble
@@ -1541,6 +1758,13 @@
   const rkStatus = $("#rkStatus");
   const rkGreen = $("#rkGreen"), rkBlue = $("#rkBlue"), rkPurple = $("#rkPurple");
   const rkMeters = [rkGreen, rkBlue, rkPurple];
+  const RK_GREEN = 17;
+  const RK_PURPLE = 32;
+  const RK_COMBO_GREEN = 16;
+  const RK_COMBO_BLUE = 13;
+  writeRules("rocket", {
+    thresholds: `PLAY if Green is ${RK_GREEN} or higher, Purple is ${RK_PURPLE} or higher, or Green is at least ${RK_COMBO_GREEN} with Blue at least ${RK_COMBO_BLUE}.`,
+  });
 
   function rkReset(){
     rkMeters.forEach(input => input.value = "");
@@ -1551,19 +1775,19 @@
     const green = rkGreen.valueAsNumber;
     const blue = rkBlue.valueAsNumber;
     const purple = rkPurple.valueAsNumber;
-    if (green >= 17) {
-      writeResult(rkStatus, "s-ok", "PLAY", "Green ≥ 17");
-    } else if (purple >= 32) {
-      writeResult(rkStatus, "s-ok", "PLAY", "Purple ≥ 32");
-    } else if (green >= 16 && blue >= 13) {
-      writeResult(rkStatus, "s-ok", "PLAY", "Green ≥ 16 · Blue ≥ 13");
+    if (green >= RK_GREEN) {
+      writeResult(rkStatus, "s-ok", "PLAY", `Green ≥ ${RK_GREEN}`);
+    } else if (purple >= RK_PURPLE) {
+      writeResult(rkStatus, "s-ok", "PLAY", `Purple ≥ ${RK_PURPLE}`);
+    } else if (green >= RK_COMBO_GREEN && blue >= RK_COMBO_BLUE) {
+      writeResult(rkStatus, "s-ok", "PLAY", `Green ≥ ${RK_COMBO_GREEN} · Blue ≥ ${RK_COMBO_BLUE}`);
     } else if (rkMeters.every(input => input.value === "")) {
       writeResult(rkStatus, "s-white", "Enter meter values");
     } else {
       const missing = [];
       if (Number.isNaN(green)) missing.push("green");
       if (Number.isNaN(purple)) missing.push("purple");
-      if (green >= 16 && Number.isNaN(blue)) missing.push("blue");
+      if (green >= RK_COMBO_GREEN && Number.isNaN(blue)) missing.push("blue");
       if (missing.length) {
         writeResult(rkStatus, "s-white", "Check remaining meters", "Enter " + missing.join(" and "));
       } else {
@@ -1573,12 +1797,17 @@
   }
 
   rkMeters.forEach(el => el.addEventListener("input", rkRecalc));
-  rkRecalc();
 
   // Golden Egypt
   const geStatus = $("#geStatus");
   const geReels = $$(".reelToggle", $("#geReels"));
   const geWild = $("#geWild");
+  const GE_LEFT_REELS = 3;
+  const GE_LEFT_MIN = 2;
+  const GE_TOTAL_MIN = 3;
+  writeRules("goldenegypt", {
+    thresholds: `Any active wild column meets the guide rule. Otherwise, look for at least ${GE_TOTAL_MIN} reels with a coin, including at least ${GE_LEFT_MIN} of reels 1–${GE_LEFT_REELS}.`,
+  });
 
   function geRecalc(){
     if (geWild.checked) {
@@ -1587,14 +1816,14 @@
     }
     const occupied = geReels.map(reel => reel.getAttribute("aria-pressed") === "true");
     const total = occupied.filter(Boolean).length;
-    const left = occupied.slice(0, 3).filter(Boolean).length;
+    const left = occupied.slice(0, GE_LEFT_REELS).filter(Boolean).length;
     if (total === 0) {
       writeResult(geStatus, "s-white", "Select reels with coins");
       return;
     }
-    const meetsRule = total >= 3 && left >= 2;
+    const meetsRule = total >= GE_TOTAL_MIN && left >= GE_LEFT_MIN;
     writeResult(geStatus, meetsRule ? "s-ok" : "s-bad",
-      meetsRule ? "Meets guide rule" : "Below guide rule", `${left} on reels 1–3 · ${total} total`);
+      meetsRule ? "Meets guide rule" : "Below guide rule", `${left} on reels 1–${GE_LEFT_REELS} · ${total} total`);
   }
 
   function geReset(){
@@ -1615,11 +1844,20 @@
   const scarabSpin = $("#scarabSpin");
   const scarabLeft = $("#scarabLeft");
   const scarabFourth = $("#scarabFourth");
+  const SCARAB_CONVERSION = 10;
+  const SCARAB_LEFT_MIN = 2;
+  const SCARAB_EARLY_END = 4;
+  const SCARAB_LATE_MIN = 3;
+  const SCARAB_TIGHT_CAP = 4;
+  writeRules("scarab", {
+    standard: `Guide rule. At spins 1–${SCARAB_EARLY_END}, look for at least ${SCARAB_LEFT_MIN} frames on reels 1–3 combined. At spins ${SCARAB_EARLY_END + 1}–${SCARAB_CONVERSION - 1}, also look for at least ${SCARAB_LATE_MIN} total on reels 1–4.`,
+    tighter: `Optional tighter check. On reels 1–3 combined, start at ${SCARAB_LEFT_MIN} frames at spin 1. Add one frame to the cutoff each spin until it reaches ${SCARAB_TIGHT_CAP}.`,
+  });
 
   function scarabRecalc(){
     writeNextStep(scarabDetail);
     if (!scarabLeft.validity.valid || !scarabFourth.validity.valid) {
-      writeResult(scarabStatus, "s-warn", "Check frame counts", "Use whole counts from 0–12 and 0–4.");
+      writeResult(scarabStatus, "s-warn", "Check frame counts", `Use whole counts from 0–${scarabLeft.max} and 0–${scarabFourth.max}.`);
       return;
     }
     if (!scarabSpin.value || (scarabLeft.value === "" && scarabFourth.value === "")) {
@@ -1629,16 +1867,16 @@
     const spin = Number(scarabSpin.value);
     const left = Number(scarabLeft.value);
     const fourth = Number(scarabFourth.value);
-    const remaining = 10 - spin;
+    const remaining = SCARAB_CONVERSION - spin;
     const detail = remaining === 1 ? "1 spin to conversion" : `${remaining} spins to conversion`;
-    const meetsGuide = left >= 2 && (spin <= 4 || left + fourth >= 3);
+    const meetsGuide = left >= SCARAB_LEFT_MIN && (spin <= SCARAB_EARLY_END || left + fourth >= SCARAB_LATE_MIN);
     writeResult(scarabStatus, meetsGuide ? "s-ok" : "s-bad",
       meetsGuide ? "Meets guide rule" : "Below guide rule", detail);
     if (meetsGuide) {
-      const tighterTarget = Math.min(spin + 1, 4);
+      const tighterTarget = Math.min(SCARAB_LEFT_MIN + spin - 1, SCARAB_TIGHT_CAP);
       writeNextStep(scarabDetail, left >= tighterTarget
         ? "Also meets the tighter check."
-        : `Tighter check: at least ${tighterTarget} frames on reels 1–3.`);
+        : `Tighter check needs at least ${tighterTarget} frames on reels 1–3.`);
     }
   }
 
@@ -1653,6 +1891,11 @@
   // Lucha Kitty / Sumo Kitty
   const kittyStatus = $("#kittyStatus");
   const kittyFrames = $("#kittyFrames");
+  const KITTY_REVIEW = 5;
+  const KITTY_AP = 6;
+  writeRules("kitty", {
+    thresholds: `${KITTY_AP} or more touching empty frames meets the guide cutoff. At ${KITTY_REVIEW}, review the layout for a second group of ${KITTY_REVIEW} or nearby empty frames that could connect.`,
+  });
 
   function kittyRecalc(){
     if (!kittyFrames.validity.valid) {
@@ -1664,12 +1907,12 @@
       return;
     }
     const frames = Number(kittyFrames.value);
-    if (frames >= 6) {
-      writeResult(kittyStatus, "s-ok", "Meets guide cutoff", "6 or more touching");
-    } else if (frames === 5) {
-      writeResult(kittyStatus, "s-warn", "Review five-frame setup", "Check nearby frames or a second group of five");
+    if (frames >= KITTY_AP) {
+      writeResult(kittyStatus, "s-ok", "Meets guide cutoff", `${KITTY_AP} or more touching`);
+    } else if (frames === KITTY_REVIEW) {
+      writeResult(kittyStatus, "s-warn", `Review ${KITTY_REVIEW}-frame setup`, `Check nearby frames or a second group of ${KITTY_REVIEW}`);
     } else {
-      writeResult(kittyStatus, "s-bad", "Below guide cutoff", "Fewer than 5 touching");
+      writeResult(kittyStatus, "s-bad", "Below guide cutoff", `Fewer than ${KITTY_REVIEW} touching`);
     }
   }
 
@@ -1680,6 +1923,78 @@
 
   kittyFrames.addEventListener("input", kittyRecalc);
 
+  // Dancing Drums / Golden Drums
+  const gdStatus = $("#gdStatus");
+  const gdChoices = $$("[name='gdMultiplier']");
+  writeRules("goldendrums", {
+    below: `Below ${GD_MIN}×`,
+    at: `${GD_MIN}×`,
+    above: `Above ${GD_MIN}×`,
+    threshold: `The guide qualifies ${GD_MIN}× or higher and considers exactly ${GD_MIN}× borderline.`,
+  });
+
+  function gdRecalc(){
+    const choice = gdChoices.find(input => input.checked)?.value;
+    if (choice === "above") {
+      writeResult(gdStatus, "s-ok", "Meets guide cutoff", `Above ${GD_MIN}×`);
+    } else if (choice === "at") {
+      writeResult(gdStatus, "s-warn", "Meets cutoff · borderline", `${GD_MIN}×`);
+    } else if (choice === "below") {
+      writeResult(gdStatus, "s-bad", "Below guide cutoff", `Needs ${GD_MIN}× or more`);
+    } else {
+      writeResult(gdStatus, "s-white", "Select the multiplier");
+    }
+  }
+
+  function gdReset(){
+    gdChoices.forEach(input => input.checked = false);
+    gdRecalc();
+  }
+
+  gdChoices.forEach(input => input.addEventListener("change", gdRecalc));
+
+  // Ultra Rush Gold
+  const urgStatus = $("#urgStatus");
+  const urgChoiceHost = $("#urgChoices");
+  const urgChoices = [];
+  for (let count = 0; count <= URG_MIN; count++){
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "urgCount";
+    input.value = count;
+    input.addEventListener("change", urgRecalc);
+    urgChoices.push(input);
+
+    const label = document.createElement("label");
+    const text = document.createElement("span");
+    text.className = "reelToggle";
+    text.textContent = count === URG_MIN ? `${count}+` : String(count);
+    label.append(input, text);
+    urgChoiceHost.append(label);
+  }
+  writeRules("ultrarushgold", {
+    threshold: `The guide qualifies any grid with at least ${URG_MIN} gold symbols, regardless of spins remaining.`,
+  });
+
+  function urgRecalc(){
+    const selected = urgChoices.find(input => input.checked);
+    if (!selected) {
+      writeResult(urgStatus, "s-white", "Select the gold count");
+    } else if (Number(selected.value) >= URG_MIN) {
+      writeResult(urgStatus, "s-ok", "Meets guide cutoff", `${URG_MIN}+ gold symbols`);
+    } else {
+      writeResult(urgStatus, "s-bad", "Below guide cutoff", `Needs ${URG_MIN} gold symbols`);
+    }
+  }
+
+  function urgReset(){
+    urgChoices.forEach(input => input.checked = false);
+    urgRecalc();
+  }
+
+  const savedGame = readPreference("ap-game");
+  gamePicker.value = Object.hasOwn(pages, savedGame) ? savedGame : "frankenstein";
+  Object.values(pages).forEach(page => page.reset());
   showPage();
 </script>
 </body>
