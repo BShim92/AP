@@ -3,30 +3,24 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#142820" />
   <title>AP Slot Quick Check</title>
   <style>
     :root{
-      --bg:#f6f7fb;
+      --bg:#edf1eb;
       --card:#ffffff;
-      --line:rgba(0,0,0,.10);
-      --text:#0b0f19;
-      --muted:rgba(0,0,0,.60);
-
-      --ok:#67d36b;
-      --bad:#ff5a5a;
-      --warn:#ffb34d;
-      --mid:#ffe066;
-
-      --y:#ffe8a6;
-      --g:#d8f6dc;
-      --p:#e9ddff;
-      --b:#d9f2ff;
-
-      font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial;
+      --line:#d8e1d8;
+      --text:#172a21;
+      --muted:#4e6257;
+      --accent:#cdf28a;
+      --ink:#142820;
+      --b:#e5eee6;
+      --content:680px;
+      font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
     }
 
     *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    html{ scroll-padding-top:134px; }
     body{
       margin:0;
       background:var(--bg);
@@ -35,49 +29,80 @@
       -moz-osx-font-smoothing:grayscale;
     }
 
-    /* Top compact game switcher */
     .topbar{
       position:sticky;
       top:0;
       z-index:50;
-      background:rgba(246,247,251,.92);
-      backdrop-filter:saturate(180%) blur(10px);
-      border-bottom:1px solid var(--line);
-      padding:8px 10px calc(8px + env(safe-area-inset-top));
+      background:var(--ink);
+      color:#fff;
+      padding:calc(10px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 11px max(14px, env(safe-area-inset-left));
+      box-shadow:0 4px 14px #14282024;
     }
-    .tabs{
+    .topbarInner{
+      max-width:var(--content);
+      margin:auto;
+      display:grid;
+      gap:8px;
+    }
+    .brand{
       display:flex;
-      flex-wrap:wrap;
-      gap:6px;
+      gap:9px;
       align-items:center;
-      justify-content:flex-start;
+      font-size:14px;
+      font-weight:750;
     }
-    .tab{
-      appearance:none;
-      border:1px solid var(--line);
-      background:var(--card);
-      color:var(--text);
-      padding:7px 10px;
-      border-radius:999px;
-      font-weight:900;
+    .brandMark{
+      display:grid;
+      place-items:center;
+      width:30px;
+      height:26px;
+      background:var(--accent);
+      color:var(--ink);
+      border-radius:7px;
       font-size:12px;
-      line-height:1;
+      font-weight:850;
+    }
+    .gamePicker{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .gamePicker label{
+      color:#d4e4d9;
+      font-size:12px;
+      font-weight:700;
+    }
+    .topbar .gamePicker select{
+      min-width:0;
+      background:#233c30;
+      border-color:#5b7767;
+      color:#fff;
       cursor:pointer;
-      user-select:none;
-      touch-action:manipulation;
-      -webkit-tap-highlight-color:transparent;
     }
-    .tab[aria-selected="true"]{
-      border-color:#5267d8;
-      background:#e9edff;
-      color:#263a9b;
-      box-shadow:0 6px 16px rgba(0,0,0,.08);
+    .topbar .gamePicker select:focus-visible{ outline-color:var(--accent); }
+
+    .intro{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      align-items:center;
+      gap:10px;
+      margin:0 0 14px;
     }
+    .eyebrow{
+      color:#38624b;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    h1{ margin:3px 0 5px; font-size:clamp(24px, 6vw, 34px); line-height:1.08; letter-spacing:-.035em; }
+    .hint{ margin:0; color:var(--muted); font-size:13px; line-height:1.45; }
 
     .wrap{
-      max-width:980px;
-      margin:0 auto;
-      padding:10px 10px calc(18px + env(safe-area-inset-bottom));
+      max-width:calc(var(--content) + 28px);
+      margin:auto;
+      padding:18px max(14px, env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
     }
 
     .page{ display:none; }
@@ -86,106 +111,100 @@
     .card{
       background:var(--card);
       border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px;
-      box-shadow:0 10px 28px rgba(0,0,0,.06);
+      border-radius:20px;
+      padding:clamp(10px, 3.4vw, 18px);
+      box-shadow:0 8px 24px #203e2910;
     }
 
     .label{
-      font-weight:1000;
+      display:block;
+      margin-bottom:4px;
+      font-weight:750;
       font-size:12px;
       color:var(--muted);
     }
 
     input[type="number"], input[type="text"], select{
       width:100%;
-      border:1px solid rgba(0,0,0,.16);
-      border-radius:12px;
-      padding:10px 10px;
-      background:#fff;
+      min-width:0;
+      min-height:44px;
+      border:1px solid #adbfaf;
+      border-radius:10px;
+      padding:8px 9px;
+      background:#f9fbf8;
       color:var(--text);
-      font-weight:1000;
+      font-family:inherit;
+      font-weight:700;
       font-size:16px;
-      outline:none;
+      font-variant-numeric:tabular-nums;
     }
+    button{ font-family:inherit; touch-action:manipulation; }
+    :is(button, input, select, summary, a):focus-visible{ outline:2px solid #24654a; outline-offset:2px; }
 
     /* Clickable status bars */
     .statusbar{
       position:relative;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px 12px;
-      background:#fff;
+      min-height:54px;
+      border:1px solid #cbd8cc;
+      border-inline-start:4px solid #849b89;
+      border-radius:13px;
+      padding:9px 11px;
+      background:#f0f5ef;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
+      gap:4px 9px;
+      flex-wrap:wrap;
       user-select:none;
     }
     .clickReset{ cursor:pointer; }
     .statusLeft{
-      font-weight:1100;
-      font-size:16px;
-      line-height:1.1;
-      position:relative;
-      z-index:1;
+      font-weight:800;
+      font-size:18px;
+      line-height:1.15;
+      font-variant-numeric:tabular-nums;
     }
     .statusRight{
-      font-weight:1100;
-      font-size:13px;
-      color:rgba(0,0,0,.70);
-      white-space:nowrap;
-      position:relative;
-      z-index:1;
+      font-weight:650;
+      font-size:12px;
+      line-height:1.3;
     }
     .statusMid{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%);
-      font-weight:1100;
-      font-size:13px;
-      color:rgba(0,0,0,.78);
-      white-space:nowrap;
-      text-align:center;
-      pointer-events:none;
-      opacity:0;
-      max-width:56%;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      font-weight:700;
+      font-size:12px;
     }
-    .statusMid.show{ opacity:1; }
 
-    .s-ok{ background:rgba(103,211,107,.22); }
-    .s-bad{ background:rgba(255,90,90,.22); }
-    .s-warn{ background:rgba(255,179,77,.26); }
-    .s-mid{ background:rgba(255,224,102,.28); }
-    .s-white{ background:#fff; }
+    .s-ok{ background:#e4f3dd; border-inline-start-color:#3e8153; color:#194729; }
+    .s-bad{ background:#f9e9e5; border-inline-start-color:#aa5145; color:#742e25; }
+    .s-warn,.s-mid{ background:#fff0d6; border-inline-start-color:#9f6619; color:#70440c; }
 
-    /* Always-open notes blocks */
     details.logic{
-      margin-top:10px;
-      background:#fff;
-      border:1px dashed rgba(0,0,0,.18);
-      border-radius:14px;
-      padding:10px 12px;
+      margin-top:12px;
+      background:#f6f8f4;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:0 10px;
     }
     details.logic summary{
-      cursor:default;
-      font-weight:1100;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      min-height:44px;
+      cursor:pointer;
+      font-weight:750;
       font-size:13px;
-      color:rgba(0,0,0,.75);
-      user-select:none;
-      -webkit-tap-highlight-color:transparent;
       list-style:none;
     }
     details.logic summary::-webkit-details-marker{ display:none; }
+    details.logic summary::after{ content:"+"; font-size:18px; }
+    details.logic[open] summary::after{ content:"−"; }
     .logic .txt{
-      margin-top:8px;
-      font-size:12px;
-      line-height:1.35;
-      color:rgba(0,0,0,.78);
+      padding-bottom:10px;
+      font-size:13px;
+      line-height:1.45;
+      color:var(--muted);
     }
+    .logic a{ color:#205d42; text-underline-offset:3px; }
     .logic ul{ margin:6px 0 0 18px; padding:0; }
     .logic li{ margin:4px 0; }
 
@@ -193,15 +212,15 @@
     .frankGrid{
       margin-top:10px;
       display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:6px;
     }
     .cell{
       position:relative;
       border:1px solid var(--line);
-      border-radius:14px;
-      min-height:70px;
-      padding:26px 8px 8px;
+      border-radius:12px;
+      min-height:69px;
+      padding:20px 4px 4px;
       background:var(--b);
       display:flex;
       align-items:flex-end;
@@ -209,15 +228,11 @@
     .cell.r0{ background:#ffe1e1; }
     .wtag{
       position:absolute;
-      top:7px;
+      top:3px;
       left:7px;
       font-size:10px;
       font-weight:1100;
-      padding:2px 7px;
-      border-radius:999px;
-      background:rgba(255,255,255,.88);
-      border:1px solid rgba(0,0,0,.10);
-      color:#000;
+      color:#394b3f;
       pointer-events:none;
     }
     .cell input{
@@ -227,7 +242,8 @@
       border-radius:12px;
       border:1px solid rgba(0,0,0,.16);
       background:rgba(255,255,255,.92);
-      font-weight:1100;
+      font-weight:750;
+      text-align:center;
     }
     .noInput{ opacity:.55; }
 
@@ -235,26 +251,25 @@
     .tfTop{
       display:flex;
       gap:8px;
-      align-items:center;
+      align-items:end;
       flex-wrap:wrap;
       margin-bottom:10px;
     }
-    .tfBetWrap{ flex:1 1 180px; min-width:170px; }
-    .tfBtn{
-      appearance:none;
-      border:1px solid rgba(0,0,0,.16);
-      background:#fff;
-      border-radius:12px;
-      padding:10px 12px;
-      font-weight:1100;
+    .tfBetWrap{ flex:1 1 100px; min-width:0; }
+    .tfActions{ display:flex; gap:6px; }
+    .action{
+      min-height:44px;
+      border:1px solid #a9bdab;
+      background:#edf4e9;
+      color:var(--ink);
+      border-radius:10px;
+      padding:7px 10px;
+      font-weight:750;
       font-size:13px;
       cursor:pointer;
-      user-select:none;
-      touch-action:manipulation;
-      -webkit-tap-highlight-color:transparent;
-      box-shadow:0 6px 16px rgba(0,0,0,.06);
     }
-    .tfBtn:active{ transform:translateY(1px); }
+    .action:active,.reelToggle:active{ transform:translateY(1px); }
+    .reset{ background:var(--card); }
 
     .tfGrid{
       display:flex;
@@ -263,14 +278,15 @@
     }
     .tfRow{
       display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:4px;
     }
+    .tfRow[data-included="false"] .tfCell{ border-style:dashed; }
     .tfCell{
       border:1px solid var(--line);
-      border-radius:12px;
+      border-radius:9px;
       background:var(--b);
-      padding:3px;              /* reduced */
+      padding:1px;
       min-height:46px;
       display:flex;
       align-items:flex-end;
@@ -281,54 +297,23 @@
     }
     .tfCell input{
       width:100%;
-      border-radius:10px;
+      border-radius:7px;
       border:1px solid rgba(0,0,0,.14);
       background:rgba(255,255,255,.92);
-      padding:5px 5px;         /* reduced */
-      font-weight:1100;
-      font-size:10px;          /* even smaller */
-      line-height:1;
+      padding:4px 2px;
+      font-weight:700;
+      text-align:center;
     }
 
     /* Temple Falls total bar = statusbar */
     .tfTotal{
-      margin-top:10px;
-      text-align:center;
-      font-weight:1200;
-      font-size:20px;
-      line-height:1;
-      justify-content:center;
+      margin-bottom:10px;
     }
 
-    /* Floating dot helper for Temple Falls */
-    .fab{
-      position:fixed;
-      right:12px;
-      bottom:calc(14px + env(safe-area-inset-bottom));
-      z-index:60;
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .fab button{
-      appearance:none;
-      border:1px solid rgba(0,0,0,.16);
-      background:#fff;
-      border-radius:14px;
-      padding:12px 14px;
-      font-size:18px;
-      font-weight:1200;
-      cursor:pointer;
-      box-shadow:0 10px 24px rgba(0,0,0,.12);
-      touch-action:manipulation;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .fab button:active{ transform:translateY(1px); }
-
-    /* Regal Riches */
+    /* Color meters */
     .rrInputs{
       display:grid;
-      grid-template-columns:1fr;
+      grid-template-columns:repeat(2,minmax(0,1fr));
       gap:8px;
       margin-top:10px;
     }
@@ -336,15 +321,13 @@
       border:1px solid var(--line);
       border-radius:14px;
       padding:10px;
-      background:#fff;
+      background:#f6f8f4;
       display:flex;
       gap:10px;
       align-items:center;
     }
-    .rrSwatch{
-      width:12px;height:34px;border-radius:999px;border:1px solid rgba(0,0,0,.12);
-      flex:0 0 12px;
-    }
+    .rrBox > div:last-child{ min-width:0; }
+    .rrSwatch{ width:8px; height:38px; border-radius:8px; flex:0 0 8px; }
     .swY{ background:#ffd54d; }
     .swG{ background:#67d36b; }
     .swP{ background:#9b6bff; }
@@ -352,8 +335,8 @@
     .rrSum{
       margin-top:10px;
       text-align:center;
-      font-weight:1100;
-      color:rgba(0,0,0,.72);
+      font-weight:650;
+      color:var(--muted);
       font-size:13px;
     }
 
@@ -367,24 +350,24 @@
     .afRow{
       border:1px solid var(--line);
       border-radius:14px;
-      background:#fff;
-      padding:10px;
+      background:#f6f8f4;
+      padding:6px 8px;
       display:grid;
       grid-template-columns:1fr 1fr; /* label (name+mhb) + input */
       gap:8px;
       align-items:center;
     }
     .afNameLine{
-      font-weight:1200;
+      font-weight:800;
       display:flex;
       gap:8px;
       align-items:baseline;
       flex-wrap:wrap;
     }
     .afMhbInline{
-      font-weight:1000;
+      font-weight:700;
       font-size:13px;
-      color:rgba(0,0,0,.55);
+      color:var(--muted);
     }
 
     /* Golden Jungle */
@@ -395,61 +378,97 @@
       flex-wrap:wrap;
       margin-top:10px;
     }
-    .gjSpin{ flex:0 0 140px; min-width:140px; }
+    .gjSpin{ flex:1 1 140px; max-width:180px; }
     .gjReels{
       margin-top:10px;
       display:grid;
-      grid-template-columns:repeat(5, 1fr);
-      gap:8px;
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:5px;
     }
-    .gjReels select{
-      font-size:16px;
-      padding:10px 8px;
-      text-align:center;
-      font-weight:1100;
-    }
+    .gjReels select{ padding-inline:4px; text-align:center; }
+    .gjReels label{ text-align:center; }
     .gjMiniLine{
       margin-top:10px;
       font-size:13px;
-      font-weight:1100;
-      color:rgba(0,0,0,.70);
+      font-weight:650;
+      color:var(--muted);
       display:flex;
       justify-content:space-between;
       gap:10px;
       flex-wrap:wrap;
     }
 
-    @media (max-width:520px){
-      .afRow{ grid-template-columns:1fr; }
-      .gjSpin{ flex:1 1 140px; }
-      .statusMid{
-        max-width:48%;
-        font-size:11px;
-      }
+    .guideFields{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+    }
+    .guideFields .wide{ grid-column:1/-1; }
+    .reelControls{ margin:12px 0 0; padding:0; border:0; min-inline-size:0; }
+    .reelControls legend{ padding:0; }
+    .reelToggle{
+      min-height:56px;
+      border:1px solid #a9bdab;
+      border-radius:10px;
+      background:#f6f8f4;
+      color:var(--text);
+      font-size:12px;
+      font-weight:750;
+      cursor:pointer;
+    }
+    .reelToggle span{ display:block; font-size:17px; line-height:1.15; }
+    .reelToggle[aria-pressed="true"]{ background:#dcecc8; border-color:#527847; color:#274624; }
+    .sourceNote{ margin:10px 0 0; }
+    .sourceNote a{ display:inline-flex; align-items:center; min-height:44px; }
+    @media (min-width:580px){
+      .topbarInner{ grid-template-columns:1fr minmax(250px, 1fr); align-items:center; }
+      .rrInputs{ grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); }
     }
   </style>
 </head>
 
 <body>
-  <div class="topbar">
-    <div class="tabs" id="tabs">
-      <button class="tab" data-page="frankenstein" aria-selected="true">Frankenstein</button>
-      <button class="tab" data-page="templefalls" aria-selected="false">Temple Falls</button>
-      <button class="tab" data-page="regalriches" aria-selected="false">Regal Riches</button>
-      <button class="tab" data-page="ascending" aria-selected="false">Ascending / Stack Up</button>
-      <button class="tab" data-page="goldenjungle" aria-selected="false">Golden Jungle</button>
-      <button class="tab" data-page="rocket" aria-selected="false">Rocket Rumble</button>
+  <header class="topbar">
+    <div class="topbarInner">
+      <div class="brand"><span class="brandMark" aria-hidden="true">AP</span> Slot Quick Check</div>
+      <div class="gamePicker">
+        <label for="game">Game</label>
+        <select id="game">
+          <optgroup label="Original checks">
+            <option value="frankenstein" data-hint="Enter the values in their matching grid positions.">Frankenstein</option>
+            <option value="templefalls" data-hint="Enter the bet and reel values. Use Wheel for a wheel symbol.">Temple Falls</option>
+            <option value="regalriches" data-hint="Enter the yellow, green, and purple counters.">Regal Riches</option>
+            <option value="ascending" data-hint="Enter the visible meters next to their must-hit-by values.">Ascending / Stack Up</option>
+            <option value="goldenjungle" data-hint="Choose the spin and enter the symbol count on each reel.">Golden Jungle</option>
+            <option value="rocket" data-hint="Enter the four color counters.">Rocket Rumble</option>
+          </optgroup>
+          <optgroup label="Transcript guides">
+            <option value="goldenegypt" data-hint="Tap each reel that shows a coin at the bet you’re checking.">Golden Egypt</option>
+            <option value="scarab" data-hint="Use the displayed spin counter and count the gold frames.">Scarab</option>
+            <option value="kitty" data-hint="Count the frames in the largest group that touches.">Lucha Kitty / Sumo Kitty</option>
+          </optgroup>
+        </select>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <div class="wrap">
+  <main class="wrap">
+    <header class="intro">
+      <div>
+        <div class="eyebrow" id="checkType">Machine check</div>
+        <h1 id="gameTitle">Frankenstein</h1>
+        <p class="hint" id="gameHint">Enter the values in their matching grid positions.</p>
+      </div>
+      <button type="button" class="action reset" id="resetGame" aria-label="Clear current check">Clear</button>
+    </header>
 
     <!-- ========================= -->
     <!-- Frankenstein -->
     <!-- ========================= -->
     <section class="page active" id="page-frankenstein">
       <div class="card">
-        <div id="frBar" class="statusbar clickReset s-white" title="Tap to reset">
+        <div id="frBar" class="statusbar clickReset s-white" title="Tap to reset" role="status">
           <div class="statusLeft" id="frBig">13.40</div>
           <div class="statusMid" id="frMid"></div>
         </div>
@@ -516,8 +535,8 @@
           <div class="statusMid" id="frMidBottom"></div>
         </div>
 
-        <details class="logic" open>
-          <summary>Logic / Notes</summary>
+        <details class="logic">
+          <summary>Check rules</summary>
           <div class="txt">
             <ul>
               <li>Empty fields are treated as <b>1</b>.</li>
@@ -535,20 +554,25 @@
     <!-- ========================= -->
     <section class="page" id="page-templefalls">
       <div class="card">
+        <div id="tfTotal" class="statusbar clickReset tfTotal s-white" title="Tap to reset" role="status">
+          <div class="statusLeft">0.00</div>
+          <div class="statusRight">Enter bet size</div>
+        </div>
         <div class="tfTop">
           <div class="tfBetWrap">
-            <div class="label">Bet size</div>
+            <label class="label" for="tfBet">Bet size</label>
             <input id="tfBet" type="number" inputmode="decimal" step="any" placeholder="e.g., 8.80" />
           </div>
-          <button class="tfBtn" type="button" id="tfAddRow">+ Row (top)</button>
+          <div class="tfActions">
+            <button class="action" type="button" id="tfAddRow">+ Row</button>
+            <button class="action" type="button" id="tfDotBtn">Wheel</button>
+          </div>
         </div>
 
         <div class="tfGrid" id="tfRows"></div>
 
-        <div id="tfTotal" class="statusbar clickReset tfTotal s-white" title="Tap to reset">0.00</div>
-
-        <details class="logic" open>
-          <summary>Logic / Notes</summary>
+        <details class="logic">
+          <summary>Check rules</summary>
           <div class="txt">
             <ul>
               <li>Empty cells = <b>0</b>.</li>
@@ -561,9 +585,6 @@
         </details>
       </div>
 
-      <div class="fab" id="tfFab" style="display:none;">
-        <button type="button" id="tfDotBtn">.</button>
-      </div>
     </section>
 
     <!-- ========================= -->
@@ -571,7 +592,7 @@
     <!-- ========================= -->
     <section class="page" id="page-regalriches">
       <div class="card">
-        <div id="rrStatus" class="statusbar clickReset s-white" title="Tap to reset">
+        <div id="rrStatus" class="statusbar clickReset s-white" title="Tap to reset" role="status">
           <div class="statusLeft" id="rrStatusText">Not AP</div>
           <div class="statusRight" id="rrStatusSub">Y+G+P: 0</div>
         </div>
@@ -580,7 +601,7 @@
           <div class="rrBox">
             <div class="rrSwatch swY"></div>
             <div style="flex:1">
-              <div class="label">Yellow</div>
+              <label class="label" for="rrY">Yellow</label>
               <input id="rrY" type="number" inputmode="decimal" step="any" />
             </div>
           </div>
@@ -588,7 +609,7 @@
           <div class="rrBox">
             <div class="rrSwatch swG"></div>
             <div style="flex:1">
-              <div class="label">Green</div>
+              <label class="label" for="rrG">Green</label>
               <input id="rrG" type="number" inputmode="decimal" step="any" />
             </div>
           </div>
@@ -596,7 +617,7 @@
           <div class="rrBox">
             <div class="rrSwatch swP"></div>
             <div style="flex:1">
-              <div class="label">Purple</div>
+              <label class="label" for="rrP">Purple</label>
               <input id="rrP" type="number" inputmode="decimal" step="any" />
             </div>
           </div>
@@ -604,8 +625,8 @@
 
         <div class="rrSum" id="rrDetail"></div>
 
-        <details class="logic" open>
-          <summary>Logic / Notes</summary>
+        <details class="logic">
+          <summary>Check rules</summary>
           <div class="txt">
             <ul>
               <li><b>AP</b> if: (Yellow ≥ 115 AND Green ≥ 85 AND Purple ≥ 60) OR (Yellow+Green+Purple ≥ 210) OR at least 2 of: Yellow ≥ 106, Green ≥ 81, Purple ≥ 56.</li>
@@ -622,32 +643,32 @@
     <!-- ========================= -->
     <section class="page" id="page-ascending">
       <div class="card">
-        <div id="afStatus" class="statusbar clickReset s-white" title="Tap to reset">
+        <div id="afStatus" class="statusbar clickReset s-white" title="Tap to reset" role="status">
           <div class="statusLeft" id="afStatusText">Not AP</div>
           <div class="statusRight" id="afStatusSub">—</div>
         </div>
 
         <div class="afGrid">
           <div class="afRow">
-            <div class="afNameLine">MEGA <span class="afMhbInline">350</span></div>
+            <label class="afNameLine" for="afMega">Mega <span class="afMhbInline">350</span></label>
             <input id="afMega" type="number" inputmode="decimal" step="any" />
           </div>
           <div class="afRow">
-            <div class="afNameLine">GRAND <span class="afMhbInline">250</span></div>
+            <label class="afNameLine" for="afGrand">Grand <span class="afMhbInline">250</span></label>
             <input id="afGrand" type="number" inputmode="decimal" step="any" />
           </div>
           <div class="afRow">
-            <div class="afNameLine">MAJOR <span class="afMhbInline">200</span></div>
+            <label class="afNameLine" for="afMajor">Major <span class="afMhbInline">200</span></label>
             <input id="afMajor" type="number" inputmode="decimal" step="any" />
           </div>
           <div class="afRow">
-            <div class="afNameLine">MINOR <span class="afMhbInline">150</span></div>
+            <label class="afNameLine" for="afMinor">Minor <span class="afMhbInline">150</span></label>
             <input id="afMinor" type="number" inputmode="decimal" step="any" />
           </div>
         </div>
 
-        <details class="logic" open>
-          <summary>Logic / Notes</summary>
+        <details class="logic">
+          <summary>Check rules</summary>
           <div class="txt">
             <ul>
               <li><b>Primary AP</b> if any: Minor ≥ 146, Major ≥ 192, Grand ≥ 238, Mega ≥ 330.</li>
@@ -665,14 +686,14 @@
     <!-- ========================= -->
     <section class="page" id="page-goldenjungle">
       <div class="card">
-        <div id="gjStatus" class="statusbar clickReset s-white" title="Tap to reset">
+        <div id="gjStatus" class="statusbar clickReset s-white" title="Tap to reset" role="status">
           <div class="statusLeft" id="gjStatusText">NO PLAY</div>
           <div class="statusRight" id="gjStatusSub">Spin 1</div>
         </div>
 
         <div class="gjTop">
           <div class="gjSpin">
-            <div class="label">Spin</div>
+            <label class="label" for="gjSpin">Spin</label>
             <select id="gjSpin">
               <option value="1">1</option>
               <option value="2">2</option>
@@ -688,11 +709,11 @@
         </div>
 
         <div class="gjReels">
-          <select class="gjR" data-i="0"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
-          <select class="gjR" data-i="1"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
-          <select class="gjR" data-i="2"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
-          <select class="gjR" data-i="3"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
-          <select class="gjR" data-i="4"><option value="0" selected>0</option><option value="1">1</option><option value="2">2</option></select>
+          <div><label class="label" for="gjR1">Reel 1</label><select class="gjR" id="gjR1"><option>0</option><option>1</option><option>2</option></select></div>
+          <div><label class="label" for="gjR2">Reel 2</label><select class="gjR" id="gjR2"><option>0</option><option>1</option><option>2</option></select></div>
+          <div><label class="label" for="gjR3">Reel 3</label><select class="gjR" id="gjR3"><option>0</option><option>1</option><option>2</option></select></div>
+          <div><label class="label" for="gjR4">Reel 4</label><select class="gjR" id="gjR4"><option>0</option><option>1</option><option>2</option></select></div>
+          <div><label class="label" for="gjR5">Reel 5</label><select class="gjR" id="gjR5"><option>0</option><option>1</option><option>2</option></select></div>
         </div>
 
         <div class="gjMiniLine">
@@ -700,8 +721,8 @@
           <div>Reevaluate on: <b id="gjReevalOn">—</b></div>
         </div>
 
-        <details class="logic" open>
-          <summary>Logic / Notes</summary>
+        <details class="logic">
+          <summary>Check rules</summary>
           <div class="txt">
             <ul>
               <li>Counts are [R1..R5] with values 0/1/2; TOTAL = sum.</li>
@@ -729,16 +750,16 @@
     <!-- ========================= -->
     <section class="page" id="page-rocket">
       <div class="card">
-        <div id="rkStatus" class="statusbar clickReset s-white" title="Tap to reset">
+        <div id="rkStatus" class="statusbar clickReset s-white" title="Tap to reset" role="status">
           <div class="statusLeft" id="rkStatusText">NO PLAY</div>
           <div class="statusRight" id="rkStatusSub">—</div>
         </div>
 
-        <div style="margin-top:10px; display:grid; grid-template-columns:1fr; gap:8px;">
+        <div class="rrInputs">
           <div class="rrBox">
             <div class="rrSwatch" style="background:#ff5a5a"></div>
             <div style="flex:1">
-              <div class="label">Red</div>
+              <label class="label" for="rkRed">Red</label>
               <input id="rkRed" type="number" inputmode="decimal" step="any" />
             </div>
           </div>
@@ -746,7 +767,7 @@
           <div class="rrBox">
             <div class="rrSwatch" style="background:#9b6bff"></div>
             <div style="flex:1">
-              <div class="label">Purple</div>
+              <label class="label" for="rkPurple">Purple</label>
               <input id="rkPurple" type="number" inputmode="decimal" step="any" />
             </div>
           </div>
@@ -754,7 +775,7 @@
           <div class="rrBox">
             <div class="rrSwatch" style="background:#67d36b"></div>
             <div style="flex:1">
-              <div class="label">Green</div>
+              <label class="label" for="rkGreen">Green</label>
               <input id="rkGreen" type="number" inputmode="decimal" step="any" />
             </div>
           </div>
@@ -762,14 +783,14 @@
           <div class="rrBox">
             <div class="rrSwatch" style="background:#59c6ff"></div>
             <div style="flex:1">
-              <div class="label">Blue</div>
+              <label class="label" for="rkBlue">Blue</label>
               <input id="rkBlue" type="number" inputmode="decimal" step="any" />
             </div>
           </div>
         </div>
 
-        <details class="logic" open>
-          <summary>Logic / Notes</summary>
+        <details class="logic">
+          <summary>Check rules</summary>
           <div class="txt">
             <ul>
               <li><b>PLAY</b> if (Red ≥ 198 AND Purple ≥ 32 AND Green ≥ 17 AND Blue ≥ 14) <b>OR</b> (Green ≥ 16 AND Blue ≥ 13).</li>
@@ -780,7 +801,93 @@
       </div>
     </section>
 
-  </div>
+    <section class="page" id="page-goldenegypt">
+      <div class="card">
+        <div class="statusbar" id="geStatus" role="status">
+          <div class="statusLeft">Select occupied reels</div>
+          <div class="statusRight"></div>
+        </div>
+        <fieldset class="reelControls">
+          <legend class="label">Reels with a coin</legend>
+          <div class="gjReels" id="geReels">
+            <button class="reelToggle" type="button" aria-pressed="false">Reel <span>1</span></button>
+            <button class="reelToggle" type="button" aria-pressed="false">Reel <span>2</span></button>
+            <button class="reelToggle" type="button" aria-pressed="false">Reel <span>3</span></button>
+            <button class="reelToggle" type="button" aria-pressed="false">Reel <span>4</span></button>
+            <button class="reelToggle" type="button" aria-pressed="false">Reel <span>5</span></button>
+          </div>
+        </fieldset>
+        <details class="logic">
+          <summary>Guide rule &amp; source</summary>
+          <div class="txt">
+            <p>The guide flags at least three occupied reels when two or more are among reels 1–3. This covers all three left reels, two left plus one right, and any four or five reels.</p>
+            <p>This is the base game coin check for Golden Egypt. An already active wild feature needs a separate check. The rule is the guide author’s estimate.</p>
+            <p class="sourceNote"><a href="https://www.youtube.com/watch?v=NI2yicTKqwE&amp;t=134s">Desolator Gaming · 2:14</a></p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="page" id="page-scarab">
+      <div class="card">
+        <div class="statusbar" id="scarabStatus" role="status">
+          <div class="statusLeft">Enter spin and frames</div>
+          <div class="statusRight"></div>
+        </div>
+        <div class="guideFields">
+          <div class="wide">
+            <label class="label" for="scarabSpin">Displayed spin counter (out of 10)</label>
+            <select id="scarabSpin">
+              <option value="">Choose 1–9</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+              <option>6</option><option>7</option><option>8</option><option>9</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="scarabLeft">Frames on reels 1–3</label>
+            <input id="scarabLeft" type="number" inputmode="numeric" min="0" max="12" step="1" placeholder="0" />
+          </div>
+          <div>
+            <label class="label" for="scarabFourth">Frames on reel 4</label>
+            <input id="scarabFourth" type="number" inputmode="numeric" min="0" max="4" step="1" placeholder="0" />
+          </div>
+        </div>
+        <details class="logic">
+          <summary>Guide rules &amp; source</summary>
+          <div class="txt">
+            <ul>
+              <li>Core rule for frames on reels 1–3: 2 after spin 1, 3 after spin 2, or 4 after spins 3–9.</li>
+              <li>Wider rule: 2 on reels 1–3 after spins 1–4. After spins 5–9, look for 2 on reels 1–3 plus one more anywhere on reels 1–4.</li>
+              <li>Blank counts equal zero. The guide treats the wider rule as a rough estimate and flags gaps as risky.</li>
+            </ul>
+            <p class="sourceNote"><a href="https://www.youtube.com/watch?v=LNofg4HkCsw&amp;t=299s">Desolator Gaming · 4:59</a></p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="page" id="page-kitty">
+      <div class="card">
+        <div class="statusbar" id="kittyStatus" role="status">
+          <div class="statusLeft">Enter group size</div>
+          <div class="statusRight"></div>
+        </div>
+        <div class="guideFields">
+          <div class="wide">
+            <label class="label" for="kittyFrames">Frames in the largest touching group</label>
+            <input id="kittyFrames" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g., 6" />
+          </div>
+        </div>
+        <details class="logic">
+          <summary>Guide rule &amp; source</summary>
+          <div class="txt">
+            <p>Count the frames in one group, using the largest group you can see. The guide estimates six as around break-even and uses seven or more as the tighter cutoff.</p>
+            <p class="sourceNote"><a href="https://www.youtube.com/watch?v=u9nX_VjDQVo&amp;t=277s">Desolator Gaming · 4:37</a></p>
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
 
 <script>
   // =========================
@@ -801,39 +908,45 @@
     el.classList.add(cls);
   }
 
-  // =========================
-  // Page switching (responsive)
-  // =========================
-  const tabs = $("#tabs");
-  const pages = {
-    frankenstein: $("#page-frankenstein"),
-    templefalls: $("#page-templefalls"),
-    regalriches: $("#page-regalriches"),
-    ascending: $("#page-ascending"),
-    goldenjungle: $("#page-goldenjungle"),
-    rocket: $("#page-rocket"),
-  };
-
-  function showPage(key){
-    for (const k in pages) pages[k].classList.toggle("active", k === key);
-    $$(".tab", tabs).forEach(b => b.setAttribute("aria-selected", String(b.dataset.page === key)));
-    $("#tfFab").style.display = (key === "templefalls") ? "flex" : "none";
-
-    if (key === "frankenstein") frRecalc();
-    if (key === "templefalls") tfRecalc();
-    if (key === "regalriches") rrRecalc();
-    if (key === "ascending") afRecalc();
-    if (key === "goldenjungle") gjRecalc();
-    if (key === "rocket") rkRecalc();
+  function writeResult(el, cls, title, detail = ""){
+    setStatusBar(el, cls);
+    $(".statusLeft", el).textContent = title;
+    $(".statusRight", el).textContent = detail;
   }
 
-  tabs.addEventListener("click", (e) => {
-    const btn = e.target.closest(".tab");
-    if (!btn) return;
-    const key = btn.dataset.page;
-    if (!pages[key]) return;
-    showPage(key);
-  }, { passive:true });
+  // =========================
+  // Game navigation
+  // =========================
+  const gamePicker = $("#game");
+  const pages = {
+    frankenstein: { recalc: frRecalc, reset: frReset },
+    templefalls: { recalc: tfRecalc, reset: tfReset },
+    regalriches: { recalc: rrRecalc, reset: rrReset },
+    ascending: { recalc: afRecalc, reset: afReset },
+    goldenjungle: { recalc: gjRecalc, reset: gjReset },
+    rocket: { recalc: rkRecalc, reset: rkReset },
+    goldenegypt: { recalc: geRecalc, reset: geReset },
+    scarab: { recalc: scarabRecalc, reset: scarabReset },
+    kitty: { recalc: kittyRecalc, reset: kittyReset },
+  };
+
+  function showPage(){
+    const option = gamePicker.selectedOptions[0];
+    const key = option.value;
+    for (const name of Object.keys(pages)) {
+      $("#page-" + name).classList.toggle("active", name === key);
+    }
+    $("#gameTitle").textContent = option.textContent;
+    $("#gameHint").textContent = option.dataset.hint;
+    $("#checkType").textContent = option.parentElement.label === "Transcript guides" ? "Transcript guide" : "Machine check";
+    pages[key].recalc();
+  }
+
+  gamePicker.addEventListener("change", () => {
+    showPage();
+    window.scrollTo(0, 0);
+  });
+  $("#resetGame").addEventListener("click", () => pages[gamePicker.value].reset());
 
   // =========================
   // Frankenstein
@@ -847,6 +960,14 @@
   const frMidBottom = $("#frMidBottom");
 
   const frCells = $$(".cell", $("#frGrid"));
+  frCells.forEach((cell, index) => {
+    const input = $("input", cell);
+    if (input) {
+      const row = Math.floor(index / 3) + 1;
+      const column = index % 3 + 1;
+      input.setAttribute("aria-label", `Row ${row}, column ${column}, multiplier ${cell.dataset.mult}`);
+    }
+  });
 
   function frBandClass(total){
     if (total < 17) return "s-bad";
@@ -858,7 +979,7 @@
     if (total > 20) return "Frankenstein Returns";
     if (total >= 17.5) return "Frankenstein";
     if (total >= 17) return "Play for fun/points";
-    return "";
+    return "Below AP threshold";
   }
 
   const FR_BASE = 13.40;
@@ -869,7 +990,6 @@
 
     bigEl.textContent = big.toFixed(2);
     midEl.textContent = label;
-    midEl.classList.toggle("show", label !== "");
     setStatusBar(bar, cls);
   }
 
@@ -930,6 +1050,7 @@
       inp.setAttribute("pattern","[0-9.]*");
       inp.setAttribute("autocorrect","off");
       inp.setAttribute("spellcheck","false");
+      inp.setAttribute("aria-label", `Reel ${i + 1}, ${included ? "included" : "excluded"} row`);
       inp.className = "tfIn";
 
       cell.appendChild(inp);
@@ -944,6 +1065,7 @@
 
   function tfInit(){
     tfRowsHost.innerHTML = "";
+    tfLastFocused = null;
     for (let r=0;r<TF_BASE_ROWS;r++){
       tfRowsHost.appendChild(tfMakeRow({ included:true }));
     }
@@ -1016,13 +1138,13 @@
     }
 
     if (!bet){
-      tfTotal.textContent = "0.00";
-      setStatusBar(tfTotal, "s-white");
+      writeResult(tfTotal, "s-white", "0.00", "Enter bet size");
       return;
     }
 
-    tfTotal.textContent = bottomTotal.toFixed(2);
-    setStatusBar(tfTotal, tfBandClass(bottomTotal));
+    const band = tfBandClass(bottomTotal);
+    const label = band === "s-ok" ? "Meets AP threshold" : band === "s-warn" ? "Near AP threshold" : "Below AP threshold";
+    writeResult(tfTotal, band, bottomTotal.toFixed(2), label);
   }
 
   function tfReset(){
@@ -1350,8 +1472,103 @@
   [rkRed, rkPurple, rkGreen, rkBlue].forEach(el => el.addEventListener("input", rkRecalc));
   rkRecalc();
 
-  // Default show first page
-  showPage("frankenstein");
+  // Golden Egypt
+  const geStatus = $("#geStatus");
+  const geReels = $$(".reelToggle", $("#geReels"));
+
+  function geRecalc(){
+    const occupied = geReels.map(reel => reel.getAttribute("aria-pressed") === "true");
+    const total = occupied.filter(Boolean).length;
+    const left = occupied.slice(0, 3).filter(Boolean).length;
+    if (total === 0) {
+      writeResult(geStatus, "s-white", "Select occupied reels");
+      return;
+    }
+    const meetsRule = total >= 3 && left >= 2;
+    writeResult(geStatus, meetsRule ? "s-ok" : "s-bad",
+      meetsRule ? "Meets guide rule" : "Below guide rule", `${left} on reels 1–3 · ${total} total`);
+  }
+
+  function geReset(){
+    geReels.forEach(reel => reel.setAttribute("aria-pressed", "false"));
+    geRecalc();
+  }
+
+  geReels.forEach(reel => reel.addEventListener("click", () => {
+    reel.setAttribute("aria-pressed", String(reel.getAttribute("aria-pressed") === "false"));
+    geRecalc();
+  }));
+
+  // Scarab
+  const scarabStatus = $("#scarabStatus");
+  const scarabSpin = $("#scarabSpin");
+  const scarabLeft = $("#scarabLeft");
+  const scarabFourth = $("#scarabFourth");
+
+  function scarabRecalc(){
+    if (!scarabLeft.validity.valid || !scarabFourth.validity.valid) {
+      writeResult(scarabStatus, "s-warn", "Check frame counts", "Use whole counts from 0–12 and 0–4.");
+      return;
+    }
+    if (!scarabSpin.value || (scarabLeft.value === "" && scarabFourth.value === "")) {
+      writeResult(scarabStatus, "s-white", "Enter spin and frames");
+      return;
+    }
+    const spin = Number(scarabSpin.value);
+    const left = Number(scarabLeft.value);
+    const fourth = Number(scarabFourth.value);
+    const remaining = 10 - spin;
+    const detail = remaining === 1 ? "1 spin to conversion" : `${remaining} spins to conversion`;
+    const coreTarget = Math.min(spin + 1, 4);
+    const widerMatch = left >= 2 && (spin <= 4 || left + fourth >= 3);
+    if (left >= coreTarget) {
+      writeResult(scarabStatus, "s-ok", "Meets core guide rule", detail);
+    } else if (widerMatch) {
+      writeResult(scarabStatus, "s-warn", "Meets wider guide rule", detail);
+    } else {
+      writeResult(scarabStatus, "s-bad", "Below guide rules", detail);
+    }
+  }
+
+  function scarabReset(){
+    scarabSpin.value = scarabLeft.value = scarabFourth.value = "";
+    scarabRecalc();
+  }
+
+  scarabSpin.addEventListener("change", scarabRecalc);
+  [scarabLeft, scarabFourth].forEach(input => input.addEventListener("input", scarabRecalc));
+
+  // Lucha Kitty / Sumo Kitty
+  const kittyStatus = $("#kittyStatus");
+  const kittyFrames = $("#kittyFrames");
+
+  function kittyRecalc(){
+    if (!kittyFrames.validity.valid) {
+      writeResult(kittyStatus, "s-warn", "Check group size", "Use a whole number of frames.");
+      return;
+    }
+    if (kittyFrames.value === "") {
+      writeResult(kittyStatus, "s-white", "Enter group size");
+      return;
+    }
+    const frames = Number(kittyFrames.value);
+    if (frames >= 7) {
+      writeResult(kittyStatus, "s-ok", "Meets guide cutoff", "7 or more touching");
+    } else if (frames === 6) {
+      writeResult(kittyStatus, "s-warn", "Around break-even", "Guide estimate");
+    } else {
+      writeResult(kittyStatus, "s-bad", "Below guide cutoff", "Fewer than 6 touching");
+    }
+  }
+
+  function kittyReset(){
+    kittyFrames.value = "";
+    kittyRecalc();
+  }
+
+  kittyFrames.addEventListener("input", kittyRecalc);
+
+  showPage();
 </script>
 </body>
 </html>
