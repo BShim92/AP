@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#142820" />
+  <meta name="theme-color" content="#ffffff" />
   <title>AP Slot Quick Check</title>
   <script>
     function readPreference(key){
@@ -17,51 +17,48 @@
     }
 
     const themePreference = matchMedia("(prefers-color-scheme: dark)");
-    let chosenTheme = readPreference("ap-theme");
+    const savedTheme = readPreference("ap-theme");
+    let chosenTheme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "system";
     function applyTheme(){
-      const dark = chosenTheme === "dark" || (chosenTheme !== "light" && themePreference.matches);
+      const dark = chosenTheme === "dark" || (chosenTheme === "system" && themePreference.matches);
       document.documentElement.dataset.theme = dark ? "dark" : "light";
     }
     applyTheme();
   </script>
   <style>
     :root{
-      --bg:#edf1eb;
+      --bg:#edf1f6;
       --card:#ffffff;
-      --line:#d8e1d8;
-      --text:#172a21;
-      --muted:#4e6257;
-      --accent:#cdf28a;
-      --ink:#142820;
-      --b:#e5eee6;
-      --eyebrow:#38624b;
-      --panel:#f6f8f4;
-      --field:#f9fbf8;
-      --field-line:#adbfaf;
-      --grid-field:#fffffff0;
-      --tag:#394b3f;
-      --fr-first:#ffe1e1;
-      --action:#edf4e9;
-      --action-line:#a9bdab;
-      --focus:#24654a;
-      --status:#f0f5ef;
-      --status-line:#cbd8cc;
-      --status-edge:#849b89;
-      --ok-bg:#e4f3dd;
-      --ok-edge:#3e8153;
-      --ok-text:#194729;
-      --bad-bg:#f9e9e5;
-      --bad-edge:#aa5145;
-      --bad-text:#742e25;
-      --warn-bg:#fff0d6;
-      --warn-edge:#9f6619;
-      --warn-text:#70440c;
-      --selected:#dcecc8;
-      --selected-text:#274624;
-      --selected-line:#527847;
-      --one-bg:#e5f0da;
-      --one-line:#7d9b6e;
-      --two-bg:#cce6bb;
+      --line:#d1dae7;
+      --text:#1b2940;
+      --muted:#4a5c76;
+      --accent:#1955af;
+      --panel:#f2f5fa;
+      --field:#f9fbff;
+      --field-line:#7587a2;
+      --grid-fill:#e8eef6;
+      --fr-first:#dce6f5;
+      --action:#f2f6fc;
+      --action-line:#778ca8;
+      --status:#edf2fa;
+      --status-edge:#6b819e;
+      --ok-bg:#e5f1ec;
+      --ok-edge:#258061;
+      --ok-text:#176143;
+      --bad-bg:#f9e9ed;
+      --bad-edge:#b65262;
+      --bad-text:#a12f41;
+      --warn-bg:#fcf0db;
+      --warn-edge:#a1652b;
+      --warn-text:#814715;
+      --selected:#e1ebfc;
+      --selected-line:#5079b7;
+      --count-two:#cbdcfa;
+      --meter-yellow:#a57213;
+      --meter-green:#27805a;
+      --meter-purple:#7850b0;
+      --meter-blue:#2668a9;
+      --card-shadow:#1b294012;
       --coin-lightness:94%;
       --content:680px;
       color-scheme:light;
@@ -69,45 +66,44 @@
     }
     :root[data-theme="dark"]{
       color-scheme:dark;
-      --bg:#101813;
-      --card:#19261e;
-      --line:#34483b;
-      --text:#ebf4ec;
-      --muted:#b4c6b9;
-      --b:#293a2e;
-      --eyebrow:#a6ceab;
-      --panel:#202e25;
-      --field:#152019;
-      --field-line:#657c6a;
-      --grid-field:#152019;
-      --tag:#c9dfcc;
-      --fr-first:#462d2b;
-      --action:#283d2e;
-      --action-line:#718a76;
-      --focus:#b3e784;
-      --status:#23342a;
-      --status-line:#455e4c;
-      --status-edge:#8ba392;
-      --ok-bg:#203d2a;
-      --ok-edge:#82c194;
-      --ok-text:#c5efce;
-      --bad-bg:#462b27;
-      --bad-edge:#e38c7c;
-      --bad-text:#ffd2c8;
-      --warn-bg:#43321f;
-      --warn-edge:#edb866;
-      --warn-text:#ffe2ab;
-      --selected:#344e2c;
-      --selected-text:#e4f6d8;
-      --selected-line:#9bc681;
-      --one-bg:#2b432c;
-      --one-line:#86a978;
-      --two-bg:#3d5733;
+      --bg:#11151d;
+      --card:#1c222e;
+      --line:#333e51;
+      --text:#f0f4fc;
+      --muted:#b9c5d7;
+      --accent:#9dbfff;
+      --panel:#222b3a;
+      --field:#141925;
+      --field-line:#62718b;
+      --grid-fill:#262f40;
+      --fr-first:#303d54;
+      --action:#262f40;
+      --action-line:#6e809d;
+      --status:#252f40;
+      --status-edge:#8295b3;
+      --ok-bg:#24393a;
+      --ok-edge:#80c8a7;
+      --ok-text:#9bdfba;
+      --bad-bg:#412c39;
+      --bad-edge:#df8b9a;
+      --bad-text:#ffb8c1;
+      --warn-bg:#40362c;
+      --warn-edge:#ddb177;
+      --warn-text:#ffd299;
+      --selected:#293b57;
+      --selected-line:#84a6e0;
+      --count-two:#384e71;
+      --meter-yellow:#f1ce79;
+      --meter-green:#7ccd9b;
+      --meter-purple:#bf9eef;
+      --meter-blue:#86bfff;
+      --card-shadow:#080e1840;
       --coin-lightness:45%;
     }
 
     *{ box-sizing:border-box; }
-    html{ scroll-padding-top:calc(120px + env(safe-area-inset-top)); }
+    html{ scroll-padding-top:calc(68px + env(safe-area-inset-top)); }
+    html:has(.gameDialog[open]){ overflow:hidden; }
     body{
       margin:0;
       background:var(--bg);
@@ -120,18 +116,13 @@
       position:sticky;
       top:0;
       z-index:50;
-      background:var(--ink);
-      color:#fff;
-      padding:calc(10px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 11px max(14px, env(safe-area-inset-left));
-      box-shadow:0 4px 14px #14282024;
+      background:var(--card);
+      border-bottom:1px solid var(--line);
+      padding:calc(6px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 6px max(14px, env(safe-area-inset-left));
     }
     .topbarInner{
       max-width:var(--content);
       margin:auto;
-      display:grid;
-      gap:8px;
-    }
-    .topbarHeading{
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -139,71 +130,52 @@
     }
     .brand{
       display:flex;
-      gap:9px;
+      gap:7px;
       align-items:center;
+      min-width:0;
       font-size:14px;
       font-weight:750;
+      line-height:1.15;
     }
     .brandMark{
       display:grid;
       place-items:center;
-      width:30px;
-      height:26px;
-      background:var(--accent);
-      color:var(--ink);
+      flex:0 0 29px;
+      height:29px;
+      background:var(--selected);
+      color:var(--accent);
       border-radius:7px;
       font-size:12px;
       font-weight:850;
     }
-    .gamePicker{
+    .topbarActions{
       display:flex;
       align-items:center;
-      gap:10px;
-      min-width:0;
+      gap:6px;
+      flex:none;
     }
-    .gamePicker label{
-      color:#d4e4d9;
-      font-size:12px;
-      font-weight:700;
-    }
-    .topbar .gamePicker select{
-      min-width:0;
-      background:#233c30;
-      border-color:#5b7767;
-      color:#fff;
-      cursor:pointer;
-    }
-    .topbar .gamePicker select:focus-visible{ outline-color:var(--accent); }
-    .topbar #themeToggle{
-      background:#233c30;
-      border-color:#5b7767;
-      color:#fff;
-      white-space:nowrap;
-    }
-    .topbar #themeToggle[aria-pressed="true"]{ border-color:var(--accent); }
-    .topbar #themeToggle:focus-visible{ outline-color:var(--accent); }
 
     .intro{
       display:grid;
       grid-template-columns:minmax(0,1fr) auto;
       align-items:center;
       gap:10px;
-      margin:0 0 14px;
+      margin:0 0 12px;
     }
     .eyebrow{
-      color:var(--eyebrow);
+      color:var(--muted);
       font-size:11px;
       font-weight:800;
       letter-spacing:.12em;
       text-transform:uppercase;
     }
-    h1{ margin:3px 0 5px; font-size:clamp(24px, 6vw, 34px); line-height:1.08; letter-spacing:-.035em; }
+    h1{ margin:3px 0 5px; font-size:clamp(24px, 6vw, 34px); line-height:1.1; letter-spacing:-.035em; }
     .hint{ margin:0; color:var(--muted); font-size:13px; line-height:1.45; }
 
     .wrap{
       max-width:calc(var(--content) + 28px);
       margin:auto;
-      padding:18px max(14px, env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+      padding:15px max(14px, env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
     }
 
     .page{ display:none; }
@@ -212,9 +184,9 @@
     .card{
       background:var(--card);
       border:1px solid var(--line);
-      border-radius:20px;
+      border-radius:16px;
       padding:clamp(10px, 3.4vw, 18px);
-      box-shadow:0 8px 24px #203e2910;
+      box-shadow:0 4px 18px var(--card-shadow);
     }
 
     .label{
@@ -225,7 +197,7 @@
       color:var(--muted);
     }
 
-    input[type="number"], input[type="text"], select{
+    input[type="number"], input[type="text"], input[type="search"], select{
       width:100%;
       min-width:0;
       min-height:44px;
@@ -241,16 +213,24 @@
     }
     button{ font-family:inherit; touch-action:manipulation; }
     :is(button, summary){ -webkit-tap-highlight-color:transparent; }
-    :is(button, input, select, summary):focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+    :is(button, input, select, summary):focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+    #themeMode{
+      width:auto;
+      padding:6px;
+      border-color:var(--line);
+      background:var(--card);
+      color:var(--accent);
+      font-size:14px;
+      cursor:pointer;
+    }
 
-    /* Clickable status bars */
+    /* Results */
     .statusbar{
-      position:relative;
-      min-height:54px;
-      border:1px solid var(--status-line);
+      min-height:56px;
+      border:1px solid var(--line);
       border-inline-start:4px solid var(--status-edge);
-      border-radius:13px;
-      padding:9px 11px;
+      border-radius:10px;
+      padding:10px 11px;
       background:var(--status);
       display:flex;
       align-items:center;
@@ -260,19 +240,24 @@
       user-select:none;
     }
     .statusLeft{
-      font-weight:800;
+      font-weight:780;
       font-size:18px;
       line-height:1.15;
       font-variant-numeric:tabular-nums;
     }
     .statusRight{
       font-weight:650;
-      font-size:12px;
+      font-size:13px;
       line-height:1.3;
     }
     .statusMid{
       font-weight:700;
-      font-size:12px;
+      font-size:13px;
+    }
+    :is(.statusRight,.statusMid):empty{ display:none; }
+    :is(#page-frankenstein,#page-templefalls) .statusLeft{
+      font-size:22px;
+      letter-spacing:-.025em;
     }
 
     .s-ok{ background:var(--ok-bg); border-inline-start-color:var(--ok-edge); color:var(--ok-text); }
@@ -290,6 +275,7 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
+      gap:8px;
       min-height:44px;
       cursor:pointer;
       font-weight:750;
@@ -297,7 +283,7 @@
       list-style:none;
     }
     details.logic summary::-webkit-details-marker{ display:none; }
-    details.logic summary:active{ color:var(--focus); }
+    details.logic summary:active{ color:var(--accent); }
     details.logic summary::after{ content:"+"; font-size:18px; }
     details.logic[open] summary::after{ content:"−"; }
     .logic .txt{
@@ -308,8 +294,6 @@
     }
     .logic ul{ margin:6px 0 0 18px; padding:0; }
     .logic li{ margin:4px 0; }
-    .archiveChoices{ display:flex; flex-wrap:wrap; gap:6px; }
-
     .ruleList{
       display:grid;
       gap:6px;
@@ -339,8 +323,9 @@
       text-align:start;
     }
     .cutoffTable tr > :last-child{ text-align:end; }
-    .cutoffTable thead{ color:var(--muted); }
-    .cutoffTable td{ font-weight:800; }
+    .cutoffTable thead{ color:var(--muted); font-size:12px; }
+    .cutoffTable tbody tr:nth-child(odd){ background:var(--panel); }
+    .cutoffTable td{ font-size:16px; font-weight:780; }
 
     /* Frankenstein */
     .frankGrid{
@@ -355,7 +340,7 @@
       border-radius:12px;
       min-height:69px;
       padding:20px 4px 4px;
-      background:var(--b);
+      background:var(--grid-fill);
       display:flex;
       align-items:flex-end;
     }
@@ -365,17 +350,17 @@
       top:3px;
       left:7px;
       font-size:10px;
-      font-weight:1100;
-      color:var(--tag);
+      font-weight:800;
+      color:var(--muted);
       pointer-events:none;
     }
     .cell input{
       width:100%;
       font-size:16px;
       padding:8px 8px;
-      border-radius:12px;
+      border-radius:8px;
       border:1px solid var(--field-line);
-      background:var(--grid-field);
+      background:var(--field);
       font-weight:750;
       text-align:center;
     }
@@ -400,12 +385,109 @@
       border-radius:10px;
       padding:7px 10px;
       font-weight:750;
-      font-size:13px;
+      font-size:14px;
       cursor:pointer;
     }
     .action:active,.reelToggle:active{ transform:translateY(1px); filter:brightness(.94); }
-    .action:disabled{ color:var(--muted); background:var(--panel); cursor:default; }
-    .reset{ background:var(--card); }
+    .action.primary{ border-color:var(--selected-line); background:var(--selected); color:var(--accent); }
+    .action:disabled{ border-color:var(--line); color:var(--muted); background:var(--panel); cursor:default; }
+    .reset{ border-color:var(--line); background:var(--card); color:var(--accent); }
+
+    .gameDialog{
+      width:min(520px,calc(100% - 28px));
+      max-width:none;
+      height:min(650px,86vh);
+      height:min(650px,86dvh);
+      max-height:none;
+      padding:0;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--card);
+      color:var(--text);
+      box-shadow:0 18px 64px #0b12275c;
+      overflow:hidden;
+    }
+    .gameDialog[open]{ display:flex; flex-direction:column; }
+    .gameDialog::backdrop{ background:#090f1db0; }
+    .gameDialogHeader{
+      flex:none;
+      display:grid;
+      gap:9px;
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+    }
+    .gameDialogHeading{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+    .gameDialogHeading h2{ margin:0; font-size:22px; letter-spacing:-.025em; }
+    #gameSearch::placeholder{ color:var(--muted); opacity:1; }
+    .gameResults{
+      flex:1;
+      min-height:0;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      padding:0 14px 14px;
+    }
+    .gameGroup{ margin-top:12px; }
+    .gameGroup h3{
+      margin:0 0 4px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .gameChoice:not([hidden]){
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      width:100%;
+      min-height:44px;
+      padding:8px 9px;
+      border:1px solid transparent;
+      border-bottom-color:var(--line);
+      background:var(--card);
+      color:var(--text);
+      font-size:15px;
+      font-weight:650;
+      line-height:1.3;
+      text-align:start;
+      cursor:pointer;
+    }
+    .gameChoice[aria-current="true"]{
+      border-color:var(--selected-line);
+      border-radius:9px;
+      background:var(--selected);
+      color:var(--accent);
+    }
+    .gameChoice[aria-current="true"]::after{
+      content:"";
+      flex:0 0 6px;
+      height:6px;
+      border-radius:50%;
+      background:currentColor;
+    }
+    @media (hover:hover){
+      .gameChoice:hover:not([aria-current="true"]){ background:var(--panel); }
+    }
+    .gameChoice:focus-visible{ outline-offset:-2px; }
+    #gameArchive{ padding:0 9px; }
+    #gameArchive[open]{ padding-bottom:7px; }
+    #gameArchive .gameChoice{ background:var(--panel); }
+    #gameArchive .gameChoice[aria-current="true"]{ background:var(--selected); }
+    #gameEmpty{ margin:14px 0 3px; color:var(--muted); font-size:14px; }
+    @media (max-width:579px){
+      .gameDialog{
+        width:100%;
+        margin:auto 0 0;
+        padding-bottom:env(safe-area-inset-bottom);
+        border-radius:18px 18px 0 0;
+      }
+    }
 
     .tfGrid{
       display:flex;
@@ -427,7 +509,7 @@
     .tfCell{
       border:1px solid var(--line);
       border-radius:9px;
-      background:var(--b);
+      background:var(--grid-fill);
       padding:1px;
       min-height:46px;
       display:flex;
@@ -441,14 +523,14 @@
       width:100%;
       border-radius:7px;
       border:1px solid var(--field-line);
-      background:var(--grid-field);
+      background:var(--field);
       padding:4px 2px;
       font-weight:700;
       text-align:center;
     }
     .tfCell.wheelTarget{
-      border-color:var(--focus);
-      box-shadow:0 0 0 2px var(--focus);
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px var(--accent);
     }
     .tfCell.wheelTarget input:focus-visible{ outline:none; }
     .tfTarget{ margin:0 0 9px; }
@@ -467,20 +549,23 @@
     }
     .rrBox{
       border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px;
+      border-radius:11px;
+      min-width:0;
+      padding:8px;
       background:var(--panel);
-      display:flex;
-      gap:10px;
-      align-items:center;
     }
-    .rrBox > div:last-child{ min-width:0; }
-    .rrSwatch{ width:8px; height:38px; border-radius:8px; flex:0 0 8px; }
-    .swY{ background:#ffd54d; }
-    .swG{ background:#67d36b; }
-    .swP{ background:#9b6bff; }
-    .swB{ background:#59c6ff; }
-    .rrBox input{ font-size:18px; padding:10px 10px; }
+    .rrBox .label{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      color:var(--text);
+    }
+    .rrSwatch{ flex:0 0 7px; height:7px; border-radius:50%; }
+    .swY{ background:var(--meter-yellow); }
+    .swG{ background:var(--meter-green); }
+    .swP{ background:var(--meter-purple); }
+    .swB{ background:var(--meter-blue); }
+    .rrBox input{ font-size:17px; padding:7px 8px; }
     .nextStep{
       margin:8px 0 0;
       padding:8px 10px;
@@ -501,7 +586,7 @@
     }
     .afRow{
       border:1px solid var(--line);
-      border-radius:14px;
+      border-radius:11px;
       background:var(--panel);
       padding:6px 8px;
       display:grid;
@@ -561,7 +646,7 @@
       font-weight:750;
       cursor:pointer;
     }
-    .checkOption input{ width:19px; height:19px; margin:0; accent-color:var(--focus); }
+    .checkOption input{ width:19px; height:19px; margin:0; accent-color:var(--accent); }
     .reelControls{ margin:12px 0 0; padding:0; border:0; min-inline-size:0; }
     .reelControls legend{ padding:0; }
     .reelToggle{
@@ -575,9 +660,9 @@
       cursor:pointer;
     }
     .reelToggle span{ display:block; font-size:17px; line-height:1.15; }
-    .reelToggle[aria-pressed="true"]{ background:var(--selected); border-color:var(--selected-line); color:var(--selected-text); }
-    .gjR[data-count="1"]{ background:var(--one-bg); border-color:var(--one-line); }
-    .gjR[data-count="2"]{ background:var(--two-bg); border-color:var(--selected-line); }
+    .reelToggle[aria-pressed="true"],
+    .gjR[data-count="1"]{ background:var(--selected); border-color:var(--selected-line); color:var(--accent); }
+    .gjR[data-count="2"]{ background:var(--count-two); border-color:var(--selected-line); color:var(--accent); }
     .quickChoices{
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
@@ -600,19 +685,18 @@
     .quickChoices input:checked + span{
       background:var(--selected);
       border-color:var(--selected-line);
-      color:var(--selected-text);
+      color:var(--accent);
     }
-    .quickChoices input:focus-visible + span{ outline:2px solid var(--focus); outline-offset:2px; }
+    .quickChoices input:focus-visible + span{ outline:2px solid var(--accent); outline-offset:2px; }
     @media (min-width:360px) and (max-width:579px){
       #page-rocket .rrInputs{ grid-template-columns:repeat(3,minmax(0,1fr)); }
-      #page-rocket .rrBox{ display:block; position:relative; padding:8px; }
-      #page-rocket .rrSwatch{ position:absolute; inset:13px auto auto 8px; height:8px; }
-      #page-rocket .label{ padding-inline-start:13px; }
-      #page-rocket input{ padding-inline:6px; }
     }
     @media (min-width:580px){
-      .topbarInner{ grid-template-columns:1fr minmax(250px, 1fr); align-items:center; }
       .rrInputs{ grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); }
+    }
+    @media (prefers-reduced-motion:reduce){
+      .action:active,.reelToggle:active{ transform:none; }
+      .tfCell{ transition:none; }
     }
   </style>
 </head>
@@ -620,35 +704,13 @@
 <body>
   <header class="topbar">
     <div class="topbarInner">
-      <div class="topbarHeading">
-        <div class="brand"><span class="brandMark" aria-hidden="true">AP</span> Slot Quick Check</div>
-        <button type="button" class="action" id="themeToggle" aria-pressed="false">Dark mode</button>
-      </div>
-      <div class="gamePicker">
-        <label for="game">Game</label>
-        <select id="game">
-          <optgroup label="Original checks">
-            <option value="frankenstein" data-hint="Copy each prize multiplier into the matching square. Leave prizes without a multiplier blank.">Frankenstein</option>
-            <option value="templefalls" data-hint="Enter the bet per spin and coin values in the bottom two rows. For a wheel symbol, tap its cell, then Wheel.">Temple Falls</option>
-            <option value="regalriches" data-hint="Copy the current yellow (gold), green, purple, and blue counts.">Regal Riches</option>
-            <option value="ascending" data-hint="Copy the current meter values. The small numbers next to the names are the must-hit-by limits.">Ascending / Stack Up</option>
-            <option value="goldenjungle" data-hint="Choose the spin shown on the machine. Tap each reel to set its gold symbol count: 0, 1, or 2.">Golden Jungle</option>
-          </optgroup>
-          <optgroup label="Transcript guides" data-check-type="Transcript guide">
-            <option value="goldenegypt" data-hint="At the bet you’re checking, tap each reel with a coin or mark an active wild column.">Golden Egypt</option>
-            <option value="scarab" data-hint="Choose the displayed spin. Count the frames on reels 1–3 together and reel 4 separately.">Scarab / Diamond Mania</option>
-          </optgroup>
-          <optgroup label="Quick checks">
-            <option value="goldendrums" data-hint="On Dancing Drums Golden Drums, read the multiplier at the bet level you’re checking.">Golden Drums</option>
-            <option value="grandbuddha" data-hint="Tap the active symbols. Also covers Lucky Buddha and Lucky Wealth Cat.">Grand Buddha Link</option>
-            <option value="magictreasuresgold" data-hint="On the three-pot version, enter the green and purple Money Balls counts at the same bet.">Magic Treasures Gold</option>
-          </optgroup>
-          <optgroup label="Rule cards" data-check-type="Rule card">
-            <option value="luckyhaul" data-hint="Also covers March of the Zombies. Check the five spots on the bet button.">Lucky Haul / Zombies</option>
-            <option value="goldenegyptjackpots" data-hint="At the bet you’re checking, look for a filled jackpot spot and read the spin counter.">Golden Egypt Jackpots</option>
-            <option value="magictreasuresdt" data-title="Magic Treasures Dragon / Tiger" data-hint="For the original Dragon and Tiger versions with one numbered Money Balls pot.">Magic Treasures D/T</option>
-            <option value="phoenixlink" data-hint="Read the top-right Phoenix counter at the bet and denomination you’re checking.">Phoenix Link</option>
-          </optgroup>
+      <div class="brand"><span class="brandMark" aria-hidden="true">AP</span><span>Slot Quick Check</span></div>
+      <div class="topbarActions">
+        <button type="button" class="action primary" id="openGames" aria-haspopup="dialog" aria-controls="gamesDialog">Games</button>
+        <select id="themeMode" aria-label="Theme">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
         </select>
       </div>
     </div>
@@ -803,34 +865,22 @@
         </div>
         <div class="rrInputs">
           <div class="rrBox">
-            <div class="rrSwatch swY"></div>
-            <div style="flex:1">
-              <label class="label" for="rrY">Yellow</label>
-              <input id="rrY" type="number" inputmode="decimal" step="any" />
-            </div>
+            <label class="label" for="rrY"><span class="rrSwatch swY" aria-hidden="true"></span>Yellow</label>
+            <input id="rrY" type="number" inputmode="decimal" step="any" />
           </div>
 
           <div class="rrBox">
-            <div class="rrSwatch swG"></div>
-            <div style="flex:1">
-              <label class="label" for="rrG">Green</label>
-              <input id="rrG" type="number" inputmode="decimal" step="any" />
-            </div>
+            <label class="label" for="rrG"><span class="rrSwatch swG" aria-hidden="true"></span>Green</label>
+            <input id="rrG" type="number" inputmode="decimal" step="any" />
           </div>
 
           <div class="rrBox">
-            <div class="rrSwatch swP"></div>
-            <div style="flex:1">
-              <label class="label" for="rrP">Purple</label>
-              <input id="rrP" type="number" inputmode="decimal" step="any" />
-            </div>
+            <label class="label" for="rrP"><span class="rrSwatch swP" aria-hidden="true"></span>Purple</label>
+            <input id="rrP" type="number" inputmode="decimal" step="any" />
           </div>
           <div class="rrBox">
-            <div class="rrSwatch swB"></div>
-            <div style="flex:1">
-              <label class="label" for="rrB">Blue</label>
-              <input id="rrB" type="number" inputmode="decimal" step="any" />
-            </div>
+            <label class="label" for="rrB"><span class="rrSwatch swB" aria-hidden="true"></span>Blue</label>
+            <input id="rrB" type="number" inputmode="decimal" step="any" />
           </div>
         </div>
 
@@ -905,7 +955,7 @@
             <label class="label" for="gjSpin">Displayed spin</label>
             <select id="gjSpin"></select>
           </div>
-          <button class="action" type="button" id="gjNext">Next Spin</button>
+          <button class="action primary" type="button" id="gjNext">Next Spin</button>
         </div>
 
         <div class="gjReels" role="group" aria-label="Gold symbols per reel">
@@ -942,26 +992,17 @@
 
         <div class="rrInputs">
           <div class="rrBox">
-            <div class="rrSwatch swG"></div>
-            <div style="flex:1">
-              <label class="label" for="rkGreen">Green</label>
-              <input id="rkGreen" type="number" inputmode="decimal" step="any" />
-            </div>
+            <label class="label" for="rkGreen"><span class="rrSwatch swG" aria-hidden="true"></span>Green</label>
+            <input id="rkGreen" type="number" inputmode="decimal" step="any" />
           </div>
 
           <div class="rrBox">
-            <div class="rrSwatch swB"></div>
-            <div style="flex:1">
-              <label class="label" for="rkBlue">Blue</label>
-              <input id="rkBlue" type="number" inputmode="decimal" step="any" />
-            </div>
+            <label class="label" for="rkBlue"><span class="rrSwatch swB" aria-hidden="true"></span>Blue</label>
+            <input id="rkBlue" type="number" inputmode="decimal" step="any" />
           </div>
           <div class="rrBox">
-            <div class="rrSwatch swP"></div>
-            <div style="flex:1">
-              <label class="label" for="rkPurple">Purple</label>
-              <input id="rkPurple" type="number" inputmode="decimal" step="any" />
-            </div>
+            <label class="label" for="rkPurple"><span class="rrSwatch swP" aria-hidden="true"></span>Purple</label>
+            <input id="rkPurple" type="number" inputmode="decimal" step="any" />
           </div>
         </div>
 
@@ -1190,18 +1231,12 @@
         </div>
         <div class="rrInputs">
           <div class="rrBox">
-            <div class="rrSwatch swG"></div>
-            <div style="flex:1">
-              <label class="label" for="mtgGreen">Green</label>
-              <input id="mtgGreen" type="number" inputmode="numeric" min="0" step="1" />
-            </div>
+            <label class="label" for="mtgGreen"><span class="rrSwatch swG" aria-hidden="true"></span>Green</label>
+            <input id="mtgGreen" type="number" inputmode="numeric" min="0" step="1" />
           </div>
           <div class="rrBox">
-            <div class="rrSwatch swP"></div>
-            <div style="flex:1">
-              <label class="label" for="mtgPurple">Purple</label>
-              <input id="mtgPurple" type="number" inputmode="numeric" min="0" step="1" />
-            </div>
+            <label class="label" for="mtgPurple"><span class="rrSwatch swP" aria-hidden="true"></span>Purple</label>
+            <input id="mtgPurple" type="number" inputmode="numeric" min="0" step="1" />
           </div>
         </div>
         <details class="logic">
@@ -1241,20 +1276,64 @@
         </details>
       </div>
     </section>
-
-    <details class="logic" id="gameArchive">
-      <summary>Archived games</summary>
-      <div class="txt archiveChoices"></div>
-    </details>
   </main>
 
-<template id="archivedGameOptions">
-  <optgroup label="Archived games" data-check-type="Archived game">
-    <option value="ultrarushgold" data-hint="Count the gold symbols in the 3×2 progress grid on the bet bar.">Ultra Rush Gold</option>
-    <option value="kitty" data-hint="Enter the number of empty frames in the largest connected group on the screen.">Lucha Kitty / Sumo Kitty</option>
-    <option value="rocket" data-hint="Check green and purple first. Blue can also qualify together with green.">Rocket Rumble</option>
-  </optgroup>
-</template>
+  <dialog class="gameDialog" id="gamesDialog" aria-labelledby="gamesTitle">
+    <div class="gameDialogHeader">
+      <div class="gameDialogHeading">
+        <h2 id="gamesTitle">Games</h2>
+        <button type="button" class="action reset" id="closeGames" autofocus>Close</button>
+      </div>
+      <input type="search" id="gameSearch" aria-label="Search games" aria-controls="gameResults"
+        placeholder="Search games" autocomplete="off" enterkeyhint="search" />
+    </div>
+    <div class="gameResults" id="gameResults">
+      <div class="gameGroup">
+        <h3>Calculators</h3>
+        <button type="button" class="gameChoice" data-game="ascending" data-title="Ascending / Stack Up"
+          data-hint="Copy the current meter values. The small numbers next to the names are the must-hit-by limits.">Ascending Fortunes / Stack Up Pays</button>
+        <button type="button" class="gameChoice" data-game="frankenstein"
+          data-hint="Copy each prize multiplier into the matching square. Leave prizes without a multiplier blank.">Frankenstein</button>
+        <button type="button" class="gameChoice" data-game="goldendrums" data-title="Golden Drums"
+          data-hint="On Dancing Drums Golden Drums, read the multiplier at the bet level you’re checking.">Dancing Drums / Golden Drums</button>
+        <button type="button" class="gameChoice" data-game="goldenegypt"
+          data-hint="At the bet you’re checking, tap each reel with a coin or mark an active wild column.">Golden Egypt</button>
+        <button type="button" class="gameChoice" data-game="goldenjungle" data-aliases="Golden Jungle Grand"
+          data-hint="Choose the spin shown on the machine. Tap each reel to set its gold symbol count from 0 to 2.">Golden Jungle</button>
+        <button type="button" class="gameChoice" data-game="grandbuddha" data-title="Grand Buddha Link"
+          data-hint="Tap the active symbols. Also covers Lucky Buddha and Lucky Wealth Cat.">Grand Buddha Link / Lucky Buddha / Lucky Wealth Cat</button>
+        <button type="button" class="gameChoice" data-game="magictreasuresgold"
+          data-hint="On the three-pot version, enter the green and purple Money Balls counts at the same bet.">Magic Treasures Gold</button>
+        <button type="button" class="gameChoice" data-game="regalriches"
+          data-hint="Copy the current yellow (gold), green, purple, and blue counts.">Regal Riches</button>
+        <button type="button" class="gameChoice" data-game="scarab"
+          data-hint="Choose the displayed spin. Count the frames on reels 1–3 together and reel 4 separately.">Scarab / Diamond Mania</button>
+        <button type="button" class="gameChoice" data-game="templefalls" data-title="Temple Falls"
+          data-hint="Enter the bet per spin and coin values in the bottom two rows. For a wheel symbol, tap its cell, then Wheel.">Temple Falls Jungle Adventure</button>
+      </div>
+      <div class="gameGroup">
+        <h3>Rule cards</h3>
+        <button type="button" class="gameChoice" data-game="goldenegyptjackpots"
+          data-hint="At the bet you’re checking, look for a filled jackpot spot and read the spin counter.">Golden Egypt Jackpots</button>
+        <button type="button" class="gameChoice" data-game="luckyhaul" data-title="Lucky Haul / Zombies"
+          data-hint="Also covers March of the Zombies. Check the five spots on the bet button.">Lucky Haul / March of the Zombies</button>
+        <button type="button" class="gameChoice" data-game="magictreasuresdt" data-aliases="Magic Treasures D/T"
+          data-hint="For the original Dragon and Tiger versions with one numbered Money Balls pot.">Magic Treasures Dragon / Tiger</button>
+        <button type="button" class="gameChoice" data-game="phoenixlink"
+          data-hint="Read the top-right Phoenix counter at the bet and denomination you’re checking.">Phoenix Link</button>
+      </div>
+      <details class="logic gameGroup" id="gameArchive">
+        <summary>Archived games</summary>
+        <button type="button" class="gameChoice" data-game="kitty"
+          data-hint="Enter the number of empty frames in the largest connected group on the screen.">Lucha Kitty / Sumo Kitty</button>
+        <button type="button" class="gameChoice" data-game="rocket"
+          data-hint="Check green and purple first. Blue can also qualify together with green.">Rocket Rumble</button>
+        <button type="button" class="gameChoice" data-game="ultrarushgold"
+          data-hint="Count the gold symbols in the 3×2 progress grid on the bet bar.">Ultra Rush Gold</button>
+      </details>
+      <p id="gameEmpty" role="status" hidden>No matching games.</p>
+    </div>
+  </dialog>
 
 <script id="check-rules">
   // Regal Riches: name, standalone cutoff, optional two-meter cutoff.
@@ -1382,17 +1461,37 @@
     return `${label} needs ${amount} more for ${rule}.`;
   }
 
-  // =========================
+  // Appearance
+  const themeMode = $("#themeMode");
+  const themeMeta = $('meta[name="theme-color"]');
+  themeMode.value = chosenTheme;
+
+  function refreshTheme(){
+    applyTheme();
+    themeMeta.content = getComputedStyle(document.documentElement).getPropertyValue("--card").trim();
+  }
+
+  themeMode.addEventListener("change", () => {
+    chosenTheme = themeMode.value;
+    savePreference("ap-theme", chosenTheme);
+    refreshTheme();
+  });
+  themePreference.addEventListener("change", refreshTheme);
+  refreshTheme();
+
   // Game navigation
-  // =========================
-  const gamePicker = $("#game");
   const gameTitle = $("#gameTitle");
   const gamePages = $$(".page");
   const resetGame = $("#resetGame");
+  const openGames = $("#openGames");
+  const gamesDialog = $("#gamesDialog");
+  const gameSearch = $("#gameSearch");
+  const gameResults = $("#gameResults");
+  const gameGroups = $$(".gameGroup", gameResults);
+  const gameChoices = $$(".gameChoice", gameResults);
   const gameArchive = $("#gameArchive");
-  const archiveChoices = $(".archiveChoices", gameArchive);
-  const archivedGames = $("optgroup", $("#archivedGameOptions").content);
-  const themeToggle = $("#themeToggle");
+  const gameEmpty = $("#gameEmpty");
+  let currentGame;
   const calculators = {
     frankenstein: { recalc: frRecalc, reset: frReset },
     templefalls: { recalc: tfRecalc, reset: tfReset },
@@ -1409,56 +1508,68 @@
     magictreasuresgold: { recalc: mtgRecalc, reset: mtgReset },
   };
 
-  function refreshTheme(){
-    applyTheme();
-    themeToggle.setAttribute("aria-pressed", String(document.documentElement.dataset.theme === "dark"));
-  }
-
-  themeToggle.addEventListener("click", () => {
-    chosenTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-    savePreference("ap-theme", chosenTheme);
-    refreshTheme();
-  });
-  themePreference.addEventListener("change", refreshTheme);
-  refreshTheme();
-
-  function showPage(){
-    const option = gamePicker.selectedOptions[0];
-    const key = option.value;
-    const calculator = calculators[key];
-    gamePages.forEach(page => page.classList.toggle("active", page.id === "page-" + key));
-    gameTitle.textContent = option.dataset.title || option.textContent;
-    $("#gameHint").textContent = option.dataset.hint;
-    $("#checkType").textContent = option.parentElement.dataset.checkType || "Machine check";
+  function showPage(choice){
+    currentGame = choice.dataset.game;
+    const calculator = calculators[currentGame];
+    gamePages.forEach(page => page.classList.toggle("active", page.id === "page-" + currentGame));
+    for (const button of gameChoices) {
+      if (button === choice) button.setAttribute("aria-current", "true");
+      else button.removeAttribute("aria-current");
+    }
+    gameTitle.textContent = choice.dataset.title || choice.textContent.trim();
+    $("#gameHint").textContent = choice.dataset.hint;
+    $("#checkType").textContent = gameArchive.contains(choice) ? "Archived game" : calculator ? "Machine check" : "Rule card";
     resetGame.hidden = !calculator;
     calculator?.recalc();
   }
 
-  function changeGame(){
-    if (gamePicker.selectedOptions[0].parentElement !== archivedGames) {
-      archivedGames.remove();
-      savePreference("ap-game", gamePicker.value);
+  function filterGames(){
+    const terms = gameSearch.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    for (const choice of gameChoices) {
+      const name = (choice.textContent + " " + (choice.dataset.aliases || "")).toLowerCase();
+      choice.hidden = !terms.every(term => name.includes(term));
     }
-    showPage();
-    window.scrollTo(0, 0);
+    gameGroups.forEach(group => group.hidden = !$(".gameChoice:not([hidden])", group));
+    gameArchive.open = terms.length > 0 && !gameArchive.hidden;
+    gameEmpty.hidden = gameChoices.some(choice => !choice.hidden);
+    gameResults.scrollTop = 0;
   }
 
-  $$("option", archivedGames).forEach(option => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "action";
-    button.textContent = option.textContent;
-    button.addEventListener("click", () => {
-      gamePicker.append(archivedGames);
-      gamePicker.value = option.value;
-      gameArchive.open = false;
-      changeGame();
-      gameTitle.focus({ preventScroll:true });
-    });
-    archiveChoices.append(button);
+  openGames.addEventListener("click", () => {
+    gameSearch.value = "";
+    gamesDialog.returnValue = "";
+    gamesDialog.showModal();
+    filterGames();
   });
-  gamePicker.addEventListener("change", changeGame);
-  resetGame.addEventListener("click", () => calculators[gamePicker.value]?.reset());
+  $("#closeGames").addEventListener("click", () => gamesDialog.close());
+  gamesDialog.addEventListener("close", () => {
+    const destination = gamesDialog.returnValue ? gameTitle : openGames;
+    destination.focus({ preventScroll:true });
+  });
+  let pressedBackdrop = false;
+  gamesDialog.addEventListener("pointerdown", event => {
+    pressedBackdrop = event.target === gamesDialog;
+  });
+  gamesDialog.addEventListener("click", event => {
+    if (event.target === gamesDialog && pressedBackdrop) gamesDialog.close();
+  });
+
+  gameSearch.addEventListener("input", filterGames);
+  gameSearch.addEventListener("keydown", event => {
+    if (event.key !== "Enter" || event.isComposing) return;
+    const matches = gameChoices.filter(choice => !choice.hidden);
+    if (matches.length === 1) {
+      event.preventDefault();
+      matches[0].click();
+    }
+  });
+  gameChoices.forEach(choice => choice.addEventListener("click", () => {
+    showPage(choice);
+    if (!gameArchive.contains(choice)) savePreference("ap-game", currentGame);
+    gamesDialog.close(currentGame);
+    window.scrollTo(0, 0);
+  }));
+  resetGame.addEventListener("click", () => calculators[currentGame]?.reset());
 
   // =========================
   // Frankenstein
@@ -1649,7 +1760,7 @@
 
     if (s === ""){
       cell.classList.remove("rainbow");
-      cell.style.backgroundColor = "var(--b)";
+      cell.style.backgroundColor = "var(--grid-fill)";
       return;
     }
 
@@ -1662,7 +1773,7 @@
     const n = Number(s);
     cell.classList.remove("rainbow");
     if (!Number.isFinite(n)){
-      cell.style.backgroundColor = "var(--b)";
+      cell.style.backgroundColor = "var(--grid-fill)";
       return;
     }
 
@@ -2271,9 +2382,10 @@
   mtgInputs.forEach(input => input.addEventListener("input", mtgRecalc));
 
   const savedGame = readPreference("ap-game");
-  gamePicker.value = $$("option", gamePicker).some(option => option.value === savedGame) ? savedGame : "frankenstein";
+  const initialGame = gameChoices.find(choice => choice.dataset.game === savedGame && !gameArchive.contains(choice))
+    || $('[data-game="frankenstein"]', gamesDialog);
   Object.values(calculators).forEach(calculator => calculator.reset());
-  showPage();
+  showPage(initialGame);
 </script>
 </body>
 </html>
