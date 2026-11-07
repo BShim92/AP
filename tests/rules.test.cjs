@@ -7,9 +7,17 @@ const { runInNewContext } = require("node:vm");
 const html = readFileSync(join(__dirname, "..", "index.html"), "utf8");
 const script = html.match(/<script id="check-rules">([\s\S]*?)<\/script>/);
 assert.ok(script, "The standalone page contains the rules script");
-const { rrCheck, gjPlayableAtSpin, gbCheck, mtGoldScore, MTG_MIN_SCORE, ombCheck, spEstimate } = runInNewContext(
-  script[1] + "\n({ rrCheck, gjPlayableAtSpin, gbCheck, mtGoldScore, MTG_MIN_SCORE, ombCheck, spEstimate })"
+const { tfBandClass, rrCheck, gjPlayableAtSpin, gbCheck, mtGoldScore, MTG_MIN_SCORE, ombCheck, spEstimate } = runInNewContext(
+  script[1] + "\n({ tfBandClass, rrCheck, gjPlayableAtSpin, gbCheck, mtGoldScore, MTG_MIN_SCORE, ombCheck, spEstimate })"
 );
+
+test("Temple Falls includes exact decimal totals at both cutoffs", () => {
+  const bet = 0.1;
+  assert.equal(tfBandClass(0.15 / bet + 4.85 / bet), "s-warn");
+  assert.equal(tfBandClass(0.15 / bet + 5.85 / bet), "s-ok");
+  assert.equal(tfBandClass(49.999), "s-bad");
+  assert.equal(tfBandClass(59.999), "s-warn");
+});
 
 function regal(values){
   return rrCheck({ Yellow: 0, Green: 0, Purple: 0, Blue: 0, ...values });
@@ -29,6 +37,13 @@ test("Regal Riches supports the lower pair and the three-meter sum separately", 
   assert.equal(regal({ Green: 81, Purple: 55, Blue: 7 }).qualifies, false);
   assert.equal(regal({ Yellow: 100, Green: 60, Purple: 50 }).qualifies, true);
   assert.equal(regal({ Yellow: 100, Green: 60, Purple: 49, Blue: 7 }).qualifies, false);
+});
+
+test("Regal Riches includes decimal entries totaling exactly 210", () => {
+  const result = regal({ Yellow: 100.1, Green: 55.3, Purple: 54.6 });
+  assert.equal(result.sum, 210);
+  assert.equal(result.qualifies, true);
+  assert.equal(regal({ Yellow: 100.1, Green: 55.3, Purple: 54.599 }).qualifies, false);
 });
 
 test("Golden Jungle spin 8 qualifies each chart pattern", () => {

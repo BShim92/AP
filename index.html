@@ -166,7 +166,6 @@
     }
     #gameHint,.gameTools{ grid-column:1/-1; }
     .gameTools{ display:flex; flex-wrap:wrap; gap:6px; }
-    .gameTools select{ width:auto; max-width:100%; }
     .eyebrow{
       color:var(--muted);
       font-size:11px;
@@ -445,7 +444,7 @@
       cursor:pointer;
     }
     .action:active,.reelToggle:active{ transform:translateY(1px); filter:brightness(.94); }
-    .action.primary,#pinGame[aria-pressed="true"]{ border-color:var(--selected-line); background:var(--selected); color:var(--accent); }
+    .action.primary,#pinGame[aria-pressed="true"]:enabled{ border-color:var(--selected-line); background:var(--selected); color:var(--accent); }
     #pinGame{ min-width:44px; padding-inline:8px; font-size:20px; line-height:1; }
     .action:disabled{ border-color:var(--line); color:var(--muted); background:var(--panel); cursor:default; }
     .reset{ border-color:var(--line); background:var(--card); color:var(--accent); }
@@ -482,8 +481,6 @@
       gap:8px;
     }
     .dialogHeading h2{ margin:0; font-size:22px; letter-spacing:-.025em; }
-    .gameFilters{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px; }
-    #sightingFilter{ width:auto; padding-inline:6px; }
     #gameSearch::placeholder{ color:var(--muted); opacity:1; }
     .gameResults{
       flex:1;
@@ -493,11 +490,15 @@
       padding:0 14px 14px;
     }
     .gameGroup{ margin-top:12px; }
-    .gameGroup h3{
+    .gameGroup .gameGroup{ margin-top:8px; }
+    .gameGroup :is(h3,h4){
       margin:0 0 4px;
+      font-weight:800;
+    }
+    .gameGroup h3{ font-size:14px; }
+    .gameGroup h4{
       color:var(--muted);
       font-size:11px;
-      font-weight:800;
       letter-spacing:.08em;
       text-transform:uppercase;
     }
@@ -814,12 +815,6 @@
       <div class="gameTools" role="group" aria-label="Game tools">
         <button type="button" class="action" id="identifyGame">Identify</button>
         <button type="button" class="action" id="pinGame" aria-label="Pin to favorites" title="Pin to favorites" aria-pressed="false">☆</button>
-        <select id="gameSighting" aria-label="Sighting for this game">
-          <option value="">No sighting tag</option>
-          <option value="found">Found AP</option>
-          <option value="seen">Seen, no AP yet</option>
-          <option value="unseen">Haven’t seen</option>
-        </select>
       </div>
     </header>
 
@@ -1028,7 +1023,7 @@
           <summary>Check rules</summary>
           <div class="txt">
             <ul>
-              <li>Use these rules for Ascending Fortunes and the original Stack Up Pays. Double Stack Up Pays uses different rules.</li>
+              <li>The cutoffs are for Ascending Fortunes. They’re estimates for the original Stack Up Pays. Double Stack Up Pays uses different rules.</li>
               <li>Skip the blue Mini. Leave any meter you want to skip blank. A blank counts as zero.</li>
               <li data-rule="singles"></li>
               <li data-rule="combos"></li>
@@ -1070,7 +1065,7 @@
             <ul id="gjRules">
               <li>Number the reels from left to right. If the machine shows 8 out of 10, choose <b>8</b>.</li>
               <li data-rule="estimates"></li>
-              <li><b>Good through</b> uses the current counts. Tap <b>Next Spin</b> when the machine advances, then update any reels that changed.</li>
+              <li>The projected range uses the current counts. Tap <b>Next Spin</b> when the machine advances, then update any reels that changed.</li>
             </ul>
           </div>
         </details>
@@ -1107,7 +1102,8 @@
           <summary>Check rules</summary>
           <div class="txt">
             <p data-rule="thresholds"></p>
-            <p>The guide treats Blue 13–14 on its own as optional and Red around 98 as tentative. Review those separately if you use them.</p>
+            <p data-rule="review"></p>
+            <p>Leave meters you want to skip blank. A blank counts as zero. The guide generally skips the Red meter, even near 98.</p>
           </div>
         </details>
       </div>
@@ -1195,8 +1191,8 @@
     <section class="page" id="page-goldendrums">
       <div class="card">
         <div class="statusbar">
-          <div class="statusLeft">4× is borderline</div>
-          <div class="statusRight">Above 4× meets the cutoff</div>
+          <div class="statusLeft">4× or higher</div>
+          <div class="statusRight">Thin at exactly 4×</div>
         </div>
         <p class="hint scopeNote">The guide cutoff includes exactly 4×. Recheck the multiplier whenever you switch bet levels.</p>
       </div>
@@ -1512,7 +1508,7 @@
         </div>
         <ul class="ruleList scopeNote" role="list">
           <li><strong>Second tier or higher</strong> Look for a large gem or crown on the coin table. The guide singles out the emerald.</li>
-          <li><strong>Red + blue</strong> One of each with at least one coin column.</li>
+          <li><strong>Full-size red + blue</strong> One of each with at least one coin column.</li>
           <li><strong>Two blues</strong> With a colored bracelet and at least three coin columns.</li>
           <li><strong>One blue</strong> With a Free Games bracelet and at least three coin columns.</li>
         </ul>
@@ -1600,20 +1596,51 @@
         <h2 id="gamesTitle">Games</h2>
         <button type="button" class="action reset" id="closeGames" autofocus>Close</button>
       </div>
-      <div class="gameFilters">
-        <input type="search" id="gameSearch" aria-label="Search games" aria-controls="gameResults"
-          placeholder="Search" autocomplete="off" enterkeyhint="search" />
-        <select id="sightingFilter" aria-label="Filter by sighting" aria-controls="gameResults">
-          <option value="">All sightings</option>
-          <option value="found">Found AP</option>
-          <option value="seen">Seen, no AP yet</option>
-          <option value="unseen">Haven’t seen</option>
-        </select>
-      </div>
+      <input type="search" id="gameSearch" aria-label="Search games" aria-controls="gameResults"
+        placeholder="Search" autocomplete="off" enterkeyhint="search" />
     </div>
     <div class="gameResults" id="gameResults">
       <div class="gameGroup" id="favoriteGames" hidden>
         <h3>Favorites</h3>
+      </div>
+      <div class="gameGroup">
+        <h3>Quick Checks</h3>
+        <div class="gameGroup">
+          <h4>One Number</h4>
+          <button type="button" class="gameChoice" data-game="goldendrums" data-title="Golden Drums"
+            data-hint="On Dancing Drums Golden Drums, read the multiplier at the bet level you’re checking.">Dancing Drums / Golden Drums</button>
+          <button type="button" class="gameChoice" data-game="magictreasuresdt" data-aliases="Magic Treasures D/T"
+            data-hint="For the original Dragon and Tiger versions with one numbered Money Balls pot.">Magic Treasures Dragon / Tiger</button>
+          <button type="button" class="gameChoice" data-game="quickspinplatinum" data-aliases="Platinum Quick Spin"
+            data-hint="Check the Minor Platinum meter at the current bet and denomination.">Quick Spin Platinum</button>
+          <button type="button" class="gameChoice" data-game="wujinpen" data-aliases="Panda FuYu Phoenix"
+            data-hint="Read the Spins counter for the bet and denomination you’re checking.">Wu Jin Pen</button>
+        </div>
+        <div class="gameGroup">
+          <h4>Visual Checks</h4>
+          <button type="button" class="gameChoice" data-game="bigocean"
+            data-hint="Look for the Wild labels on bubbles in the rows below the top row.">Big Ocean Jackpots</button>
+          <button type="button" class="gameChoice" data-game="captainriches"
+            data-hint="Look at the coin sockets above any full wild column.">Captain Riches</button>
+          <button type="button" class="gameChoice" data-game="goldenegyptjackpots"
+            data-hint="At the bet you’re checking, look for a filled jackpot spot and read the spin counter.">Golden Egypt Jackpots</button>
+          <button type="button" class="gameChoice" data-game="luckyhaul" data-title="Lucky Haul / Zombies"
+            data-hint="Also covers March of the Zombies. Check the five spots on the bet button.">Lucky Haul / March of the Zombies</button>
+          <button type="button" class="gameChoice" data-game="pillarsofcash" data-title="Pillars of Cash"
+            data-hint="Covers Celestial Fortune and Festive Fortune. Look for a gold dragon behind a shaking center pillar.">Pillars of Cash / Celestial Fortune / Festive Fortune</button>
+          <button type="button" class="gameChoice" data-game="powerpush"
+            data-hint="Compare the objects on the coin table with the prize tiers and combinations below.">Power Push Long de Xiyue</button>
+        </div>
+        <div class="gameGroup">
+          <h4>Bet Tables</h4>
+          <button type="button" class="gameChoice" data-game="buffalolink"
+            data-hint="Match the 1,800 counter to the bet level within the denomination you’re checking.">Buffalo Link / Buffalo Cash</button>
+          <button type="button" class="gameChoice" data-game="lightningstorm"
+            data-aliases="10-Year Storm Shang Jin Warrior Master Magician Wild Cougar Golden Archers"
+            data-hint="Read the 1,888 Lightning counter at the bet and denomination you’re checking.">Lightning 10 Year Storm</button>
+          <button type="button" class="gameChoice" data-game="phoenixlink"
+            data-hint="Read the top-right Phoenix counter at the bet and denomination you’re checking.">Phoenix Link</button>
+        </div>
       </div>
       <div class="gameGroup">
         <h3>Calculators</h3>
@@ -1640,40 +1667,10 @@
         <button type="button" class="gameChoice" data-game="templefalls" data-title="Temple Falls"
           data-hint="Enter the bet per spin and coin values in the bottom two rows. For a wheel symbol, tap its cell, then Wheel.">Temple Falls Jungle Adventure</button>
       </div>
-      <div class="gameGroup">
-        <h3>Rule cards</h3>
-        <button type="button" class="gameChoice" data-game="bigocean"
-          data-hint="Look for the Wild labels on bubbles in the rows below the top row.">Big Ocean Jackpots</button>
-        <button type="button" class="gameChoice" data-game="buffalolink"
-          data-hint="Match the 1,800 counter to the bet level within the denomination you’re checking.">Buffalo Link / Buffalo Cash</button>
-        <button type="button" class="gameChoice" data-game="captainriches"
-          data-hint="Look at the coin sockets above any full wild column.">Captain Riches</button>
-        <button type="button" class="gameChoice" data-game="goldendrums" data-title="Golden Drums"
-          data-hint="On Dancing Drums Golden Drums, read the multiplier at the bet level you’re checking.">Dancing Drums / Golden Drums</button>
-        <button type="button" class="gameChoice" data-game="goldenegyptjackpots"
-          data-hint="At the bet you’re checking, look for a filled jackpot spot and read the spin counter.">Golden Egypt Jackpots</button>
-        <button type="button" class="gameChoice" data-game="lightningstorm"
-          data-aliases="10-Year Storm Shang Jin Warrior Master Magician Wild Cougar Golden Archers"
-          data-hint="Read the 1,888 Lightning counter at the bet and denomination you’re checking.">Lightning 10 Year Storm</button>
-        <button type="button" class="gameChoice" data-game="luckyhaul" data-title="Lucky Haul / Zombies"
-          data-hint="Also covers March of the Zombies. Check the five spots on the bet button.">Lucky Haul / March of the Zombies</button>
-        <button type="button" class="gameChoice" data-game="magictreasuresdt" data-aliases="Magic Treasures D/T"
-          data-hint="For the original Dragon and Tiger versions with one numbered Money Balls pot.">Magic Treasures Dragon / Tiger</button>
-        <button type="button" class="gameChoice" data-game="phoenixlink"
-          data-hint="Read the top-right Phoenix counter at the bet and denomination you’re checking.">Phoenix Link</button>
-        <button type="button" class="gameChoice" data-game="pillarsofcash" data-title="Pillars of Cash"
-          data-hint="Covers Celestial Fortune and Festive Fortune. Look for a gold dragon behind a shaking center pillar.">Pillars of Cash / Celestial Fortune / Festive Fortune</button>
-        <button type="button" class="gameChoice" data-game="powerpush"
-          data-hint="Compare the objects on the coin table with the prize tiers and combinations below.">Power Push Long de Xiyue</button>
-        <button type="button" class="gameChoice" data-game="quickspinplatinum" data-aliases="Platinum Quick Spin"
-          data-hint="Check the Minor Platinum meter at the current bet and denomination.">Quick Spin Platinum</button>
-        <button type="button" class="gameChoice" data-game="wujinpen" data-aliases="Panda FuYu Phoenix"
-          data-hint="Read the Spins counter for the bet and denomination you’re checking.">Wu Jin Pen</button>
-      </div>
       <details class="logic gameGroup" id="gameArchive">
-        <summary>Archived games</summary>
+        <summary>Archive</summary>
         <button type="button" class="gameChoice" data-game="kitty"
-          data-hint="Enter the number of empty frames in the largest connected group on the screen.">Lucha Kitty / Sumo Kitty</button>
+          data-hint="Count the empty frames in the largest connected group on the screen.">Lucha Kitty / Sumo Kitty</button>
         <button type="button" class="gameChoice" data-game="rocket"
           data-hint="Check green and purple first. Blue can also qualify together with green.">Rocket Rumble</button>
         <button type="button" class="gameChoice" data-game="ultrarushgold"
@@ -1700,6 +1697,21 @@
   </dialog>
 
 <script id="check-rules">
+  function normalizedScore(value){
+    // Remove floating-point noise before comparing decimal scores with cutoffs.
+    return Number(value.toFixed(10));
+  }
+
+  const TF_REVIEW = 50;
+  const TF_AP = 60;
+
+  function tfBandClass(total){
+    const score = normalizedScore(total);
+    if (score < TF_REVIEW) return "s-bad";
+    if (score < TF_AP) return "s-warn";
+    return "s-ok";
+  }
+
   // Regal Riches: name, standalone cutoff, optional two-meter cutoff.
   const RR_METERS = [
     ["Yellow", 115, 106],
@@ -1713,7 +1725,7 @@
 
   function rrCheck(values){
     const single = RR_METERS.find(([name, cutoff]) => values[name] >= cutoff);
-    const sum = RR_COMBINED.reduce((total, [name]) => total + values[name], 0);
+    const sum = normalizedScore(RR_COMBINED.reduce((total, [name]) => total + values[name], 0));
     const lower = RR_COMBINED.filter(([name, , cutoff]) => values[name] >= cutoff);
     return { single, lower, sum, qualifies: Boolean(single) || sum >= RR_TOTAL || lower.length >= RR_COMBO };
   }
@@ -1915,11 +1927,9 @@
   const resetGame = $("#resetGame");
   const identifyGame = $("#identifyGame");
   const pinGame = $("#pinGame");
-  const gameSighting = $("#gameSighting");
   const openGames = $("#openGames");
   const gamesDialog = $("#gamesDialog");
   const gameSearch = $("#gameSearch");
-  const sightingFilter = $("#sightingFilter");
   const gameResults = $("#gameResults");
   const gameGroups = $$(".gameGroup", gameResults);
   const gameChoices = $$(".gameChoice", gameResults);
@@ -1929,17 +1939,22 @@
   const gameArchive = $("#gameArchive");
   const gameEmpty = $("#gameEmpty");
   const isArchived = choice => gameHomes.get(choice) === gameArchive;
+  const lockedFavorites = new Set([
+    "frankenstein",
+    "templefalls",
+    "magictreasuresgold",
+    "ascending",
+    "goldenjungle",
+    "grandbuddha",
+    "regalriches",
+    "scarab",
+    "superpush",
+  ]);
 
   let savedList;
   try { savedList = JSON.parse(readPreference("ap-game-list")); }
   catch { /* Ignore unreadable game preferences. */ }
   const pinnedGames = new Set(Array.isArray(savedList?.pins) ? savedList.pins.filter(game => gameById.has(game)) : []);
-  const sightings = new Map();
-  const sightingTags = new Set($$("option", gameSighting).map(option => option.value).filter(Boolean));
-  for (const game of gameById.keys()) {
-    const tag = savedList?.sightings?.[game];
-    if (sightingTags.has(tag)) sightings.set(game, tag);
-  }
 
   let currentGame;
   const resetChecks = {
@@ -1957,19 +1972,23 @@
     superpush: spReset,
   };
 
-  function saveGameList(){
-    savePreference("ap-game-list", JSON.stringify({ pins: [...pinnedGames], sightings: Object.fromEntries(sightings) }));
-  }
-
   function groupFavorites(){
+    for (const game of lockedFavorites) favoriteGames.append(gameById.get(game));
     for (const choice of gameChoices) {
-      const group = pinnedGames.has(choice.dataset.game) ? favoriteGames : gameHomes.get(choice);
+      const game = choice.dataset.game;
+      if (lockedFavorites.has(game)) continue;
+      const group = pinnedGames.has(game) ? favoriteGames : gameHomes.get(choice);
       group.append(choice);
     }
   }
 
   function updatePin(){
-    const pinned = pinnedGames.has(currentGame);
+    const locked = lockedFavorites.has(currentGame);
+    const pinned = locked || pinnedGames.has(currentGame);
+    const label = locked ? "Always in Favorites" : "Pin to favorites";
+    pinGame.disabled = locked;
+    pinGame.setAttribute("aria-label", label);
+    pinGame.title = label;
     pinGame.setAttribute("aria-pressed", String(pinned));
     pinGame.textContent = pinned ? "★" : "☆";
   }
@@ -1988,7 +2007,6 @@
     $("#checkType").textContent = isArchived(choice) ? "Archived game" : reset ? "Machine check" : "Rule card";
     resetGame.hidden = !reset;
     identifyGame.setAttribute("aria-controls", "reference-" + currentGame);
-    gameSighting.value = sightings.get(currentGame) || "";
     updatePin();
     if (changed) reset?.();
   }
@@ -2003,14 +2021,12 @@
 
   function filterGames(){
     const terms = gameSearch.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    const tag = sightingFilter.value;
     for (const choice of gameChoices) {
       const name = (choice.textContent + " " + (choice.dataset.aliases || "")).toLowerCase();
-      const matchesSighting = !tag || sightings.get(choice.dataset.game) === tag;
-      choice.hidden = !matchesSighting || !terms.every(term => name.includes(term));
+      choice.hidden = !terms.every(term => name.includes(term));
     }
     gameGroups.forEach(group => group.hidden = !$(".gameChoice:not([hidden])", group));
-    gameArchive.open = Boolean(terms.length || tag) && !gameArchive.hidden;
+    gameArchive.open = terms.length > 0 && !gameArchive.hidden;
     gameEmpty.hidden = gameChoices.some(choice => !choice.hidden);
     gameResults.scrollTop = 0;
   }
@@ -2034,7 +2050,6 @@
   });
 
   gameSearch.addEventListener("input", filterGames);
-  sightingFilter.addEventListener("change", filterGames);
   gameSearch.addEventListener("keydown", event => {
     if (event.key !== "Enter" || event.isComposing) return;
     const matches = gameChoices.filter(choice => !choice.hidden);
@@ -2048,15 +2063,9 @@
   pinGame.addEventListener("click", () => {
     if (pinnedGames.has(currentGame)) pinnedGames.delete(currentGame);
     else pinnedGames.add(currentGame);
-    saveGameList();
+    savePreference("ap-game-list", JSON.stringify({ pins: [...pinnedGames] }));
     groupFavorites();
     updatePin();
-  });
-  gameSighting.addEventListener("change", () => {
-    const tag = gameSighting.value;
-    if (tag) sightings.set(currentGame, tag);
-    else sightings.delete(currentGame);
-    saveGameList();
   });
 
   // =========================
@@ -2123,8 +2132,9 @@
     }
 
     const hasEntry = frInputs.some(inp => inp.value !== "");
-    frPaintBar(frBar, frBig, frMid, big, hasEntry);
-    frPaintBar(frBarBottom, frBigBottom, frMidBottom, big, hasEntry);
+    const score = normalizedScore(big);
+    frPaintBar(frBar, frBig, frMid, score, hasEntry);
+    frPaintBar(frBarBottom, frBigBottom, frMidBottom, score, hasEntry);
   }
 
   function frReset(){
@@ -2158,8 +2168,6 @@
   let tfWheelInput = null;
   const TF_BASE_ROWS = 2;
   const TF_WHEEL = 38;
-  const TF_REVIEW = 50;
-  const TF_AP = 60;
   writeRules("templefalls", {
     wheel: `${TF_WHEEL} bets`,
     bands: `Below ${TF_REVIEW} bets shows Below AP threshold. From ${TF_REVIEW} to under ${TF_AP}, the result is Near AP threshold. At ${TF_AP} or more, it’s Meets AP threshold.`,
@@ -2214,9 +2222,10 @@
     }
     input.closest(".tfCell").classList.add("wheelTarget");
     const row = input.closest(".tfRow");
-    const rowNumber = $$(".tfRow", tfRowsHost).indexOf(row) + 1;
+    const rows = $$(".tfRow", tfRowsHost);
+    const rowNumber = rows.length - rows.indexOf(row);
     const reel = $$(".tfIn", row).indexOf(input) + 1;
-    tfTarget.textContent = `Wheel target: row ${rowNumber}, reel ${reel}`;
+    tfTarget.textContent = `Wheel target: row ${rowNumber} from the bottom, reel ${reel}`;
   }
 
   function tfInit(){
@@ -2270,12 +2279,6 @@
     cell.style.backgroundColor = `hsl(45 90% calc(var(--coin-lightness) - ${t * 22}%))`;
   }
 
-  function tfBandClass(total){
-    if (total < TF_REVIEW) return "s-bad";
-    if (total < TF_AP) return "s-warn";
-    return "s-ok";
-  }
-
   function tfRecalc(){
     const bet = tfParseBet();
     let bottomTotal = 0;
@@ -2312,7 +2315,9 @@
     }
 
     const label = band === "s-ok" ? "Meets AP threshold" : band === "s-warn" ? "Near AP threshold" : "Below AP threshold";
-    writeResult(tfTotal, band, bottomTotal.toFixed(2), label);
+    const rounded = bottomTotal.toFixed(2);
+    const displayTotal = tfBandClass(Number(rounded)) === band ? rounded : "<" + rounded;
+    writeResult(tfTotal, band, displayTotal, label);
   }
 
   function tfReset(){
@@ -2369,7 +2374,8 @@
     if (single){
       writeResult(rrStatus, "s-ok", "AP", `${single[0]} ≥ ${single[1]}`);
     } else if (qualifies){
-      writeResult(rrStatus, "s-ok", "AP", total);
+      const detail = sum >= RR_TOTAL ? total : lower.map(([name, , cutoff]) => `${name} ≥ ${cutoff}`).join(" · ");
+      writeResult(rrStatus, "s-ok", "AP", detail);
     } else if (lower.length === 1){
       writeResult(rrStatus, "s-warn", "Soft: " + lower[0][0], total);
       const gap = closestMeterGap(RR_COMBINED.map(([name, , cutoff]) => [
@@ -2455,7 +2461,7 @@
     gjSpin.add(new Option(text, spin));
   });
   writeRules("goldenjungle", {
-    estimates: `Spins ${gjEstimates.join(", ")} use the next listed rule as an estimate. At spin ${GJ_REEVALUATE}, the check shows Reevaluate.`,
+    estimates: `Spins ${gjEstimates.join(", ")} have no chart cutoff. They show an estimate using the next listed rule. At spin ${GJ_REEVALUATE}, the check shows Reevaluate.`,
   });
   const gjRuleLabels = {
     firstFour: "on reels 1–4",
@@ -2533,14 +2539,16 @@
     }
 
     if (!gjPlayableAtSpin(s0, state0)){
-      writeResult(gjStatus, "s-bad", "NO PLAY", spinLabel);
-      writeNextStep(gjRange, "No playable range from this spin.");
+      writeResult(gjStatus, isEstimate ? "s-warn" : "s-bad",
+        isEstimate ? "Below estimated cutoff" : "NO PLAY", spinLabel);
+      writeNextStep(gjRange);
       return;
     }
 
     const { goodUntil, reevaluateOn } = gjGoodUntilAndReeval(s0, state0);
-    writeResult(gjStatus, "s-ok", "PLAY", spinLabel);
-    writeNextStep(gjRange, `Good through spin ${goodUntil} · Reevaluate on spin ${reevaluateOn}`);
+    writeResult(gjStatus, isEstimate ? "s-warn" : "s-ok",
+      isEstimate ? "Meets estimated cutoff" : "PLAY", spinLabel);
+    writeNextStep(gjRange, `With these counts, matches through spin ${goodUntil} · Recheck on spin ${reevaluateOn}`);
   }
 
   function gjChangeSpin(){
@@ -2569,8 +2577,10 @@
   const RK_PURPLE = 32;
   const RK_COMBO_GREEN = 16;
   const RK_COMBO_BLUE = 13;
+  const RK_BLUE_REVIEW_MAX = 14;
   writeRules("rocket", {
     thresholds: `PLAY if Green is ${RK_GREEN} or higher, Purple is ${RK_PURPLE} or higher, or Green is at least ${RK_COMBO_GREEN} with Blue at least ${RK_COMBO_BLUE}.`,
+    review: `Green ${RK_COMBO_GREEN} alone depends on the machine’s return setting. Blue ${RK_COMBO_BLUE}–${RK_BLUE_REVIEW_MAX} alone is optional in the guide. These show Review.`,
   });
 
   function rkReset(){
@@ -2579,27 +2589,23 @@
   }
 
   function rkRecalc(){
-    const green = rkGreen.valueAsNumber;
-    const blue = rkBlue.valueAsNumber;
-    const purple = rkPurple.valueAsNumber;
+    if (rkMeters.every(input => input.value === "")) {
+      writeResult(rkStatus, "s-white", "Enter meter values");
+      return;
+    }
+    const [green, blue, purple] = rkMeters.map(input => numOr(input.value, 0));
     if (green >= RK_GREEN) {
       writeResult(rkStatus, "s-ok", "PLAY", `Green ≥ ${RK_GREEN}`);
     } else if (purple >= RK_PURPLE) {
       writeResult(rkStatus, "s-ok", "PLAY", `Purple ≥ ${RK_PURPLE}`);
     } else if (green >= RK_COMBO_GREEN && blue >= RK_COMBO_BLUE) {
       writeResult(rkStatus, "s-ok", "PLAY", `Green ≥ ${RK_COMBO_GREEN} · Blue ≥ ${RK_COMBO_BLUE}`);
-    } else if (rkMeters.every(input => input.value === "")) {
-      writeResult(rkStatus, "s-white", "Enter meter values");
+    } else if (green >= RK_COMBO_GREEN) {
+      writeResult(rkStatus, "s-warn", "Review", `Green ${RK_COMBO_GREEN} alone depends on the return setting`);
+    } else if (blue >= RK_COMBO_BLUE && blue <= RK_BLUE_REVIEW_MAX) {
+      writeResult(rkStatus, "s-warn", "Review", `Blue ${RK_COMBO_BLUE}–${RK_BLUE_REVIEW_MAX} alone is optional`);
     } else {
-      const missing = [];
-      if (Number.isNaN(green)) missing.push("green");
-      if (Number.isNaN(purple)) missing.push("purple");
-      if (green >= RK_COMBO_GREEN && Number.isNaN(blue)) missing.push("blue");
-      if (missing.length) {
-        writeResult(rkStatus, "s-white", "Check remaining meters", "Enter " + missing.join(" and "));
-      } else {
-        writeResult(rkStatus, "s-bad", "NO PLAY");
-      }
+      writeResult(rkStatus, "s-bad", "NO PLAY");
     }
   }
 
